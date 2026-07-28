@@ -68,7 +68,7 @@ function validateAiPlanData(data, constraints = {}) {
     errors.push(`Attention : ${data.weeks.length} semaine(s) seulement (12 recommandé)`);
   }
 
-  const maxLeg = Number(constraints.maxLegSetsWeek) || 999;
+  const maxLeg = Number(constraints.maxLegSetsWeek) > 0 ? Number(constraints.maxLegSetsWeek) : 999;
   const maxMin = Number(constraints.maxMinutes) || 90;
 
   data.weeks?.forEach((week) => {
