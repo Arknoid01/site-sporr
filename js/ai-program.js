@@ -39,6 +39,9 @@ Règles strictes :
 
 function buildAiUserPrompt(profile, constraints, exercises) {
   const catalog = buildExerciseCatalogText(exercises);
+  const catalogNote = exercises.length >= AI_CATALOG_MAX
+    ? `\n(Catalogue filtré : ${exercises.length} exercices pertinents pour ton matériel et tes contraintes.)`
+    : '';
   return `PROFIL :
 - Sexe : ${profile.sexe || 'non précisé'}
 - Âge : ${profile.age || '?'} ans
@@ -54,7 +57,9 @@ CONTRAINTES :
 ${constraints.notes ? `- Notes : ${constraints.notes}` : ''}
 
 CATALOGUE EXERCICES (exerciseId|nom|muscle|matériel) :
-${catalog}
+${catalog}${catalogNote}
+
+IMPORTANT : réponds UNIQUEMENT avec le JSON du programme (pas ce prompt, pas de markdown).
 
 Génère un programme 12 semaines. Schéma JSON :
 ${AI_JSON_SCHEMA}`;
@@ -98,9 +103,15 @@ async function generateAiPlanWithProvider(profile, constraints) {
   validateAiForm(profile, constraints);
   const settings = loadSettings();
   const provider = settings.aiProvider || 'manual';
-  const exercises = getExercisesForAiPrompt(profile);
+  const exercises = getExercisesForAiPrompt(profile, constraints);
   const systemPrompt = buildAiSystemPrompt();
   const userPrompt = buildAiUserPrompt(profile, constraints, exercises);
+
+  if (provider === 'local') {
+    const plan = generateLocalAiPlan(profile, constraints);
+    saveAiPlan(plan);
+    return plan;
+  }
 
   if (provider === 'manual') {
     throw new Error('MANUAL_MODE');
@@ -147,7 +158,7 @@ function parseAndSaveAiPlan(jsonText, profile, constraints) {
 
 function getAiPromptForClipboard(profile, constraints) {
   validateAiForm(profile, constraints);
-  const exercises = getExercisesForAiPrompt(profile);
+  const exercises = getExercisesForAiPrompt(profile, constraints);
   return `${buildAiSystemPrompt()}\n\n---\n\n${buildAiUserPrompt(profile, constraints, exercises)}`;
 }
 

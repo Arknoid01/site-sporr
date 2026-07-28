@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sport-v13';
+const CACHE_NAME = 'sport-v14';
 const LOCAL_ASSETS = [
   'index.html',
   'css/style.css',

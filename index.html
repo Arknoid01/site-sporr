@@ -294,7 +294,7 @@
         <div id="exercise-browser"></div>
       </div>
       <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
-        <p class="hint">Remplis <strong>ton</strong> profil et tes contraintes — l’IA s’en sert une seule fois pour créer le plan, puis tout reste dans l’app.</p>
+        <p class="hint">Remplis <strong>ton</strong> profil et tes contraintes. Le bouton « Copier le prompt » envoie les instructions à Groq — ce n’est <strong>pas</strong> la réponse. Colle ensuite le <strong>JSON</strong> renvoyé par Groq dans la zone d’import.</p>
         <div class="card ai-coach-card">
           <h3 class="section-title">Profil</h3>
           <div class="ai-form-grid">
@@ -356,11 +356,18 @@
             <textarea id="ai-notes" placeholder="Ex. genou fragile, pas de burpees, j’aime les machines…"></textarea>
           </label>
         </div>
-        <button type="button" id="ai-generate-btn" class="primary-btn">Générer avec l’IA</button>
-        <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt (Groq / autre IA)</button>
+        <button type="button" id="ai-generate-btn" class="primary-btn">Générer avec Groq</button>
+        <button type="button" id="ai-generate-local-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Générer plan local (sans IA, instantané)</button>
+        <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt pour Groq</button>
+        <div class="card" style="margin-top:16px;">
+          <h3 class="section-title">Prompt à envoyer à Groq</h3>
+          <p class="hint">Zone de lecture seule — ce texte va <em>dans</em> Groq, pas dans l’import ci-dessous.</p>
+          <textarea id="ai-prompt-preview" readonly placeholder="Clique « Copier le prompt » pour afficher le texte à coller dans chat.groq.com…" rows="4"></textarea>
+        </div>
         <div class="card" style="margin-top:16px;">
           <h3 class="section-title">Importer la réponse JSON</h3>
-          <textarea id="ai-json-import" placeholder='Colle ici le JSON renvoyé par Groq (GPT-OSS 120B)…' rows="5"></textarea>
+          <p class="hint">Colle ici uniquement le JSON renvoyé par Groq (commence par <code>{</code>, pas le prompt).</p>
+          <textarea id="ai-json-import" placeholder='{"planName":"Force 12 semaines","weeks":[…]}' rows="5"></textarea>
           <button type="button" id="ai-import-json-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Importer le plan</button>
         </div>
         <div id="ai-plans-list" class="ai-plans-list"></div>
@@ -444,7 +451,8 @@
         <div class="form-group">
           <label for="settings-ai-provider">Mode</label>
           <select id="settings-ai-provider">
-            <option value="manual">Manuel (copier/coller JSON)</option>
+            <option value="manual">Manuel (copier prompt → importer JSON)</option>
+            <option value="local">Plan local instantané (sans Groq)</option>
             <option value="groq">Groq — génération auto</option>
           </select>
         </div>

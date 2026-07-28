@@ -260,14 +260,46 @@ async function handleAiGenerate() {
     hapticSuccess();
   } catch (err) {
     if (err.message === 'MANUAL_MODE') {
-      showToast('Mode manuel : copie le prompt dans Groq puis importe le JSON');
+      showToast('Mode manuel : copie le prompt dans Groq, puis importe le JSON (pas le prompt)');
+      const preview = document.getElementById('ai-prompt-preview');
+      if (preview && !preview.value) {
+        try {
+          preview.value = getAiPromptForClipboard(profile, constraints);
+        } catch {
+          /* validation error already surfaced elsewhere */
+        }
+      }
     } else {
       showToast(err.message.slice(0, 120));
     }
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Générer avec l’IA';
+      btn.textContent = 'Générer avec Groq';
+    }
+  }
+}
+
+function handleAiGenerateLocal() {
+  const profile = readAiProfileFromForm();
+  const constraints = readAiConstraintsFromForm();
+  const btn = document.getElementById('ai-generate-local-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Création…';
+  }
+  try {
+    const plan = generateLocalAiPlan(profile, constraints);
+    saveAiPlan(plan);
+    renderAiPlansList();
+    showToast(`Plan local « ${plan.planName} » créé !`);
+    hapticSuccess();
+  } catch (err) {
+    showToast(err.message.slice(0, 140));
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Générer plan local (sans IA, instantané)';
     }
   }
 }
@@ -275,12 +307,19 @@ async function handleAiGenerate() {
 function handleAiCopyPrompt() {
   const profile = readAiProfileFromForm();
   const constraints = readAiConstraintsFromForm();
-  const text = getAiPromptForClipboard(profile, constraints);
+  let text;
+  try {
+    text = getAiPromptForClipboard(profile, constraints);
+  } catch (err) {
+    showToast(err.message.slice(0, 120));
+    return;
+  }
+  const preview = document.getElementById('ai-prompt-preview');
+  if (preview) preview.value = text;
   navigator.clipboard?.writeText(text).then(() => {
-    showToast('Prompt copié — colle-le dans Groq (GPT-OSS 120B)');
+    showToast('Prompt copié — colle-le dans Groq, puis importe la réponse JSON');
   }).catch(() => {
-    document.getElementById('ai-json-import').value = text;
-    showToast('Prompt affiché dans la zone JSON (copie manuelle)');
+    showToast('Prompt affiché ci-dessus — copie-le manuellement');
   });
 }
 
@@ -288,6 +327,10 @@ function handleAiImportJson() {
   const raw = document.getElementById('ai-json-import')?.value.trim();
   if (!raw) {
     showToast('Colle d’abord le JSON');
+    return;
+  }
+  if (raw.includes('Tu es un coach musculation') || raw.includes('CATALOGUE EXERCICES')) {
+    showToast('Tu as collé le prompt, pas la réponse — utilise la zone « Prompt » ou Groq');
     return;
   }
   try {
@@ -517,6 +560,7 @@ function bindWorkoutUI() {
   });
 
   document.getElementById('ai-generate-btn')?.addEventListener('click', handleAiGenerate);
+  document.getElementById('ai-generate-local-btn')?.addEventListener('click', handleAiGenerateLocal);
   document.getElementById('ai-copy-prompt-btn')?.addEventListener('click', handleAiCopyPrompt);
   document.getElementById('ai-import-json-btn')?.addEventListener('click', handleAiImportJson);
 
