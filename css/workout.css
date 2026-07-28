@@ -100,13 +100,78 @@
 
 .exercise-thumb {
   width: 100%;
-  aspect-ratio: 1;
   border-radius: var(--radius-sm);
-  object-fit: cover;
+  display: block;
+}
+
+.exercise-thumb:not(.exercise-photo) {
+  aspect-ratio: 1;
 }
 
 .exercise-photo {
-  background: var(--surface);
+  background: #1a1a24;
+  object-fit: contain;
+  object-position: center;
+}
+
+.exercise-card .exercise-thumb:not(.exercise-photo) {
+  height: 100px;
+}
+
+.exercise-card .exercise-photo {
+  height: 130px;
+  width: 100%;
+}
+
+.ex-detail-hero #ex-detail-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 0 auto 12px;
+  max-width: min(100%, 320px);
+  background: #1a1a24;
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+.ex-detail-hero .exercise-thumb:not(.exercise-photo) {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+.ex-detail-hero .exercise-photo {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 280px;
+  margin: 0 auto;
+}
+
+#player-exercise-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  max-width: 280px;
+  margin: 0 auto 12px;
+  background: #1a1a24;
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+#player-exercise-image .exercise-photo {
+  max-width: 100%;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+#player-exercise-image .exercise-thumb:not(.exercise-photo) {
+  width: 140px;
+  height: 140px;
 }
 
 .catalog-hint {
@@ -132,12 +197,10 @@
   background: #2a2a38;
   color: white;
   text-align: left;
-  min-height: 140px;
+  min-height: 168px;
 }
 
 .exercise-card .exercise-thumb {
-  width: 100%;
-  height: 100px;
   display: block;
 }
 
@@ -150,7 +213,7 @@
 
 .play-badge {
   position: absolute;
-  bottom: 42px;
+  bottom: 48px;
   right: 10px;
   width: 32px;
   height: 32px;
@@ -214,8 +277,6 @@
 }
 
 .ex-detail-hero .exercise-thumb {
-  width: 160px;
-  height: 160px;
   margin: 0 auto 12px;
 }
 

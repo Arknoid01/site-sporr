@@ -309,6 +309,7 @@ function renderEquipmentGuide() {
       <p class="hint">${wgerMeta.count} exercices importés (${wgerMeta.withImages} avec photo). Données sous licence <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a> (CC-BY-SA).</p>
       <p class="hint">${wgerMeta.frenchDescriptions || wgerMeta.count} descriptions en français${wgerMeta.autoTranslated ? ' (traduction auto pour le reste)' : ''}.</p>
       <p class="hint">Mise à jour : ${new Date(wgerMeta.fetchedAt).toLocaleDateString('fr-FR')}</p>
+      <p class="hint">Les programmes tout faits wger (routines avec temps/repos) nécessitent un compte wger. Sport propose des <strong>programmes exemples</strong> générés depuis le catalogue (onglet Programmes → Importer).</p>
     </div>
   ` : '';
   container.innerHTML = wgerBlock + Object.values(EQUIPMENT_GUIDE).map((guide) => `
@@ -360,6 +361,21 @@ function bindWorkoutUI() {
 
   document.getElementById('gen-by-muscles-btn')?.addEventListener('click', () => runGenerator('muscles'));
   document.getElementById('gen-by-time-btn')?.addEventListener('click', () => runGenerator('time'));
+
+  document.getElementById('import-wger-programs-btn')?.addEventListener('click', () => {
+    const result = importWgerStarterPrograms();
+    if (result.skipped) {
+      showToast('Programmes wger déjà importés');
+      return;
+    }
+    if (result.imported === 0) {
+      showToast('Catalogue wger indisponible — recharge la page');
+      return;
+    }
+    renderProgramsList();
+    showToast(`${result.imported} programmes wger ajoutés !`);
+    hapticSuccess();
+  });
 
   renderEquipmentGuide();
   bindProgramPlayer();

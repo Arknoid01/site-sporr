@@ -142,6 +142,89 @@ function generateProgramByTime(muscles, targetMinutes) {
   return items;
 }
 
+function pickWgerExercises(muscles, countPerMuscle = 2) {
+  const wger = typeof WGER_EXERCISES !== 'undefined' ? WGER_EXERCISES : [];
+  if (!wger.length) return [];
+
+  const picked = [];
+  muscles.forEach((muscle) => {
+    const group = wger
+      .filter((ex) => ex.muscle === muscle)
+      .sort((a, b) => {
+        const imgDiff = Number(Boolean(b.image)) - Number(Boolean(a.image));
+        return imgDiff || a.name.localeCompare(b.name, 'fr');
+      });
+    picked.push(...group.slice(0, countPerMuscle));
+  });
+  return picked;
+}
+
+function toProgramItem(ex, config = {}) {
+  return {
+    exerciseId: ex.id,
+    sets: config.sets ?? 3,
+    mode: config.mode ?? ex.defaultMode ?? 'reps',
+    value: config.value ?? ex.defaultValue ?? 12,
+    restSets: config.restSets ?? 45,
+    restAfter: config.restAfter ?? 60
+  };
+}
+
+function importWgerStarterPrograms() {
+  if (loadPrograms().some((p) => p.name.startsWith('wger ·'))) {
+    return { imported: 0, skipped: true };
+  }
+
+  const templates = [
+    {
+      name: 'wger · Jambes & fessiers',
+      pick: () => pickWgerExercises(['jambes', 'fessiers'], 2),
+      config: { sets: 3, restSets: 45, restAfter: 75 }
+    },
+    {
+      name: 'wger · Haut du corps',
+      pick: () => pickWgerExercises(['dos', 'pectoraux', 'epaules', 'bras'], 1),
+      config: { sets: 3, restSets: 50, restAfter: 70 }
+    },
+    {
+      name: 'wger · Abdos & gainage',
+      pick: () => {
+        const abdos = pickWgerExercises(['abdos'], 4);
+        return abdos.map((ex) => (
+          ex.defaultMode === 'time' ? ex : { ...ex, defaultMode: 'time', defaultValue: 35 }
+        ));
+      },
+      config: { sets: 3, mode: 'time', value: 35, restSets: 25, restAfter: 40 }
+    },
+    {
+      name: 'wger · Circuit 25 min',
+      pick: () => pickWgerExercises(['jambes', 'fessiers', 'dos', 'abdos'], 1),
+      config: { sets: 3, restSets: 30, restAfter: 45, value: 10 }
+    },
+    {
+      name: 'wger · Full body',
+      pick: () => pickWgerExercises(['fessiers', 'jambes', 'dos', 'pectoraux', 'epaules', 'abdos'], 1),
+      config: { sets: 3, restSets: 40, restAfter: 55 }
+    }
+  ];
+
+  let imported = 0;
+  templates.forEach((tpl) => {
+    const exercises = tpl.pick().filter(Boolean);
+    if (exercises.length < 2) return;
+    saveProgram({
+      id: generateId(),
+      name: tpl.name,
+      created: todayString(),
+      restBetween: 60,
+      items: exercises.map((ex) => toProgramItem(ex, tpl.config))
+    });
+    imported += 1;
+  });
+
+  return { imported, skipped: false };
+}
+
 function parseRun(raw) {
   const parts = raw.split('~');
   if (parts.length < 7) return null;
