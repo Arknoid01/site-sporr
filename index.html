@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Site de Suivi Sportif</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Tableau de Bord Sportif</h1>
+  
+  <!-- Formulaire d'ajout de séance -->
+  <div id="session-form">
+    <h2>Ajouter une séance</h2>
+    <form id="add-session-form">
+      <input type="date" id="session-date" required>
+      <select id="session-type" required>
+        <option value="">Sélectionnez le type d'exercice</option>
+        <option value="Running">Running</option>
+        <option value="Cycling">Cycling</option>
+        <option value="Swimming">Swimming</option>
+        <option value="Walking">Walking</option>
+        <option value="Weightlifting">Weightlifting</option>
+        <option value="Yoga">Yoga</option>
+        <option value="Other">Autre</option>
+      </select>
+      <input type="number" id="session-duration" placeholder="Durée (minutes)" min="1" required>
+      <input type="number" id="session-calories" placeholder="Calories brûlées" min="1">
+      <button type="submit">Ajouter la séance</button>
+    </form>
+  </div>
+
+  <!-- Modal d'ajout de séance -->
+  <div id="add-session-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px;">
+      <h3>Ajouter une séance</h3>
+      <input type="text" id="modal-session-name" placeholder="Nom de la séance" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+      <input type="date" id="modal-date-picker" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
+      <button id="save-session-btn" style="background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Enregistrer</button>
+      <button id="cancel-modal-btn" style="background-color: #95a5a6; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Annuler</button>
+    </div>
+  </div>
+
+  <!-- Graphique et calendrier -->
+  <div id="chart-container">
+    <div id="calendar">
+      <label for="date-picker">Sélectionner une date :</label>
+      <input type="date" id="date-picker">
+    </div>
+    <canvas id="myChart" width="400" height="200"></canvas>
+  </div>
+
+  <!-- Tableau récapitulatif des séances -->
+  <div id="sessions-table">
+    <h2>Séances enregistrées</h2>
+    <table id="sessions-list">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Exercice</th>
+          <th>Durée (min)</th>
+          <th>Calories</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="sessions-body">
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Bouton de réinitialisation -->
+  <button id="reset-btn">Réinitialiser les données</button>
+
+  <!-- Bouton pour ouvrir le modal d'ajout -->
+  <button id="add-session-button" style="background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; width: 100%;">Ajouter une séance</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
