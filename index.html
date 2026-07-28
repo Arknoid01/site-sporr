@@ -2,78 +2,205 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Site de Suivi Sportif</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ff6b35">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Sporr">
+  <title>Sporr — Suivi sportif de Sarah</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
 </head>
 <body>
-  <h1>Tableau de Bord Sportif</h1>
-  
-  <!-- Formulaire d'ajout de séance -->
-  <div id="session-form">
-    <h2>Ajouter une séance</h2>
-    <form id="add-session-form">
-      <input type="date" id="session-date" required>
-      <select id="session-type" required>
-        <option value="">Sélectionnez le type d'exercice</option>
-        <option value="Running">Running</option>
-        <option value="Cycling">Cycling</option>
-        <option value="Swimming">Swimming</option>
-        <option value="Walking">Walking</option>
-        <option value="Weightlifting">Weightlifting</option>
-        <option value="Yoga">Yoga</option>
-        <option value="Other">Autre</option>
-      </select>
-      <input type="number" id="session-duration" placeholder="Durée (minutes)" min="1" required>
-      <input type="number" id="session-calories" placeholder="Calories brûlées" min="1">
-      <button type="submit">Ajouter la séance</button>
-    </form>
+  <div class="app-shell">
+    <section id="screen-home" class="screen active">
+      <header class="page-header">
+        <div>
+          <p class="card-title">Tableau de bord</p>
+          <h1 id="greeting">Bonjour, Sarah !</h1>
+        </div>
+        <button id="open-settings" class="icon-btn" type="button" aria-label="Réglages">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.07 7.07 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42l-.36 2.54c-.58.22-1.13.53-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.69.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.54A.5.5 0 0 0 10 22h4a.5.5 0 0 0 .49-.42l.36-2.54c.58-.22 1.13-.53 1.63-.94l2.39.96c.26.1.55 0 .69-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/>
+          </svg>
+        </button>
+      </header>
+
+      <div class="stat-grid">
+        <div class="stat-card highlight">
+          <p class="card-title">Aujourd’hui</p>
+          <p class="stat-value" id="today-minutes">0 min</p>
+          <p id="today-count">0 séance</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Calories</p>
+          <p class="stat-value" id="today-calories">0 kcal</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Cette semaine</p>
+          <p class="stat-value" id="week-minutes">0 min</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Série</p>
+          <p class="stat-value" id="streak-count">0 jour</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Objectif hebdomadaire</p>
+        <div class="progress-track">
+          <div class="progress-fill" id="goal-progress-fill"></div>
+        </div>
+        <p class="hint" id="goal-progress-text">Définis ton objectif hebdo dans les réglages</p>
+      </div>
+
+      <h2 class="section-title">Séances du jour</h2>
+      <div id="today-sessions"></div>
+    </section>
+
+    <section id="screen-add" class="screen">
+      <header class="page-header">
+        <h1>Ajouter</h1>
+      </header>
+
+      <form id="add-session-form">
+        <p class="card-title">Type de séance</p>
+        <div id="sport-buttons" class="sport-grid"></div>
+
+        <p class="card-title">Durée</p>
+        <div id="duration-buttons" class="duration-grid"></div>
+
+        <div class="form-group">
+          <label for="session-duration-custom">Durée personnalisée (minutes)</label>
+          <input type="number" id="session-duration-custom" min="1" value="30" required>
+        </div>
+
+        <div class="form-group">
+          <label for="session-date">Date</label>
+          <input type="date" id="session-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="session-calories">Calories (optionnel)</label>
+          <input type="number" id="session-calories" min="0" placeholder="Ex. 250">
+        </div>
+
+        <div class="form-group">
+          <label for="session-note">Note</label>
+          <textarea id="session-note" placeholder="Ex. Yoga du matin, super séance !"></textarea>
+        </div>
+
+        <button type="submit" class="primary-btn">Enregistrer la séance</button>
+      </form>
+    </section>
+
+    <section id="screen-stats" class="screen">
+      <header class="page-header">
+        <h1>Statistiques</h1>
+      </header>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <p class="card-title">Semaine</p>
+          <p class="stat-value" id="stats-week-total">0 min</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Séances</p>
+          <p class="stat-value" id="stats-total-sessions">0</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Série actuelle</p>
+        <p class="stat-value" id="stats-streak">0</p>
+        <p class="hint" id="stats-goal-summary"></p>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Répartition par activité</h2>
+        <div class="chart-box small">
+          <canvas id="pie-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Minutes par semaine</h2>
+        <div class="chart-box">
+          <canvas id="trend-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Top activités</h2>
+        <div id="top-activities"></div>
+      </div>
+    </section>
+
+    <section id="screen-calendar" class="screen">
+      <header class="page-header">
+        <h1>Calendrier</h1>
+      </header>
+
+      <input type="text" id="calendar-picker" aria-label="Sélectionner une date">
+      <p class="card-title" id="selected-date-label"></p>
+      <div id="calendar-sessions"></div>
+    </section>
+
+    <section id="screen-settings" class="screen">
+      <header class="page-header">
+        <button id="back-from-settings" class="secondary-btn" type="button">Retour</button>
+        <h2>Réglages</h2>
+      </header>
+
+      <form id="settings-form" class="card">
+        <div class="form-group">
+          <label for="settings-name">Prénom</label>
+          <input type="text" id="settings-name" value="Sarah">
+        </div>
+
+        <div class="form-group">
+          <label for="settings-goal">Objectif hebdomadaire (minutes)</label>
+          <input type="number" id="settings-goal" min="0" placeholder="Ex. 150">
+          <p class="hint">Laisse vide si tu préfères ne pas te fixer d’objectif pour l’instant.</p>
+        </div>
+
+        <button type="submit" class="primary-btn">Enregistrer</button>
+      </form>
+
+      <div class="settings-actions">
+        <button id="reset-data-btn" class="danger-btn" type="button">Réinitialiser toutes les données</button>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button class="nav-item active" data-screen="screen-home" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5Z"/></svg>
+        Accueil
+      </button>
+      <button class="nav-item" data-screen="screen-add" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z"/></svg>
+        Ajouter
+      </button>
+      <button class="nav-item" data-screen="screen-stats" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h2v8H3v-8Zm4-4h2v12H7V9Zm4 3h2v9h-2v-9Zm4-6h2v15h-2V6Zm4 4h2v11h-2V10Z"/></svg>
+        Stats
+      </button>
+      <button class="nav-item" data-screen="screen-calendar" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11h2v2H7v-2Zm4 0h2v2h-2v-2Zm4 0h2v2h-2v-2ZM5 4h1V2h2v2h8V2h2v2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm16 16V9H3v11h18Z"/></svg>
+        Calendrier
+      </button>
+    </nav>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 
-  <!-- Modal d'ajout de séance -->
-  <div id="add-session-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-    <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px;">
-      <h3>Ajouter une séance</h3>
-      <input type="text" id="modal-session-name" placeholder="Nom de la séance" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
-      <input type="date" id="modal-date-picker" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
-      <button id="save-session-btn" style="background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Enregistrer</button>
-      <button id="cancel-modal-btn" style="background-color: #95a5a6; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Annuler</button>
-    </div>
-  </div>
-
-  <!-- Graphique et calendrier -->
-  <div id="chart-container">
-    <div id="calendar">
-      <label for="date-picker">Sélectionner une date :</label>
-      <input type="date" id="date-picker">
-    </div>
-    <canvas id="myChart" width="400" height="200"></canvas>
-  </div>
-
-  <!-- Tableau récapitulatif des séances -->
-  <div id="sessions-table">
-    <h2>Séances enregistrées</h2>
-    <table id="sessions-list">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Exercice</th>
-          <th>Durée (min)</th>
-          <th>Calories</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="sessions-body">
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Bouton de réinitialisation -->
-  <button id="reset-btn">Réinitialiser les données</button>
-
-  <!-- Bouton pour ouvrir le modal d'ajout -->
-  <button id="add-session-button" style="background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; width: 100%;">Ajouter une séance</button>
-
-  <script src="app.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

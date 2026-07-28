@@ -1,34 +1,51 @@
-# Site de Suivi Sportif - Sporr
+# Sporr — Suivi sportif de Sarah
+
+Application web mobile personnelle pour suivre les séances de Yoga, Renforcement et Running.
 
 ## Fonctionnalités
 
-Ce site permet de suivre les séances d'entraînement sportif avec :
-- Un graphique en secteurs (pie chart) pour visualiser les statistiques des séances
-- Un calendrier pour sélectionner et filtrer les séances par date
-- Stockage local des données d'entraînement
-- Formulaire d'ajout de séance
-- Tableau récapitulatif des séances
-- Filtrage par date
-- Réinitialisation des données
+- **Accueil** : message personnalisé, stats du jour, objectif hebdo, série de jours
+- **Ajout rapide** : 3 sports, durées rapides, calories et notes optionnelles
+- **Statistiques** : camembert, tendance hebdomadaire, top activités
+- **Calendrier** : Flatpickr avec jours actifs mis en évidence
+- **Réglages** : prénom, objectif hebdomadaire configurable, réinitialisation
 
-## Structure du projet
+## Structure
 
-- `index.html` : Page principale avec le graphique et le calendrier
-- `app.js` : Logique de gestion des séances et affichage du graphique
-- `style.css` : Styles personnalisés pour l'interface
-
-## Données stockées
-
-Les séances sont stockées dans le localStorage sous forme de chaîne délimitée par des '|' :
 ```
-2023-10-01:Running:30|2023-10-01:Cycling:45|2023-10-02:Swimming:60
+index.html
+css/
+  style.css
+  variables.css
+  components.css
+js/
+  storage.js
+  stats.js
+  charts.js
+  calendar.js
+  ui.js
+  app.js
 ```
 
-Chaque séance contient une date, un nom d'exercice et une durée (en minutes).
+## Stockage local (sans JSON)
 
-## Technologies utilisées
+Séances (`sporrSessions`) :
+```
+2026-07-28:Yoga:45:120:Yoga du matin|2026-07-28:Running:30:250:
+```
 
-- HTML5
-- CSS3
-- JavaScript ES6
-- Chart.js pour les graphiques
+Réglages (`sporrSettings`) :
+```
+name:Sarah|goal:150|theme:light
+```
+
+## Technologies
+
+- HTML5 / CSS3 / JavaScript ES6
+- Chart.js
+- Flatpickr
+- localStorage
+
+## Lancer en local
+
+Ouvrir `index.html` dans un navigateur, ou servir le dossier avec un serveur statique.

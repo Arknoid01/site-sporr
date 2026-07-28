@@ -1,0 +1,215 @@
+.session-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.session-card-header,
+.session-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.session-card-body {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.session-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.session-type-badge[data-type='Yoga'] {
+  color: var(--primary);
+}
+
+.session-type-badge[data-type='Renforcement'] {
+  color: var(--secondary);
+}
+
+.session-type-badge[data-type='Running'] {
+  color: var(--accent);
+}
+
+.session-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.session-note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #fff4ec;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.sport-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.sport-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sport-btn,
+.duration-btn {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  font-weight: 800;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.sport-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 96px;
+}
+
+.sport-btn.selected,
+.duration-btn.selected {
+  border-color: transparent;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: var(--shadow);
+}
+
+.duration-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  background: var(--surface);
+}
+
+.form-group textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.primary-btn,
+.secondary-btn,
+.delete-btn,
+.danger-btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-weight: 800;
+}
+
+.primary-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), #ff8f66);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.secondary-btn {
+  background: #f4f0ec;
+  color: var(--text);
+}
+
+.delete-btn {
+  margin-top: 12px;
+  width: 100%;
+  background: #fff0f3;
+  color: var(--danger);
+}
+
+.danger-btn {
+  width: 100%;
+  background: var(--danger);
+  color: white;
+}
+
+.top-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.top-item:last-child {
+  border-bottom: none;
+}
+
+.settings-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 6px;
+}
+
+#calendar-picker {
+  display: none;
+}
+
+.flatpickr-calendar {
+  width: 100%;
+  box-shadow: none !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.flatpickr-day.has-session {
+  background: rgba(255, 107, 53, 0.18);
+  border-color: rgba(255, 107, 53, 0.35);
+  font-weight: 800;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.flatpickr-day.today {
+  border-color: var(--secondary);
+}
