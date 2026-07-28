@@ -4,7 +4,8 @@ let trendChart = null;
 const CHART_COLORS = {
   Yoga: '#FF6B35',
   Renforcement: '#7B2FF7',
-  Running: '#00C9A7'
+  Running: '#00C9A7',
+  Équitation: '#8B4513'
 };
 
 const CHART_FALLBACK = ['#FF6B35', '#7B2FF7', '#00C9A7', '#FFD23F', '#3A86FF'];

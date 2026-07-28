@@ -2,7 +2,7 @@
 
 .hub-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--gap-md);
   margin-bottom: var(--section-gap);
 }
@@ -25,6 +25,47 @@
 
 .hub-card-running {
   background: linear-gradient(135deg, #00C9A7, #06d6a0);
+}
+
+.hub-card-equitation {
+  background: linear-gradient(135deg, #8B4513, #c97b3d);
+}
+
+.ai-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: var(--gap-md);
+}
+
+.ai-mode-tab {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ai-mode-tab.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  color: var(--primary);
+}
+
+.ai-program-only[hidden],
+.ai-single-only[hidden] {
+  display: none !important;
+}
+
+.equi-meta-display {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.equitation-live-overlay {
+  background: linear-gradient(180deg, #2d1810 0%, #1a1008 100%);
 }
 
 .subscreen-header {

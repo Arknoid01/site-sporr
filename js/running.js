@@ -9,7 +9,21 @@ const INTERVAL_PRESETS = [
   { name: '2 min / 1 min x5', work: 120, rest: 60, rounds: 5 }
 ];
 
-function startRunSession(name, description, intervalPreset) {
+const RUN_TYPE_LABELS = {
+  footing: 'Footing',
+  endurance: 'Endurance',
+  fractionne: 'Fractionné',
+  'sortie-longue': 'Sortie longue',
+  recuperation: 'Récupération'
+};
+
+const RUN_TERRAIN_LABELS = {
+  route: 'Route',
+  trail: 'Trail',
+  piste: 'Piste'
+};
+
+function startRunSession(name, description, intervalPreset, options = {}) {
   if (!navigator.geolocation) {
     showToast('GPS non disponible sur cet appareil');
     return;
@@ -19,6 +33,10 @@ function startRunSession(name, description, intervalPreset) {
     id: generateId(),
     name: name || 'Course',
     description: description || '',
+    runType: options.runType || 'footing',
+    terrain: options.terrain || 'route',
+    targetKm: Number(options.targetKm) || 0,
+    targetMin: Number(options.targetMin) || 0,
     startTime: Date.now(),
     elapsed: 0,
     points: [],
@@ -130,6 +148,10 @@ function stopRunSession() {
     date: todayString(),
     name: runState.name,
     description: runState.description,
+    runType: runState.runType,
+    terrain: runState.terrain,
+    targetKm: runState.targetKm,
+    targetMin: runState.targetMin,
     durationSec: runState.elapsed,
     distanceM: Math.round(runState.distance),
     elevationM: Math.round(runState.elevation),
@@ -139,12 +161,17 @@ function stopRunSession() {
   saveRun(run);
 
   const minutes = Math.max(1, Math.round(runState.elapsed / 60));
+  const typeLabel = RUN_TYPE_LABELS[run.runType] || run.runType;
+  const terrainLabel = RUN_TERRAIN_LABELS[run.terrain] || run.terrain;
+  const targetParts = [];
+  if (run.targetKm > 0) targetParts.push(`obj. ${run.targetKm} km`);
+  if (run.targetMin > 0) targetParts.push(`obj. ${run.targetMin} min`);
   addSession({
     date: todayString(),
     type: 'Running',
     duration: String(minutes),
     calories: '',
-    note: `${run.name} — ${(run.distanceM / 1000).toFixed(2)} km, ${run.elevationM}m D+`,
+    note: `${run.name} — ${typeLabel} · ${terrainLabel} — ${(run.distanceM / 1000).toFixed(2)} km, ${run.elevationM}m D+${targetParts.length ? ` · ${targetParts.join(', ')}` : ''}`,
     time: currentTimeString()
   });
 
@@ -160,9 +187,12 @@ function stopRunSession() {
 function showRunSummary(run) {
   document.getElementById('run-summary-modal').hidden = false;
   document.getElementById('run-summary-name').textContent = run.name;
+  const typeLabel = RUN_TYPE_LABELS[run.runType] || '';
+  const terrainLabel = RUN_TERRAIN_LABELS[run.terrain] || '';
   document.getElementById('run-summary-stats').innerHTML = `
     <p><strong>${formatDurationSeconds(run.durationSec)}</strong></p>
     <p>${(run.distanceM / 1000).toFixed(2)} km · ${run.elevationM} m D+</p>
+    ${typeLabel ? `<p class="hint">${typeLabel}${terrainLabel ? ` · ${terrainLabel}` : ''}</p>` : ''}
   `;
 
   const mapEl = document.getElementById('run-route-map');
@@ -187,13 +217,48 @@ function showRunSummary(run) {
   }
 }
 
+function applyRunTypeDefaults() {
+  const type = document.getElementById('run-type-select')?.value || 'footing';
+  const intervalGroup = document.getElementById('run-interval-group');
+  const intervalSelect = document.getElementById('run-interval-select');
+  const nameInput = document.getElementById('run-name-input');
+  const targetKm = document.getElementById('run-target-km');
+  const targetMin = document.getElementById('run-target-min');
+
+  const defaults = {
+    footing: { name: 'Footing', km: 5, min: 30, interval: '' },
+    endurance: { name: 'Endurance', km: 8, min: 50, interval: '' },
+    fractionne: { name: 'Fractionné', km: 0, min: 40, interval: '0' },
+    'sortie-longue': { name: 'Sortie longue', km: 12, min: 75, interval: '' },
+    recuperation: { name: 'Récupération', km: 3, min: 25, interval: '' }
+  };
+  const d = defaults[type] || defaults.footing;
+
+  if (intervalGroup) intervalGroup.hidden = type !== 'fractionne';
+  if (intervalSelect && type === 'fractionne' && intervalSelect.value === '') {
+    intervalSelect.value = d.interval;
+  }
+  if (nameInput && !nameInput.value.trim()) nameInput.placeholder = `Ex. ${d.name}`;
+  if (targetKm && !targetKm.value && d.km) targetKm.placeholder = String(d.km);
+  if (targetMin && !targetMin.value && d.min) targetMin.placeholder = String(d.min);
+}
+
 function bindRunning() {
+  document.getElementById('run-type-select')?.addEventListener('change', applyRunTypeDefaults);
   document.getElementById('start-run-btn')?.addEventListener('click', () => {
-    const name = document.getElementById('run-name-input').value.trim() || 'Course';
+    const type = document.getElementById('run-type-select').value;
+    const name = document.getElementById('run-name-input').value.trim()
+      || RUN_TYPE_LABELS[type]
+      || 'Course';
     const desc = document.getElementById('run-desc-input').value.trim();
     const presetIdx = document.getElementById('run-interval-select').value;
     const preset = presetIdx === '' ? null : INTERVAL_PRESETS[Number(presetIdx)];
-    startRunSession(name, desc, preset);
+    startRunSession(name, desc, preset, {
+      runType: type,
+      terrain: document.getElementById('run-terrain-select').value,
+      targetKm: document.getElementById('run-target-km').value,
+      targetMin: document.getElementById('run-target-min').value
+    });
   });
 
   document.getElementById('stop-run-btn')?.addEventListener('click', stopRunSession);
@@ -203,6 +268,7 @@ function bindRunning() {
     showScreen('screen-running');
     renderRunsList();
   });
+  applyRunTypeDefaults();
 }
 
 function renderRunsList() {
@@ -222,7 +288,7 @@ function renderRunsList() {
       </div>
       <div class="exercise-list-info">
         <strong>${escapeHtml(run.name)}</strong>
-        <span class="hint">${formatDisplayDate(run.date)} · ${(run.distanceM / 1000).toFixed(2)} km · ${run.elevationM}m D+</span>
+        <span class="hint">${formatDisplayDate(run.date)} · ${RUN_TYPE_LABELS[run.runType] || 'Course'} · ${(run.distanceM / 1000).toFixed(2)} km · ${run.elevationM}m D+</span>
       </div>
       <span class="chevron">›</span>
     </article>

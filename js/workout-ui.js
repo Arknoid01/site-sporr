@@ -14,6 +14,17 @@ function openRunningHub() {
   showScreen('screen-running');
 }
 
+function openEquitationHub() {
+  renderEquitationSessionsList();
+  applyEquitationTypeDefaults();
+  showScreen('screen-equitation');
+}
+
+function renderRunningHub() {
+  renderRunsList();
+  applyRunTypeDefaults();
+}
+
 function renderRenfoHub() {
   renderProgramsList();
   renderExerciseBrowser();
@@ -174,7 +185,18 @@ function initAiCoachForm() {
   if (window.__aiCoachFormLoaded) return;
   const saved = loadAiCoachProfile();
   if (saved) populateAiCoachForm(saved);
+  else toggleAiPlanModeFields('single');
   window.__aiCoachFormLoaded = true;
+}
+
+function bindAiCoachModeTabs() {
+  document.querySelectorAll('.ai-mode-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ai-mode-tab').forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+      toggleAiPlanModeFields(tab.dataset.aiMode);
+    });
+  });
 }
 
 function renderAiPlansList() {
@@ -291,19 +313,39 @@ function showAiPlanPreviewModal(plan) {
   const summary = document.getElementById('ai-preview-summary');
   const weekSelect = document.getElementById('ai-preview-week-select');
   const importCheck = document.getElementById('ai-preview-import-week');
+  const title = document.getElementById('ai-preview-title');
+  const weekLabel = document.querySelector('.ai-preview-week-label');
+  const importLabel = document.getElementById('ai-preview-import-label-text');
+  const acceptBtn = document.getElementById('ai-preview-accept');
   if (!modal || !summary || !weekSelect) return;
 
+  const isSingle = plan.profile?.planMode === 'single';
   const sessionsPerWeek = plan.weeks[0]?.sessions?.length || 0;
   const legSets = countWeekLegSets(plan.weeks[0]);
   const priorities = (plan.profile?.musclePriorities || [])
     .map((m) => MUSCLE_LABELS[m] || m).join(', ') || 'équilibré';
-  const split = SPLIT_LABELS[plan.profile?.splitType] || plan.profile?.splitType || 'auto';
-  summary.innerHTML = `
-    <strong>${escapeHtml(plan.planName)}</strong><br>
-    ${plan.weeks.length} sem · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
-    Split : ${escapeHtml(split)} · Priorités : ${escapeHtml(priorities)}<br>
-    Semaine 1 : ${legSets} séries jambes/fessiers${plan.constraints?.maxLegSetsWeek ? ` (max ${plan.constraints.maxLegSetsWeek})` : ''}
-  `;
+  const session = plan.weeks[0]?.sessions?.[0];
+  const sessionDur = session
+    ? Math.round(estimateProgramDuration({ items: session.items, restBetween: 60 }) / 60)
+    : 0;
+
+  if (title) title.textContent = isSingle ? 'Aperçu de la séance' : 'Aperçu du programme';
+  if (weekLabel) weekLabel.hidden = isSingle;
+  if (importLabel) {
+    importLabel.textContent = isSingle
+      ? 'Ajouter cette séance aux Programmes'
+      : 'Importer la semaine 1 dans Programmes';
+  }
+  if (acceptBtn) acceptBtn.textContent = isSingle ? 'Valider la séance' : 'Valider le programme';
+
+  summary.innerHTML = isSingle
+    ? `<strong>${escapeHtml(plan.planName)}</strong><br>
+       ~${sessionDur} min · ${escapeHtml(plan.profile?.objectif || '')}<br>
+       Priorités : ${escapeHtml(priorities)} · ${session?.items?.length || 0} exercices`
+    : `<strong>${escapeHtml(plan.planName)}</strong><br>
+       ${plan.weeks.length} sem · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
+       Priorités : ${escapeHtml(priorities)}<br>
+       Semaine 1 : ${legSets} séries jambes/fessiers${plan.constraints?.maxLegSetsWeek ? ` (max ${plan.constraints.maxLegSetsWeek})` : ''}`;
 
   weekSelect.innerHTML = plan.weeks.map((w) =>
     `<option value="${w.week}">S${w.week}${w.focus ? ` — ${escapeHtml(w.focus)}` : ''}</option>`
@@ -324,18 +366,27 @@ function acceptAiPlanPreview() {
   if (!pendingAiPlan) return;
   const plan = pendingAiPlan;
   const importWeek = document.getElementById('ai-preview-import-week')?.checked;
+  const isSingle = plan.profile?.planMode === 'single';
   saveAiPlan(plan);
   let imported = 0;
   if (importWeek) {
-    imported = importAiPlanWeekAsPrograms(plan, 1);
+    if (isSingle) {
+      const program = sessionToProgram(plan, 1, 0);
+      if (program) {
+        saveProgram(program);
+        imported = 1;
+      }
+    } else {
+      imported = importAiPlanWeekAsPrograms(plan, 1);
+    }
     renderProgramsList();
   }
   renderAiPlansList();
   closeAiPlanPreviewModal();
   document.getElementById('ai-json-import').value = '';
   showToast(imported
-    ? `Programme validé · ${imported} séance(s) ajoutée(s)`
-    : 'Programme validé et enregistré');
+    ? (isSingle ? 'Séance ajoutée aux Programmes !' : `Programme validé · ${imported} séance(s) ajoutée(s)`)
+    : (isSingle ? 'Séance enregistrée' : 'Programme validé et enregistré'));
   hapticSuccess();
 }
 
@@ -375,7 +426,8 @@ async function handleAiGenerate() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Générer le programme';
+      const isSingle = document.querySelector('.ai-mode-tab.active')?.dataset.aiMode === 'single';
+      btn.textContent = isSingle ? 'Générer ma séance' : 'Générer le programme';
     }
   }
 }
@@ -597,6 +649,8 @@ function renderRunningHub() {
 function bindWorkoutUI() {
   document.getElementById('open-renfo-hub')?.addEventListener('click', openRenfoHub);
   document.getElementById('open-running-hub')?.addEventListener('click', openRunningHub);
+  document.getElementById('open-equitation-hub')?.addEventListener('click', openEquitationHub);
+  document.getElementById('back-from-equitation')?.addEventListener('click', () => showScreen('screen-home'));
   document.getElementById('back-from-renfo')?.addEventListener('click', () => showScreen('screen-home'));
   document.getElementById('back-from-running')?.addEventListener('click', () => showScreen('screen-home'));
 
@@ -656,6 +710,8 @@ function bindWorkoutUI() {
   renderEquipmentGuide();
   bindProgramPlayer();
   bindRunning();
+  bindEquitation();
+  bindAiCoachModeTabs();
 }
 
 function escapeHtml(str) {

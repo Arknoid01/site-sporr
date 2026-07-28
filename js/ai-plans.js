@@ -43,12 +43,7 @@ const LOCAL_EXERCISES_BY_MUSCLE = {
   abdos: ['gainage', 'crunch', 'gainage-lateral', 'wger-178']
 };
 
-const SPLIT_LABELS = {
-  auto: 'Automatique',
-  'upper-lower': 'Haut / Bas',
-  'push-pull-legs': 'Push / Pull / Legs',
-  'full-body': 'Full body'
-};
+const ALL_WORKOUT_MUSCLES = ['pectoraux', 'dos', 'epaules', 'bras', 'jambes', 'fessiers', 'abdos'];
 
 const AI_CATALOG_EXCLUDE_KEYWORDS = [
   'étirement', 'stretch', 'yoga', 'foam', 'meditation', 'breathing', 'swim',
@@ -196,10 +191,11 @@ function validateAiPlanData(data, constraints = {}) {
 
   const maxLeg = Number(constraints.maxLegSetsWeek) > 0 ? Number(constraints.maxLegSetsWeek) : 999;
   const maxMin = Number(constraints.maxMinutes) || 90;
+  const isSingleSession = data.weeks?.length === 1 && data.weeks[0]?.sessions?.length === 1;
 
   data.weeks?.forEach((week) => {
     const legSets = countWeekLegSets(week);
-    if (legSets > maxLeg) {
+    if (!isSingleSession && legSets > maxLeg) {
       errors.push(`Semaine ${week.week} : ${legSets} séries jambes/fessiers (max ${maxLeg})`);
     }
     week.sessions?.forEach((session) => {
@@ -384,69 +380,29 @@ function buildItemsForMuscles(muscles, profile, constraints, exCount, baseReps, 
   return items;
 }
 
-function resolveSplitType(profile, sessions) {
-  const split = profile.splitType || 'auto';
-  if (split !== 'auto') return split;
-  if (sessions <= 2) return 'upper-lower';
-  if (sessions === 3) return 'push-pull-legs';
-  return 'upper-lower';
-}
-
-function buildSplitBlueprints(split, sessions, constraints) {
+function buildSessionBlueprints(profile, constraints) {
   const includeAbs = constraints.includeAbs !== false;
-  const abs = includeAbs ? ['abdos'] : [];
-  const lower = ['jambes', 'fessiers', ...abs];
-  const upper = ['pectoraux', 'dos', 'epaules', 'bras'];
-  const push = ['pectoraux', 'epaules', 'bras'];
-  const pull = ['dos', 'bras'];
-  const kneeLabel = constraints.kneeSensitive ? ' genou-safe' : '';
+  const base = ALL_WORKOUT_MUSCLES.filter((m) => m !== 'abdos' || includeAbs);
+  const isSingle = profile.planMode === 'single';
 
-  if (split === 'full-body') {
-    const base = [...upper, ...lower.filter((m) => m !== 'abdos' || includeAbs)];
-    return Array.from({ length: sessions }, (_, i) => {
-      const rotated = [...base.slice(i % base.length), ...base.slice(0, i % base.length)];
-      return { name: `Full body ${i + 1}`, muscles: rotated };
-    });
+  if (isSingle) {
+    const name = (profile.sessionName || '').trim() || 'Séance personnalisée';
+    return [{ name, muscles: base }];
   }
 
-  if (split === 'upper-lower') {
-    return Array.from({ length: sessions }, (_, i) => (
-      i % 2 === 0
-        ? { name: 'Haut du corps', muscles: upper }
-        : { name: `Bas du corps${kneeLabel}`, muscles: lower }
-    ));
-  }
-
-  if (split === 'push-pull-legs') {
-    if (sessions <= 2) {
-      return [
-        { name: 'Push', muscles: push },
-        { name: `Pull + Legs${kneeLabel}`, muscles: [...pull, ...lower] }
-      ];
-    }
-    const cycle = [
-      { name: 'Push', muscles: push },
-      { name: 'Pull', muscles: pull },
-      { name: `Legs${kneeLabel}`, muscles: lower }
-    ];
-    return Array.from({ length: sessions }, (_, i) => cycle[i % 3]);
-  }
-
-  return Array.from({ length: sessions }, (_, i) => (
-    i % 2 === 0
-      ? { name: 'Haut du corps', muscles: upper }
-      : { name: `Bas du corps${kneeLabel}`, muscles: lower }
-  ));
+  const sessions = Number(profile.seancesSemaine) || 2;
+  return Array.from({ length: sessions }, (_, i) => {
+    const rotated = [...base.slice(i % base.length), ...base.slice(0, i % base.length)];
+    return { name: `Séance ${i + 1}`, muscles: rotated };
+  });
 }
 
 function buildLocalSessionTemplates(profile, constraints) {
-  const sessions = Number(profile.seancesSemaine) || 2;
-  const exCount = Math.min(5, Math.max(3, Number(profile.exercisesPerSession) || 3));
+  const exCount = Math.min(6, Math.max(3, Number(profile.exercisesPerSession) || 4));
   const objectif = (profile.objectif || 'force').toLowerCase();
   const baseReps = objectif.includes('force') ? 6 : objectif.includes('endurance') ? 15 : 10;
   const restBase = getRestBase(constraints);
-  const split = resolveSplitType(profile, sessions);
-  const blueprints = buildSplitBlueprints(split, sessions, constraints);
+  const blueprints = buildSessionBlueprints(profile, constraints);
 
   return blueprints.map((bp) => ({
     name: bp.name,
@@ -497,23 +453,24 @@ function generateLocalAiPlan(profile, constraints) {
   if (!templates.length) {
     throw new Error('Aucune séance générée — assouplis tes filtres ou zones à ménager');
   }
-  const sessionsPerWeek = templates.length;
+  const isSingle = profile.planMode === 'single';
   const objectif = profile.objectif || 'force';
-  const planWeeks = Number(profile.planWeeks) || 12;
-  const splitLabel = SPLIT_LABELS[resolveSplitType(profile, sessionsPerWeek)] || 'Perso';
+  const planWeeks = isSingle ? 1 : (Number(profile.planWeeks) || 12);
 
   const weeks = [];
   for (let w = 1; w <= planWeeks; w += 1) {
-    const prog = progressionForWeek(w, profile, constraints);
+    const prog = isSingle
+      ? { phase: 'Séance du jour', setsBonus: 0, repsAdjust: 0, restSets: getRestBase(constraints).sets, restAfter: getRestBase(constraints).after }
+      : progressionForWeek(w, profile, constraints);
     const mid = Math.ceil(planWeeks / 2);
     weeks.push({
       week: w,
-      focus: `S${w} — ${prog.phase}`,
+      focus: isSingle ? 'Séance unique' : `S${w} — ${prog.phase}`,
       sessions: templates.map((tpl) => ({
         name: tpl.name,
         items: tpl.items.map((item) => {
           const baseValue = item.mode === 'time'
-            ? item.value + (w > mid ? 10 : 0)
+            ? item.value + (!isSingle && w > mid ? 10 : 0)
             : Math.max(4, item.value + prog.repsAdjust);
           return {
             exerciseId: item.exerciseId,
@@ -529,7 +486,9 @@ function generateLocalAiPlan(profile, constraints) {
   }
 
   const planData = {
-    planName: `${objectif.charAt(0).toUpperCase() + objectif.slice(1)} ${planWeeks} sem · ${splitLabel}`,
+    planName: isSingle
+      ? templates[0]?.name || 'Séance personnalisée'
+      : `${objectif.charAt(0).toUpperCase() + objectif.slice(1)} ${planWeeks} sem · ${templates.length}×/sem`,
     weeks
   };
 

@@ -52,6 +52,7 @@
       <div class="hub-cards">
         <button type="button" id="open-renfo-hub" class="hub-card hub-card-renfo">💪 Renforcement<br><span class="hint" style="color:rgba(255,255,255,0.8)">Programmes & exercices</span></button>
         <button type="button" id="open-running-hub" class="hub-card hub-card-running">🏃 Course<br><span class="hint" style="color:rgba(255,255,255,0.8)">GPS & intervalles</span></button>
+        <button type="button" id="open-equitation-hub" class="hub-card hub-card-equitation">🐴 Équitation<br><span class="hint" style="color:rgba(255,255,255,0.8)">Séances & suivi</span></button>
       </div>
 
       <div class="stat-grid">
@@ -294,8 +295,18 @@
         <div id="exercise-browser"></div>
       </div>
       <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
-        <p class="hint">Remplis ton profil, personnalise le programme, génère puis valide l’aperçu. Ton profil est mémorisé sur cet appareil.</p>
+        <p class="hint">Choisis une <strong>séance unique</strong> ou un programme, personnalise, puis valide l’aperçu.</p>
         <form id="ai-coach-form" onsubmit="return false;">
+        <div class="ai-mode-tabs" role="tablist">
+          <button type="button" class="ai-mode-tab active" data-ai-mode="single" role="tab">Séance unique</button>
+          <button type="button" class="ai-mode-tab" data-ai-mode="program" role="tab">Programme</button>
+        </div>
+        <div class="card ai-coach-card ai-single-only">
+          <h3 class="section-title">Ma séance</h3>
+          <label class="form-group">Nom de la séance (optionnel)
+            <input type="text" id="ai-session-name" placeholder="Ex. Renfo express du mardi">
+          </label>
+        </div>
         <div class="card ai-coach-card">
           <h3 class="section-title">Profil</h3>
           <div class="ai-form-grid">
@@ -326,8 +337,8 @@
                 <option value="endurance">Endurance musculaire</option>
               </select>
             </label>
-            <label>Séances / semaine
-              <input type="number" id="ai-seances" min="2" max="6" placeholder="Ex. 3" required>
+            <label class="ai-program-only">Séances / semaine
+              <input type="number" id="ai-seances" min="2" max="6" placeholder="Ex. 3">
             </label>
             <label>Matériel
               <select id="ai-materiel" required>
@@ -343,15 +354,7 @@
         <div class="card ai-coach-card">
           <h3 class="section-title">Personnalisation</h3>
           <div class="ai-form-grid">
-            <label>Type de split
-              <select id="ai-split">
-                <option value="auto">Automatique (selon séances/sem)</option>
-                <option value="upper-lower">Haut / Bas</option>
-                <option value="push-pull-legs">Push / Pull / Legs</option>
-                <option value="full-body">Full body</option>
-              </select>
-            </label>
-            <label>Durée du programme
+            <label class="ai-program-only">Durée du programme
               <select id="ai-plan-weeks">
                 <option value="8">8 semaines</option>
                 <option value="12" selected>12 semaines</option>
@@ -393,7 +396,7 @@
             <label>Durée max par séance (min)
               <input type="number" id="ai-max-min" min="15" max="120" placeholder="Ex. 45" required>
             </label>
-            <label>Séries jambes max / semaine
+            <label class="ai-program-only">Séries jambes max / semaine
               <input type="number" id="ai-max-leg-sets" min="4" max="40" placeholder="Ex. 16">
             </label>
           </div>
@@ -443,14 +446,40 @@
       </header>
       <div class="card">
         <div class="form-group">
+          <label for="run-type-select">Type de course</label>
+          <select id="run-type-select">
+            <option value="footing">Footing / endurance fond</option>
+            <option value="endurance">Endurance active</option>
+            <option value="fractionne">Fractionné / VMA</option>
+            <option value="sortie-longue">Sortie longue</option>
+            <option value="recuperation">Récupération active</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="run-terrain-select">Terrain</label>
+          <select id="run-terrain-select">
+            <option value="route">Route / bitume</option>
+            <option value="trail">Trail / nature</option>
+            <option value="piste">Piste / stade</option>
+          </select>
+        </div>
+        <div class="ai-form-grid">
+          <label class="form-group">Objectif distance (km)
+            <input type="number" id="run-target-km" min="0" step="0.1" placeholder="Ex. 5">
+          </label>
+          <label class="form-group">Objectif durée (min)
+            <input type="number" id="run-target-min" min="0" placeholder="Ex. 30">
+          </label>
+        </div>
+        <div class="form-group">
           <label for="run-name-input">Nom de la course</label>
           <input type="text" id="run-name-input" placeholder="Ex. Course du matin">
         </div>
         <div class="form-group">
-          <label for="run-desc-input">Description</label>
-          <textarea id="run-desc-input" placeholder="Ex. Footing léger au parc"></textarea>
+          <label for="run-desc-input">Notes</label>
+          <textarea id="run-desc-input" placeholder="Ex. parc du matin, footing léger…"></textarea>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="run-interval-group">
           <label for="run-interval-select">Fractionné (optionnel)</label>
           <select id="run-interval-select">
             <option value="">Sans intervalles</option>
@@ -463,6 +492,52 @@
       </div>
       <h2 class="section-title">Mes courses</h2>
       <div id="runs-list"></div>
+    </section>
+
+    <section id="screen-equitation" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-equitation" class="secondary-btn" type="button">←</button>
+        <h1>Équitation</h1>
+      </header>
+      <div class="card">
+        <div class="form-group">
+          <label for="equi-type-select">Type de séance</label>
+          <select id="equi-type-select">
+            <option value="dressage">Dressage</option>
+            <option value="balade">Balade / hack</option>
+            <option value="travail-sol">Travail au sol / éthologie</option>
+            <option value="saut">Saut / CSO / cross</option>
+            <option value="recuperation">Récupération / cool down</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="equi-intensity-select">Intensité</label>
+          <select id="equi-intensity-select">
+            <option value="legere">Légère</option>
+            <option value="moderee" selected>Modérée</option>
+            <option value="intense">Intense</option>
+          </select>
+        </div>
+        <div class="ai-form-grid">
+          <label class="form-group">Objectif durée (min)
+            <input type="number" id="equi-target-min" min="0" placeholder="Ex. 45">
+          </label>
+          <label class="form-group">Cheval (optionnel)
+            <input type="text" id="equi-horse-name" placeholder="Ex. Éclair">
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="equi-name-input">Nom de la séance</label>
+          <input type="text" id="equi-name-input" placeholder="Ex. Séance dressage du mardi">
+        </div>
+        <div class="form-group">
+          <label for="equi-notes-input">Notes</label>
+          <textarea id="equi-notes-input" placeholder="Ex. travail des transitions, extérieur, paddock…"></textarea>
+        </div>
+        <button type="button" id="start-equi-btn" class="primary-btn">▶ Démarrer la séance</button>
+      </div>
+      <h2 class="section-title">Mes séances équitation</h2>
+      <div id="equi-sessions-list"></div>
     </section>
 
     <section id="screen-settings" class="screen">
@@ -677,6 +752,16 @@
     </div>
   </div>
 
+  <div id="equitation-live-overlay" class="running-live-overlay equitation-live-overlay" hidden>
+    <h2 id="equi-name-display">Équitation</h2>
+    <p id="equi-meta-display" class="hint equi-meta-display"></p>
+    <div class="run-live-stats equi-live-stats">
+      <div class="run-stat"><div class="run-stat-value" id="equi-time-display">0:00</div><div class="run-stat-label">Durée</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="equi-target-display">—</div><div class="run-stat-label">Objectif</div></div>
+    </div>
+    <button type="button" id="stop-equi-btn" class="danger-btn" style="width:100%;">Terminer la séance</button>
+  </div>
+
   <div id="running-live-overlay" class="running-live-overlay" hidden>
     <h2 id="run-name-display">Course</h2>
     <div id="run-interval-display" hidden></div>
@@ -709,17 +794,17 @@
         <button id="ai-preview-close" class="icon-btn" type="button" aria-label="Fermer">✕</button>
       </div>
       <div id="ai-preview-summary" class="ai-preview-summary"></div>
-      <label class="ai-preview-week-label">Semaine
+      <label class="ai-preview-week-label ai-program-only">Semaine
         <select id="ai-preview-week-select" class="ai-week-select"></select>
       </label>
       <div id="ai-preview-content" class="ai-preview-content"></div>
       <label class="gen-muscle-label ai-preview-import-label">
         <input type="checkbox" id="ai-preview-import-week" checked>
-        Importer la semaine 1 dans Programmes à la validation
+        <span id="ai-preview-import-label-text">Ajouter aux Programmes à la validation</span>
       </label>
       <div class="ai-preview-actions">
         <button type="button" id="ai-preview-reject" class="secondary-btn">Refuser</button>
-        <button type="button" id="ai-preview-accept" class="primary-btn">Valider le programme</button>
+        <button type="button" id="ai-preview-accept" class="primary-btn">Valider</button>
       </div>
     </div>
   </div>
@@ -777,6 +862,7 @@
   <script src="js/route-map.js"></script>
   <script src="js/program-player.js"></script>
   <script src="js/running.js"></script>
+  <script src="js/equitation.js"></script>
   <script src="js/workout-ui.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>

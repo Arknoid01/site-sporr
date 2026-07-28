@@ -29,11 +29,11 @@ function buildAiSystemPrompt() {
 Règles strictes :
 - Utilise UNIQUEMENT des exerciseId présents dans le catalogue fourni.
 - mode = "reps" | "time" | "maxrep" ; value = répétitions ou secondes.
-- Respecte TOUTES les contraintes (durée, zones sensibles, séries jambes/semaine, split, priorités).
-- Génère exactement le nombre de semaines demandé avec progression réaliste (volume, reps ou charge dans "focus").
+- Respecte TOUTES les contraintes (durée, zones sensibles, séries jambes/semaine, priorités).
+- Génère exactement le nombre de semaines demandé (1 pour séance unique) avec progression réaliste.
 - Chaque semaine a le même nombre de séances que demandé.
 - repos en secondes : restSets (entre séries), restAfter (après l'exercice).
-- Respecte le type de split et les muscles prioritaires (plus de volume dessus).
+- Muscles prioritaires = plus de volume dessus.
 - Exclus les exercices listés en « à éviter » et les zones à ménager.
 - Séances ≤ durée max (estime ~3 s/rep + repos).`;
 }
@@ -57,20 +57,23 @@ function buildAiUserPrompt(profile, constraints, exercises) {
   const catalogNote = exercises.length >= AI_CATALOG_MAX
     ? `\n(Catalogue filtré : ${exercises.length} exercices pertinents pour ton matériel et tes contraintes.)`
     : '';
-  const planWeeks = profile.planWeeks || 12;
-  const split = SPLIT_LABELS[profile.splitType] || profile.splitType || 'automatique';
+  const isSingle = profile.planMode === 'single';
+  const planWeeks = isSingle ? 1 : (profile.planWeeks || 12);
+  const modeLine = isSingle
+    ? 'SÉANCE UNIQUE — 1 semaine, 1 séance, pas de programme long'
+    : `Programme ${planWeeks} semaines · ${profile.seancesSemaine || 2} séances/semaine`;
+
   return `PROFIL :
 - Sexe : ${profile.sexe || 'non précisé'}
 - Âge : ${profile.age || '?'} ans
 - Niveau : ${profile.niveau || 'intermédiaire'}
 - Objectif : ${profile.objectif || 'hypertrophie'}
-- Séances/semaine : ${profile.seancesSemaine || 4}
 - Matériel : ${profile.materiel || 'salle complète'}
 
 PERSONNALISATION :
-- Durée du programme : ${planWeeks} semaines
-- Type de split : ${split}
-- Exercices par séance : ${profile.exercisesPerSession || 3}
+- Mode : ${modeLine}
+${isSingle && profile.sessionName ? `- Nom de la séance : ${profile.sessionName}` : ''}
+- Exercices par séance : ${profile.exercisesPerSession || 4}
 - Repos : ${constraints.restPreference === 'short' ? 'court' : constraints.restPreference === 'long' ? 'long' : 'moyen'}
 - Muscles prioritaires : ${formatMuscleList(profile.musclePriorities)}
 - Inclure abdos : ${constraints.includeAbs !== false ? 'oui' : 'non'}
@@ -78,7 +81,7 @@ PERSONNALISATION :
 CONTRAINTES :
 - Durée max par séance : ${constraints.maxMinutes || 60} min
 - Zones à ménager : ${formatZoneList(constraints)}
-- Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsWeek > 0 ? constraints.maxLegSetsWeek : 'non précisé — adapte prudemment'}
+${!isSingle ? `- Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsWeek > 0 ? constraints.maxLegSetsWeek : 'non précisé — adapte prudemment'}` : ''}
 ${constraints.excludeExercises ? `- Exercices à éviter : ${constraints.excludeExercises}` : ''}
 ${constraints.notes ? `- Notes : ${constraints.notes}` : ''}
 
@@ -87,8 +90,8 @@ ${catalog}${catalogNote}
 
 IMPORTANT : réponds UNIQUEMENT avec le JSON du programme (pas ce prompt, pas de markdown).
 
-Génère un programme ${planWeeks} semaines. Schéma JSON :
-${AI_JSON_SCHEMA.replace('12 semaines', `${planWeeks} semaines`)}`;
+Génère ${isSingle ? 'une séance unique (1 semaine, 1 session)' : `un programme ${planWeeks} semaines`}. Schéma JSON :
+${AI_JSON_SCHEMA.replace('12 semaines', isSingle ? '1 séance' : `${planWeeks} semaines`)}`;
 }
 
 function extractJsonFromText(text) {
@@ -199,15 +202,16 @@ function getAiPromptForClipboard(profile, constraints) {
 
 function readAiProfileFromForm() {
   return {
+    planMode: document.querySelector('.ai-mode-tab.active')?.dataset.aiMode || 'single',
+    sessionName: document.getElementById('ai-session-name')?.value.trim() || '',
     sexe: document.getElementById('ai-sexe')?.value || '',
     age: document.getElementById('ai-age')?.value || '',
     niveau: document.getElementById('ai-niveau')?.value || '',
     objectif: document.getElementById('ai-objectif')?.value || '',
     seancesSemaine: Number(document.getElementById('ai-seances')?.value) || 0,
     materiel: document.getElementById('ai-materiel')?.value || '',
-    splitType: document.getElementById('ai-split')?.value || 'auto',
     planWeeks: Number(document.getElementById('ai-plan-weeks')?.value) || 12,
-    exercisesPerSession: Number(document.getElementById('ai-ex-per-session')?.value) || 3,
+    exercisesPerSession: Number(document.getElementById('ai-ex-per-session')?.value) || 4,
     musclePriorities: [...document.querySelectorAll('.ai-priority-check:checked')].map((c) => c.value)
   };
 }
@@ -246,9 +250,14 @@ function populateAiCoachForm(saved) {
   set('ai-objectif', profile.objectif);
   set('ai-seances', profile.seancesSemaine);
   set('ai-materiel', profile.materiel);
-  set('ai-split', profile.splitType || 'auto');
   set('ai-plan-weeks', profile.planWeeks || 12);
-  set('ai-ex-per-session', profile.exercisesPerSession || 3);
+  set('ai-ex-per-session', profile.exercisesPerSession || 4);
+  set('ai-session-name', profile.sessionName);
+
+  document.querySelectorAll('.ai-mode-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.dataset.aiMode === (profile.planMode || 'single'));
+  });
+  toggleAiPlanModeFields(profile.planMode || 'single');
 
   document.querySelectorAll('.ai-priority-check').forEach((cb) => {
     cb.checked = (profile.musclePriorities || []).includes(cb.value);
@@ -271,6 +280,10 @@ function populateAiCoachForm(saved) {
 function clearAiCoachForm() {
   document.getElementById('ai-coach-form')?.reset();
   document.querySelectorAll('.ai-priority-check').forEach((cb) => { cb.checked = false; });
+  document.querySelectorAll('.ai-mode-tab').forEach((tab) => {
+    tab.classList.toggle('active', tab.dataset.aiMode === 'single');
+  });
+  toggleAiPlanModeFields('single');
   const abs = document.getElementById('ai-include-abs');
   if (abs) abs.checked = true;
   localStorage.removeItem(AI_PROFILE_KEY);
@@ -284,10 +297,26 @@ function validateAiForm(profile, constraints) {
   if (!profile.age) missing.push('âge');
   if (!profile.niveau) missing.push('niveau');
   if (!profile.objectif) missing.push('objectif');
-  if (!profile.seancesSemaine || profile.seancesSemaine < 2) missing.push('séances/semaine');
   if (!profile.materiel) missing.push('matériel');
   if (!constraints.maxMinutes || constraints.maxMinutes < 15) missing.push('durée max');
+  if (profile.planMode !== 'single') {
+    if (!profile.seancesSemaine || profile.seancesSemaine < 2) missing.push('séances/semaine');
+  }
   if (missing.length) {
     throw new Error(`Complète ton profil : ${missing.join(', ')}`);
   }
+}
+
+function toggleAiPlanModeFields(mode) {
+  const isSingle = mode === 'single';
+  document.querySelectorAll('.ai-program-only').forEach((el) => {
+    el.hidden = isSingle;
+  });
+  document.querySelectorAll('.ai-single-only').forEach((el) => {
+    el.hidden = !isSingle;
+  });
+  const seancesInput = document.getElementById('ai-seances');
+  if (seancesInput) seancesInput.required = !isSingle;
+  const genBtn = document.getElementById('ai-generate-btn');
+  if (genBtn) genBtn.textContent = isSingle ? 'Générer ma séance' : 'Générer le programme';
 }
