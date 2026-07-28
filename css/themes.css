@@ -203,6 +203,10 @@ body.theme-transition * {
   gap: 10px;
 }
 
+.install-steps strong {
+  color: var(--text);
+}
+
 .install-banner button,
 #install-app-settings-btn {
   white-space: nowrap;
