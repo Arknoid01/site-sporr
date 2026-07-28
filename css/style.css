@@ -4,7 +4,7 @@
 @import url('./themes.css');
 @import url('./animations.css');
 @import url('./premium.css');
-@import url('./timer.css');
+@import url('./workout.css');
 
 @media (max-width: 380px) {
   .sport-grid {

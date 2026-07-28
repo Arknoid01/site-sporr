@@ -130,4 +130,6 @@ function resetAllData() {
   localStorage.removeItem(SETTINGS_KEY);
   localStorage.removeItem('sporrBadges');
   localStorage.removeItem(SPORTS_KEY);
+  localStorage.removeItem(PROGRAMS_KEY);
+  localStorage.removeItem(RUNS_KEY);
 }

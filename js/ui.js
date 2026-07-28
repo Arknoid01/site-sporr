@@ -31,8 +31,6 @@ function renderSportButtons() {
   if (!container) return;
 
   const sports = getSportNames();
-  const columns = sports.length <= 3 ? 3 : 2;
-  container.style.gridTemplateColumns = `repeat(${Math.min(columns, 3)}, 1fr)`;
 
   container.innerHTML = sports.map((sport) => `
     <button type="button" class="sport-btn ${selectedSport === sport ? 'selected' : ''}" data-sport="${sport}">

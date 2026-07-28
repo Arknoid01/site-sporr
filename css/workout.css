@@ -1,0 +1,350 @@
+/* Module Renforcement & Course */
+
+.hub-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+  margin-bottom: var(--section-gap);
+}
+
+.hub-card {
+  border: none;
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: white;
+  text-align: left;
+  box-shadow: var(--shadow);
+  min-height: 88px;
+}
+
+.hub-card-renfo {
+  background: linear-gradient(135deg, #7B2FF7, #9b5cff);
+}
+
+.hub-card-running {
+  background: linear-gradient(135deg, #00C9A7, #06d6a0);
+}
+
+.subscreen-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.subscreen-header h1 {
+  font-size: 1.4rem;
+  flex: 1;
+}
+
+.renfo-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: var(--section-gap);
+  scrollbar-width: none;
+}
+
+.renfo-tab {
+  flex: 0 0 auto;
+  border: none;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  box-shadow: var(--shadow);
+}
+
+.renfo-tab.active {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.program-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: var(--gap-md);
+  box-shadow: var(--shadow);
+}
+
+.program-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.primary-btn.compact,
+.delete-btn.compact {
+  width: auto;
+  padding: 10px 14px;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.muscle-section {
+  margin-bottom: var(--section-gap);
+}
+
+.muscle-section-title {
+  font-size: 1rem;
+  margin-bottom: var(--gap-md);
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-md);
+}
+
+.exercise-card {
+  position: relative;
+  border: none;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  padding: 0;
+  background: #2a2a38;
+  color: white;
+  text-align: left;
+  min-height: 140px;
+}
+
+.exercise-card .exercise-thumb {
+  width: 100%;
+  height: 100px;
+  display: block;
+}
+
+.exercise-card-label {
+  display: block;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.play-badge {
+  position: absolute;
+  bottom: 42px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a1a24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.exercise-list-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: var(--gap-sm);
+  box-shadow: var(--shadow);
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.exercise-list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chevron {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+.exercise-detail-overlay,
+.program-player-overlay,
+.running-live-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.exercise-detail-overlay[hidden],
+.program-player-overlay[hidden],
+.running-live-overlay[hidden] {
+  display: none !important;
+}
+
+.ex-detail-hero {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.ex-detail-hero .exercise-thumb {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 12px;
+}
+
+.ex-detail-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(123, 47, 247, 0.15);
+  color: var(--secondary);
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.tips-list,
+.equipment-list {
+  margin: 12px 0 0 18px;
+  color: var(--text-muted);
+  display: grid;
+  gap: 8px;
+}
+
+.set-config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.set-config-row label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.set-config-row input,
+.set-config-row select {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.builder-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#builder-duration-preview {
+  text-align: center;
+  font-weight: 800;
+  color: var(--primary);
+  margin: var(--gap-md) 0;
+}
+
+.gen-muscles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+}
+
+.gen-muscle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.player-progress-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.player-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+#player-timer-display {
+  font-size: 3.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 16px 0;
+}
+
+#player-timer-display.rest-mode {
+  color: var(--accent);
+}
+
+.run-live-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+  margin: 20px 0;
+}
+
+.run-stat {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.run-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.run-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+#run-interval-display {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 107, 53, 0.12);
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+#run-route-canvas {
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.equipment-card h3 {
+  margin-bottom: 8px;
+  color: var(--secondary);
+}

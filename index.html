@@ -48,6 +48,11 @@
         ▶ Lancer une séance
       </button>
 
+      <div class="hub-cards">
+        <button type="button" id="open-renfo-hub" class="hub-card hub-card-renfo">💪 Renforcement<br><span class="hint" style="color:rgba(255,255,255,0.8)">Programmes & exercices</span></button>
+        <button type="button" id="open-running-hub" class="hub-card hub-card-running">🏃 Course<br><span class="hint" style="color:rgba(255,255,255,0.8)">GPS & intervalles</span></button>
+      </div>
+
       <div class="stat-grid">
         <div class="stat-card highlight">
           <p class="card-title">Aujourd’hui</p>
@@ -215,6 +220,104 @@
       <div id="calendar-sessions"></div>
     </section>
 
+    <section id="screen-renfo" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-renfo" class="secondary-btn" type="button">←</button>
+        <h1>Renforcement</h1>
+      </header>
+      <div class="renfo-tabs">
+        <button type="button" class="renfo-tab active" data-renfo-tab="programs">Programmes</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="create">Créer</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="generator">Générateur</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="exercises">Exercices</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="equipment">Matériel</button>
+      </div>
+      <div id="renfo-panel-programs" class="renfo-panel">
+        <div id="programs-list"></div>
+      </div>
+      <div id="renfo-panel-create" class="renfo-panel" hidden>
+        <p class="card-title">Nom du programme</p>
+        <input type="text" id="builder-name-input" class="form-group" placeholder="Ex. Jambes & fessiers" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;">
+        <p class="hint">Ajoute des exercices depuis l’onglet Exercices, puis configure séries, reps/temps et repos.</p>
+        <div id="builder-items-list"></div>
+        <p id="builder-duration-preview">Durée estimée : —</p>
+        <button type="button" id="builder-save-btn" class="primary-btn">Enregistrer le programme</button>
+      </div>
+      <div id="renfo-panel-generator" class="renfo-panel" hidden>
+        <p class="card-title">Muscles ciblés</p>
+        <div class="gen-muscles-grid">
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="fessiers"> Fessiers</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="jambes"> Jambes</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="dos"> Dos</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="pectoraux"> Pectoraux</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="bras"> Bras</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="epaules"> Épaules</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="abdos"> Abdos</label>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Par muscles</h3>
+          <div class="form-group">
+            <label for="gen-exercise-count">Nombre d’exercices</label>
+            <input type="number" id="gen-exercise-count" min="3" max="10" value="5">
+          </div>
+          <button type="button" id="gen-by-muscles-btn" class="primary-btn">Générer</button>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Par durée</h3>
+          <div class="form-group">
+            <label for="gen-time-minutes">Durée cible (minutes)</label>
+            <input type="number" id="gen-time-minutes" min="10" max="90" value="30">
+          </div>
+          <button type="button" id="gen-by-time-btn" class="secondary-btn" style="width:100%;">Générer par temps</button>
+        </div>
+      </div>
+      <div id="renfo-panel-exercises" class="renfo-panel" hidden>
+        <select id="muscle-filter" style="width:100%;padding:12px;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
+          <option value="all">Tous les muscles</option>
+          <option value="fessiers">Fessiers</option>
+          <option value="jambes">Jambes</option>
+          <option value="dos">Dos</option>
+          <option value="pectoraux">Pectoraux</option>
+          <option value="bras">Bras</option>
+          <option value="epaules">Épaules</option>
+          <option value="abdos">Abdominaux</option>
+        </select>
+        <div id="exercise-browser"></div>
+      </div>
+      <div id="renfo-panel-equipment" class="renfo-panel" hidden>
+        <div id="equipment-guide"></div>
+      </div>
+    </section>
+
+    <section id="screen-running" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-running" class="secondary-btn" type="button">←</button>
+        <h1>Course</h1>
+      </header>
+      <div class="card">
+        <div class="form-group">
+          <label for="run-name-input">Nom de la course</label>
+          <input type="text" id="run-name-input" placeholder="Ex. Course du matin">
+        </div>
+        <div class="form-group">
+          <label for="run-desc-input">Description</label>
+          <textarea id="run-desc-input" placeholder="Ex. Footing léger au parc"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="run-interval-select">Fractionné (optionnel)</label>
+          <select id="run-interval-select">
+            <option value="">Sans intervalles</option>
+            <option value="0">30/30 x8</option>
+            <option value="1">1 min / 1 min x6</option>
+            <option value="2">2 min / 1 min x5</option>
+          </select>
+        </div>
+        <button type="button" id="start-run-btn" class="primary-btn">▶ Démarrer la course</button>
+      </div>
+      <h2 class="section-title">Mes courses</h2>
+      <div id="runs-list"></div>
+    </section>
+
     <section id="screen-settings" class="screen">
       <header class="page-header">
         <button id="back-from-settings" class="secondary-btn" type="button">Retour</button>
@@ -353,6 +456,67 @@
     </div>
   </div>
 
+  <div id="exercise-detail-overlay" class="exercise-detail-overlay" hidden>
+    <header class="subscreen-header">
+      <button id="close-exercise-detail" class="secondary-btn" type="button">←</button>
+      <h2>Détail</h2>
+    </header>
+    <div class="ex-detail-hero">
+      <div id="ex-detail-image"></div>
+      <h2 id="ex-detail-name"></h2>
+      <span class="ex-detail-badge" id="ex-detail-muscle"></span>
+      <p class="hint" id="ex-detail-equipment"></p>
+    </div>
+    <div class="card">
+      <h3 class="section-title">Comment faire</h3>
+      <p id="ex-detail-desc"></p>
+      <h3 class="section-title">Points importants</h3>
+      <ul class="tips-list" id="ex-detail-tips"></ul>
+    </div>
+    <button type="button" id="add-ex-to-builder" class="primary-btn">Ajouter au programme</button>
+  </div>
+
+  <div id="program-player-overlay" class="program-player-overlay" hidden>
+    <div class="player-progress-track"><div class="player-progress-fill" id="player-progress-fill"></div></div>
+    <p class="card-title" id="player-phase-label"></p>
+    <h2 id="player-exercise-name"></h2>
+    <div id="player-exercise-image"></div>
+    <p id="player-mode-hint" class="hint"></p>
+    <div id="player-timer-display">0:00</div>
+    <p class="hint">Temps écoulé : <span id="player-total-elapsed">0 s</span></p>
+    <div class="card">
+      <p id="player-exercise-desc"></p>
+      <ul class="tips-list" id="player-exercise-tips"></ul>
+    </div>
+    <div class="timer-actions">
+      <button type="button" id="player-action-btn" class="primary-btn">Série terminée ✓</button>
+      <button type="button" id="player-stop-btn" class="danger-btn">Arrêter</button>
+    </div>
+  </div>
+
+  <div id="running-live-overlay" class="running-live-overlay" hidden>
+    <h2 id="run-name-display">Course</h2>
+    <div id="run-interval-display" hidden></div>
+    <div class="run-live-stats">
+      <div class="run-stat"><div class="run-stat-value" id="run-time-display">0:00</div><div class="run-stat-label">Temps</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="run-distance-display">0 m</div><div class="run-stat-label">Distance</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="run-elevation-display">0 m D+</div><div class="run-stat-label">Dénivelé +</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="run-pace-display">—</div><div class="run-stat-label">Allure</div></div>
+    </div>
+    <button type="button" id="stop-run-btn" class="danger-btn" style="width:100%;">Terminer la course</button>
+  </div>
+
+  <div id="run-summary-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 id="run-summary-name">Course</h2>
+        <button id="close-run-summary" class="icon-btn" type="button">✕</button>
+      </div>
+      <div class="run-summary-stats" id="run-summary-stats"></div>
+      <canvas id="run-route-canvas" width="320" height="180"></canvas>
+    </div>
+  </div>
+
   <div id="edit-modal" class="modal-overlay" hidden>
     <div class="modal-sheet" role="dialog" aria-labelledby="edit-modal-title">
       <div class="modal-header">
@@ -397,6 +561,11 @@
   <script src="js/theme.js"></script>
   <script src="js/pwa.js"></script>
   <script src="js/timer.js"></script>
+  <script src="js/exercise-catalog.js"></script>
+  <script src="js/programs.js"></script>
+  <script src="js/program-player.js"></script>
+  <script src="js/running.js"></script>
+  <script src="js/workout-ui.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>

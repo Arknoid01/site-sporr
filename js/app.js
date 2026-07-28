@@ -108,6 +108,7 @@ function initApp() {
   bindTimerControls();
   bindWeeklySummary();
   bindSportsSettings();
+  bindWorkoutUI();
   bindAddForm(handleAddSession);
   bindEditModal(handleEditSession);
   bindSettingsForm(handleSaveSettings, handleResetData);
