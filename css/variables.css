@@ -15,10 +15,12 @@
   --radius-sm: 12px;
   --nav-height: 72px;
   --header-height: 64px;
-  --gap-sm: 12px;
-  --gap-md: 18px;
-  --gap-lg: 24px;
-  --section-gap: 20px;
+  --gap-sm: 14px;
+  --gap-md: 20px;
+  --gap-lg: 28px;
+  --section-gap: 28px;
+  --tile-gap-row: 32px;
+  --tile-gap-col: 24px;
 }
 
 * {
@@ -131,7 +133,8 @@ a {
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--gap-md);
+  row-gap: var(--tile-gap-row);
+  column-gap: var(--tile-gap-col);
   margin-bottom: var(--section-gap);
 }
 
