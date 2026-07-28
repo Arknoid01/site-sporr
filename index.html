@@ -10,6 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -483,6 +484,16 @@
     <div id="player-exercise-image"></div>
     <p id="player-mode-hint" class="hint"></p>
     <div id="player-timer-display">0:00</div>
+    <div id="player-reps-panel" class="player-reps-panel" hidden>
+      <button type="button" id="player-rep-tap" class="rep-tap-btn" aria-label="Compter une répétition">
+        <span id="player-rep-current" class="rep-current">0</span>
+        <span id="player-rep-target" class="rep-target"></span>
+      </button>
+      <div class="rep-actions">
+        <button type="button" id="player-rep-minus" class="secondary-btn rep-adjust-btn">−1</button>
+        <p class="hint" id="player-rep-hint">Tape pour compter une répétition</p>
+      </div>
+    </div>
     <p class="hint">Temps écoulé : <span id="player-total-elapsed">0 s</span></p>
     <div class="card">
       <p id="player-exercise-desc"></p>
@@ -503,6 +514,7 @@
       <div class="run-stat"><div class="run-stat-value" id="run-elevation-display">0 m D+</div><div class="run-stat-label">Dénivelé +</div></div>
       <div class="run-stat"><div class="run-stat-value" id="run-pace-display">—</div><div class="run-stat-label">Allure</div></div>
     </div>
+    <div id="run-live-map" class="route-map-container run-live-map" aria-label="Carte du parcours en direct"></div>
     <button type="button" id="stop-run-btn" class="danger-btn" style="width:100%;">Terminer la course</button>
   </div>
 
@@ -513,7 +525,8 @@
         <button id="close-run-summary" class="icon-btn" type="button">✕</button>
       </div>
       <div class="run-summary-stats" id="run-summary-stats"></div>
-      <canvas id="run-route-canvas" width="320" height="180"></canvas>
+      <div id="run-route-map" class="route-map-container"></div>
+      <canvas id="run-route-canvas" width="320" height="180" hidden aria-hidden="true"></canvas>
     </div>
   </div>
 
@@ -563,6 +576,8 @@
   <script src="js/timer.js"></script>
   <script src="js/exercise-catalog.js"></script>
   <script src="js/programs.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/route-map.js"></script>
   <script src="js/program-player.js"></script>
   <script src="js/running.js"></script>
   <script src="js/workout-ui.js"></script>

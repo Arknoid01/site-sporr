@@ -1,6 +1,7 @@
 let playerState = null;
 let playerInterval = null;
 let playerPhase = 'idle';
+let repAutoAdvanceTimer = null;
 
 function startProgramPlayer(program) {
   const steps = [];
@@ -33,7 +34,8 @@ function startProgramPlayer(program) {
     stepIndex: 0,
     remaining: 0,
     paused: false,
-    elapsed: 0
+    elapsed: 0,
+    repCount: 0
   };
 
   showProgramPlayerOverlay();
@@ -49,8 +51,99 @@ function hideProgramPlayerOverlay() {
   document.getElementById('program-player-overlay').hidden = true;
   document.body.classList.remove('timer-active');
   clearInterval(playerInterval);
+  clearTimeout(repAutoAdvanceTimer);
   playerInterval = null;
+  repAutoAdvanceTimer = null;
   playerState = null;
+}
+
+function setRepsPanelVisible(visible) {
+  const panel = document.getElementById('player-reps-panel');
+  const timer = document.getElementById('player-timer-display');
+  if (panel) panel.hidden = !visible;
+  if (timer) timer.hidden = visible;
+}
+
+function resetRepCounter() {
+  if (!playerState) return;
+  playerState.repCount = 0;
+  updateRepDisplay();
+}
+
+function updateRepDisplay() {
+  if (!playerState) return;
+  const step = playerState.steps[playerState.stepIndex];
+  const currentEl = document.getElementById('player-rep-current');
+  const targetEl = document.getElementById('player-rep-target');
+  const hintEl = document.getElementById('player-rep-hint');
+  const tapBtn = document.getElementById('player-rep-tap');
+  if (!currentEl) return;
+
+  currentEl.textContent = String(playerState.repCount);
+
+  if (step.mode === 'maxrep') {
+    if (targetEl) targetEl.textContent = ' reps';
+    if (hintEl) hintEl.textContent = 'Tape à chaque répétition, puis valide quand tu as fini';
+    if (tapBtn) tapBtn.classList.remove('rep-target-reached');
+    return;
+  }
+
+  if (targetEl) targetEl.textContent = ` / ${step.value}`;
+  const reached = playerState.repCount >= step.value;
+  if (tapBtn) tapBtn.classList.toggle('rep-target-reached', reached);
+  if (hintEl) {
+    hintEl.textContent = reached
+      ? 'Objectif atteint — série validée !'
+      : `Tape pour compter · ${step.value - playerState.repCount} restante(s)`;
+  }
+}
+
+function incrementRep() {
+  if (!playerState || playerPhase !== 'work') return;
+  const step = playerState.steps[playerState.stepIndex];
+  if (step.mode === 'time') return;
+
+  playerState.repCount += 1;
+  playerState.elapsed += 3;
+  updateRepDisplay();
+  updatePlayerProgress();
+  hapticTick();
+
+  if (step.mode === 'reps' && playerState.repCount >= step.value) {
+    clearTimeout(repAutoAdvanceTimer);
+    repAutoAdvanceTimer = window.setTimeout(() => completeRepSet(true), 600);
+  }
+}
+
+function decrementRep() {
+  if (!playerState || playerPhase !== 'work') return;
+  const step = playerState.steps[playerState.stepIndex];
+  if (step.mode === 'time') return;
+
+  clearTimeout(repAutoAdvanceTimer);
+  if (playerState.repCount <= 0) return;
+
+  playerState.repCount -= 1;
+  playerState.elapsed = Math.max(0, playerState.elapsed - 3);
+  updateRepDisplay();
+  updatePlayerProgress();
+  hapticTick();
+}
+
+function completeRepSet(fromAuto = false) {
+  if (!playerState) return;
+  clearTimeout(repAutoAdvanceTimer);
+  playerState.stepIndex += 1;
+  if (!fromAuto) {
+    const step = playerState.steps[playerState.stepIndex - 1];
+    if (step?.mode === 'reps' && playerState.repCount < step.value) {
+      playerState.elapsed += Math.max(0, (step.value - playerState.repCount) * 3);
+    } else if (step?.mode === 'maxrep') {
+      playerState.elapsed += Math.max(15, playerState.repCount * 3);
+    }
+  }
+  hapticSuccess();
+  runNextPlayerStep();
 }
 
 function runNextPlayerStep() {
@@ -59,6 +152,7 @@ function runNextPlayerStep() {
     return;
   }
 
+  clearTimeout(repAutoAdvanceTimer);
   const step = playerState.steps[playerState.stepIndex];
   const ex = getExerciseById(step.exerciseId);
 
@@ -75,6 +169,7 @@ function runNextPlayerStep() {
       `Série ${step.setNum}/${step.totalSets} · Exercice ${step.exIndex + 1}/${step.exTotal}`;
 
     if (step.mode === 'time') {
+      setRepsPanelVisible(false);
       playerState.remaining = step.value;
       document.getElementById('player-action-btn').textContent = 'Pause';
       document.getElementById('player-mode-hint').textContent = 'Durée en secondes';
@@ -82,14 +177,18 @@ function runNextPlayerStep() {
     } else {
       clearInterval(playerInterval);
       playerState.remaining = 0;
-      document.getElementById('player-timer-display').textContent = step.mode === 'maxrep' ? 'Max rep' : `${step.value} reps`;
+      playerState.repCount = 0;
+      setRepsPanelVisible(true);
       document.getElementById('player-mode-hint').textContent = step.mode === 'maxrep'
         ? 'Fais un maximum de répétitions'
         : `Objectif : ${step.value} répétitions`;
-      document.getElementById('player-action-btn').textContent = 'Série terminée ✓';
+      document.getElementById('player-action-btn').textContent =
+        step.mode === 'maxrep' ? 'Série terminée ✓' : 'Passer la série';
+      updateRepDisplay();
     }
   } else {
     playerPhase = 'rest';
+    setRepsPanelVisible(false);
     playerState.remaining = step.seconds;
     document.getElementById('player-phase-label').textContent = step.label;
     document.getElementById('player-mode-hint').textContent = 'Récupère…';
@@ -111,13 +210,8 @@ function startPlayerCountdown() {
     renderPlayerTimer();
     if (playerState.remaining <= 0) {
       clearInterval(playerInterval);
-      if (playerPhase === 'work') {
-        playerState.stepIndex += 1;
-        runNextPlayerStep();
-      } else {
-        playerState.stepIndex += 1;
-        runNextPlayerStep();
-      }
+      playerState.stepIndex += 1;
+      runNextPlayerStep();
     }
   }, 1000);
 }
@@ -145,10 +239,7 @@ function handlePlayerAction() {
   if (!playerState) return;
   const step = playerState.steps[playerState.stepIndex];
   if (playerPhase === 'work' && step.mode !== 'time') {
-    playerState.stepIndex += 1;
-    playerState.elapsed += step.mode === 'reps' ? step.value * 3 : 30;
-    runNextPlayerStep();
-    hapticSuccess();
+    completeRepSet(false);
     return;
   }
   if (playerPhase === 'rest') {
@@ -187,6 +278,11 @@ function finishProgramPlayer() {
 
 function bindProgramPlayer() {
   document.getElementById('player-action-btn')?.addEventListener('click', handlePlayerAction);
+  document.getElementById('player-rep-tap')?.addEventListener('click', incrementRep);
+  document.getElementById('player-rep-minus')?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    decrementRep();
+  });
   document.getElementById('player-stop-btn')?.addEventListener('click', () => {
     if (confirm('Arrêter le programme en cours ?')) {
       hideProgramPlayerOverlay();

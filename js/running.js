@@ -60,6 +60,7 @@ function onRunPosition(pos) {
   runState.distance = stats.distance;
   runState.elevation = stats.elevationGain;
   updateRunDisplay();
+  updateLiveRouteMap('run-live-map', runState.points);
 }
 
 function updateRunDisplay() {
@@ -122,6 +123,7 @@ function stopRunSession() {
     navigator.geolocation.clearWatch(runWatchId);
     runWatchId = null;
   }
+  destroyRouteMap('run-live-map');
 
   const run = {
     id: runState.id,
@@ -162,8 +164,23 @@ function showRunSummary(run) {
     <p><strong>${formatDurationSeconds(run.durationSec)}</strong></p>
     <p>${(run.distanceM / 1000).toFixed(2)} km · ${run.elevationM} m D+</p>
   `;
+
+  const mapEl = document.getElementById('run-route-map');
   const canvas = document.getElementById('run-route-canvas');
-  if (canvas) {
+  destroyRouteMap('run-route-map');
+
+  if (mapEl && run.route.length > 0) {
+    const map = renderRouteMap(mapEl, run.route, { height: 220, maxZoom: 17 });
+    if (!map && canvas) {
+      canvas.hidden = false;
+      canvas.width = 320;
+      canvas.height = 180;
+      drawRouteCanvas(canvas, run.route);
+    } else if (canvas) {
+      canvas.hidden = true;
+    }
+  } else if (canvas && run.route.length > 1) {
+    canvas.hidden = false;
     canvas.width = 320;
     canvas.height = 180;
     drawRouteCanvas(canvas, run.route);
@@ -182,6 +199,7 @@ function bindRunning() {
   document.getElementById('stop-run-btn')?.addEventListener('click', stopRunSession);
   document.getElementById('close-run-summary')?.addEventListener('click', () => {
     document.getElementById('run-summary-modal').hidden = true;
+    destroyRouteMap('run-route-map');
     showScreen('screen-running');
     renderRunsList();
   });

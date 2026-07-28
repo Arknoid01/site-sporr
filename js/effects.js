@@ -32,6 +32,12 @@ function hapticSuccess() {
   }
 }
 
+function hapticTick() {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(8);
+  }
+}
+
 function hideSplash() {
   const splash = document.getElementById('splash');
   if (!splash) return;
