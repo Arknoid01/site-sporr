@@ -1,4 +1,4 @@
-# Sport — Suivi sportif de Sarah
+# Sport — Suivi sportif
 
 Application web mobile personnelle pour suivre les séances de Yoga, Renforcement et Running.
 
