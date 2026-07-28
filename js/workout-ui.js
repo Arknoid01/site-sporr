@@ -307,6 +307,7 @@ function renderEquipmentGuide() {
     <div class="card equipment-card wger-credit">
       <h3>Catalogue wger</h3>
       <p class="hint">${wgerMeta.count} exercices importés (${wgerMeta.withImages} avec photo). Données sous licence <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a> (CC-BY-SA).</p>
+      <p class="hint">${wgerMeta.frenchDescriptions || wgerMeta.count} descriptions en français${wgerMeta.autoTranslated ? ' (traduction auto pour le reste)' : ''}.</p>
       <p class="hint">Mise à jour : ${new Date(wgerMeta.fetchedAt).toLocaleDateString('fr-FR')}</p>
     </div>
   ` : '';
