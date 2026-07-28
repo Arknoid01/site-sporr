@@ -294,7 +294,7 @@
         <div id="exercise-browser"></div>
       </div>
       <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
-        <p class="hint">Remplis <strong>ton</strong> profil et tes contraintes. Le bouton « Copier le prompt » envoie les instructions à Groq — ce n’est <strong>pas</strong> la réponse. Colle ensuite le <strong>JSON</strong> renvoyé par Groq dans la zone d’import.</p>
+        <p class="hint">Remplis ton profil, clique <strong>Générer le programme</strong>, vérifie l’aperçu puis valide ou refuse.</p>
         <div class="card ai-coach-card">
           <h3 class="section-title">Profil</h3>
           <div class="ai-form-grid">
@@ -343,7 +343,7 @@
           <h3 class="section-title">Contraintes</h3>
           <div class="ai-form-grid">
             <label>Durée max par séance (min)
-              <input type="number" id="ai-max-min" min="20" max="120" placeholder="Ex. 45" required>
+              <input type="number" id="ai-max-min" min="15" max="120" placeholder="Ex. 45" required>
             </label>
             <label>Séries jambes max / semaine
               <input type="number" id="ai-max-leg-sets" min="4" max="40" placeholder="Ex. 16">
@@ -356,20 +356,20 @@
             <textarea id="ai-notes" placeholder="Ex. genou fragile, pas de burpees, j’aime les machines…"></textarea>
           </label>
         </div>
-        <button type="button" id="ai-generate-btn" class="primary-btn">Générer avec Groq</button>
-        <button type="button" id="ai-generate-local-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Générer plan local (sans IA, instantané)</button>
-        <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt pour Groq</button>
-        <div class="card" style="margin-top:16px;">
-          <h3 class="section-title">Prompt à envoyer à Groq</h3>
-          <p class="hint">Zone de lecture seule — ce texte va <em>dans</em> Groq, pas dans l’import ci-dessous.</p>
-          <textarea id="ai-prompt-preview" readonly placeholder="Clique « Copier le prompt » pour afficher le texte à coller dans chat.groq.com…" rows="4"></textarea>
-        </div>
-        <div class="card" style="margin-top:16px;">
-          <h3 class="section-title">Importer la réponse JSON</h3>
-          <p class="hint">Colle ici uniquement le JSON renvoyé par Groq (commence par <code>{</code>, pas le prompt).</p>
-          <textarea id="ai-json-import" placeholder='{"planName":"Force 12 semaines","weeks":[…]}' rows="5"></textarea>
-          <button type="button" id="ai-import-json-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Importer le plan</button>
-        </div>
+        <button type="button" id="ai-generate-btn" class="primary-btn">Générer le programme</button>
+        <details class="ai-advanced-options" style="margin-top:12px;">
+          <summary class="hint" style="cursor:pointer;">Options avancées (Groq manuel)</summary>
+          <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt pour Groq</button>
+          <div class="card" style="margin-top:12px;">
+            <h3 class="section-title">Prompt à envoyer à Groq</h3>
+            <textarea id="ai-prompt-preview" readonly placeholder="Clique « Copier le prompt »…" rows="3"></textarea>
+          </div>
+          <div class="card" style="margin-top:12px;">
+            <h3 class="section-title">Importer la réponse JSON</h3>
+            <textarea id="ai-json-import" placeholder='{"planName":"…","weeks":[…]}' rows="4"></textarea>
+            <button type="button" id="ai-import-json-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Prévisualiser le JSON</button>
+          </div>
+        </details>
         <div id="ai-plans-list" class="ai-plans-list"></div>
       </div>
       <div id="renfo-panel-equipment" class="renfo-panel" hidden>
@@ -451,8 +451,8 @@
         <div class="form-group">
           <label for="settings-ai-provider">Mode</label>
           <select id="settings-ai-provider">
-            <option value="manual">Manuel (copier prompt → importer JSON)</option>
-            <option value="local">Plan local instantané (sans Groq)</option>
+            <option value="local" selected>Plan local instantané (recommandé)</option>
+            <option value="manual">Manuel (copier prompt → prévisualiser JSON)</option>
             <option value="groq">Groq — génération auto</option>
           </select>
         </div>
@@ -640,6 +640,28 @@
       <div class="run-summary-stats" id="run-summary-stats"></div>
       <div id="run-route-map" class="route-map-container"></div>
       <canvas id="run-route-canvas" width="320" height="180" hidden aria-hidden="true"></canvas>
+    </div>
+  </div>
+
+  <div id="ai-plan-preview-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet ai-preview-sheet" role="dialog" aria-labelledby="ai-preview-title">
+      <div class="modal-header">
+        <h2 id="ai-preview-title">Aperçu du programme</h2>
+        <button id="ai-preview-close" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div id="ai-preview-summary" class="ai-preview-summary"></div>
+      <label class="ai-preview-week-label">Semaine
+        <select id="ai-preview-week-select" class="ai-week-select"></select>
+      </label>
+      <div id="ai-preview-content" class="ai-preview-content"></div>
+      <label class="gen-muscle-label ai-preview-import-label">
+        <input type="checkbox" id="ai-preview-import-week" checked>
+        Importer la semaine 1 dans Programmes à la validation
+      </label>
+      <div class="ai-preview-actions">
+        <button type="button" id="ai-preview-reject" class="secondary-btn">Refuser</button>
+        <button type="button" id="ai-preview-accept" class="primary-btn">Valider le programme</button>
+      </div>
     </div>
   </div>
 

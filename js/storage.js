@@ -5,7 +5,7 @@ const DEFAULT_SETTINGS = {
   name: 'Sarah',
   goal: '',
   theme: 'light',
-  aiProvider: 'manual',
+  aiProvider: 'local',
   groqKey: '',
   groqModel: 'openai/gpt-oss-120b'
 };

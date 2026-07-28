@@ -243,6 +243,93 @@ function renderAiPlansList() {
   });
 }
 
+let pendingAiPlan = null;
+
+function renderAiPlanPreviewContent(plan, weekNum) {
+  const week = plan.weeks.find((w) => w.week === weekNum) || plan.weeks[0];
+  const container = document.getElementById('ai-preview-content');
+  if (!container || !week) return;
+
+  container.innerHTML = (week.sessions || []).map((session) => {
+    const dur = estimateProgramDuration({ items: session.items || [], restBetween: 60 });
+    const exercises = (session.items || []).map((item) => {
+      const ex = getExerciseById(item.exerciseId);
+      const name = ex?.name || item.exerciseId;
+      const detail = item.mode === 'time'
+        ? `${item.sets}× ${item.value}s`
+        : `${item.sets}× ${item.value} reps`;
+      return `
+        <div class="ai-preview-exercise">
+          <span>${escapeHtml(name)}</span>
+          <span class="ai-preview-exercise-meta">${detail}</span>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <article class="ai-preview-session">
+        <h4>${escapeHtml(session.name)} · ~${Math.round(dur / 60)} min</h4>
+        ${exercises}
+      </article>
+    `;
+  }).join('');
+}
+
+function showAiPlanPreviewModal(plan) {
+  pendingAiPlan = plan;
+  const modal = document.getElementById('ai-plan-preview-modal');
+  const summary = document.getElementById('ai-preview-summary');
+  const weekSelect = document.getElementById('ai-preview-week-select');
+  const importCheck = document.getElementById('ai-preview-import-week');
+  if (!modal || !summary || !weekSelect) return;
+
+  const sessionsPerWeek = plan.weeks[0]?.sessions?.length || 0;
+  const legSets = countWeekLegSets(plan.weeks[0]);
+  summary.innerHTML = `
+    <strong>${escapeHtml(plan.planName)}</strong><br>
+    ${plan.weeks.length} semaines · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
+    Semaine 1 : ${legSets} séries jambes/fessiers${plan.constraints?.maxLegSetsWeek ? ` (max ${plan.constraints.maxLegSetsWeek})` : ''}
+  `;
+
+  weekSelect.innerHTML = plan.weeks.map((w) =>
+    `<option value="${w.week}">S${w.week}${w.focus ? ` — ${escapeHtml(w.focus)}` : ''}</option>`
+  ).join('');
+
+  if (importCheck) importCheck.checked = true;
+  renderAiPlanPreviewContent(plan, plan.weeks[0]?.week || 1);
+  modal.hidden = false;
+}
+
+function closeAiPlanPreviewModal() {
+  const modal = document.getElementById('ai-plan-preview-modal');
+  if (modal) modal.hidden = true;
+  pendingAiPlan = null;
+}
+
+function acceptAiPlanPreview() {
+  if (!pendingAiPlan) return;
+  const plan = pendingAiPlan;
+  const importWeek = document.getElementById('ai-preview-import-week')?.checked;
+  saveAiPlan(plan);
+  let imported = 0;
+  if (importWeek) {
+    imported = importAiPlanWeekAsPrograms(plan, 1);
+    renderProgramsList();
+  }
+  renderAiPlansList();
+  closeAiPlanPreviewModal();
+  document.getElementById('ai-json-import').value = '';
+  showToast(imported
+    ? `Programme validé · ${imported} séance(s) ajoutée(s)`
+    : 'Programme validé et enregistré');
+  hapticSuccess();
+}
+
+function rejectAiPlanPreview() {
+  closeAiPlanPreviewModal();
+  showToast('Programme non enregistré');
+}
+
 async function handleAiGenerate() {
   const profile = readAiProfileFromForm();
   const constraints = readAiConstraintsFromForm();
@@ -253,53 +340,27 @@ async function handleAiGenerate() {
   }
 
   try {
-    const plan = await generateAiPlanWithProvider(profile, constraints);
-    renderAiPlansList();
-    switchRenfoTab('ai-coach');
-    showToast(`Plan « ${plan.planName} » créé !`);
-    hapticSuccess();
+    const plan = await buildAiPlanPreview(profile, constraints);
+    showAiPlanPreviewModal(plan);
   } catch (err) {
     if (err.message === 'MANUAL_MODE') {
-      showToast('Mode manuel : copie le prompt dans Groq, puis importe le JSON (pas le prompt)');
+      showToast('Mode manuel : colle le JSON Groq puis « Prévisualiser »');
       const preview = document.getElementById('ai-prompt-preview');
       if (preview && !preview.value) {
         try {
           preview.value = getAiPromptForClipboard(profile, constraints);
         } catch {
-          /* validation error already surfaced elsewhere */
+          /* form validation */
         }
       }
+      document.querySelector('.ai-advanced-options')?.setAttribute('open', '');
     } else {
       showToast(err.message.slice(0, 120));
     }
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Générer avec Groq';
-    }
-  }
-}
-
-function handleAiGenerateLocal() {
-  const profile = readAiProfileFromForm();
-  const constraints = readAiConstraintsFromForm();
-  const btn = document.getElementById('ai-generate-local-btn');
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = 'Création…';
-  }
-  try {
-    const plan = generateLocalAiPlan(profile, constraints);
-    saveAiPlan(plan);
-    renderAiPlansList();
-    showToast(`Plan local « ${plan.planName} » créé !`);
-    hapticSuccess();
-  } catch (err) {
-    showToast(err.message.slice(0, 140));
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Générer plan local (sans IA, instantané)';
+      btn.textContent = 'Générer le programme';
     }
   }
 }
@@ -317,9 +378,23 @@ function handleAiCopyPrompt() {
   const preview = document.getElementById('ai-prompt-preview');
   if (preview) preview.value = text;
   navigator.clipboard?.writeText(text).then(() => {
-    showToast('Prompt copié — colle-le dans Groq, puis importe la réponse JSON');
+    showToast('Prompt copié — colle-le dans Groq');
   }).catch(() => {
-    showToast('Prompt affiché ci-dessus — copie-le manuellement');
+    showToast('Prompt affiché ci-dessus');
+  });
+}
+
+function initAiPlanPreviewModal() {
+  document.getElementById('ai-preview-accept')?.addEventListener('click', acceptAiPlanPreview);
+  document.getElementById('ai-preview-reject')?.addEventListener('click', rejectAiPlanPreview);
+  document.getElementById('ai-preview-close')?.addEventListener('click', rejectAiPlanPreview);
+  document.getElementById('ai-preview-week-select')?.addEventListener('change', (e) => {
+    if (pendingAiPlan) {
+      renderAiPlanPreviewContent(pendingAiPlan, Number(e.target.value));
+    }
+  });
+  document.getElementById('ai-plan-preview-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'ai-plan-preview-modal') rejectAiPlanPreview();
   });
 }
 
@@ -330,17 +405,14 @@ function handleAiImportJson() {
     return;
   }
   if (raw.includes('Tu es un coach musculation') || raw.includes('CATALOGUE EXERCICES')) {
-    showToast('Tu as collé le prompt, pas la réponse — utilise la zone « Prompt » ou Groq');
+    showToast('Tu as collé le prompt, pas la réponse JSON');
     return;
   }
   try {
     const profile = readAiProfileFromForm();
     const constraints = readAiConstraintsFromForm();
-    const plan = parseAndSaveAiPlan(raw, profile, constraints);
-    document.getElementById('ai-json-import').value = '';
-    renderAiPlansList();
-    showToast(`Plan « ${plan.planName} » importé !`);
-    hapticSuccess();
+    const plan = parseAiPlan(raw, profile, constraints);
+    showAiPlanPreviewModal(plan);
   } catch (err) {
     showToast(err.message.slice(0, 140));
   }
@@ -560,9 +632,9 @@ function bindWorkoutUI() {
   });
 
   document.getElementById('ai-generate-btn')?.addEventListener('click', handleAiGenerate);
-  document.getElementById('ai-generate-local-btn')?.addEventListener('click', handleAiGenerateLocal);
   document.getElementById('ai-copy-prompt-btn')?.addEventListener('click', handleAiCopyPrompt);
   document.getElementById('ai-import-json-btn')?.addEventListener('click', handleAiImportJson);
+  initAiPlanPreviewModal();
 
   renderEquipmentGuide();
   bindProgramPlayer();

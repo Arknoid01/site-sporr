@@ -99,18 +99,13 @@ async function callGroq(apiKey, systemPrompt, userPrompt, model = 'openai/gpt-os
   return data.choices?.[0]?.message?.content || '';
 }
 
-async function generateAiPlanWithProvider(profile, constraints) {
+async function buildAiPlanPreview(profile, constraints) {
   validateAiForm(profile, constraints);
   const settings = loadSettings();
-  const provider = settings.aiProvider || 'manual';
-  const exercises = getExercisesForAiPrompt(profile, constraints);
-  const systemPrompt = buildAiSystemPrompt();
-  const userPrompt = buildAiUserPrompt(profile, constraints, exercises);
+  const provider = settings.aiProvider || 'local';
 
   if (provider === 'local') {
-    const plan = generateLocalAiPlan(profile, constraints);
-    saveAiPlan(plan);
-    return plan;
+    return generateLocalAiPlan(profile, constraints);
   }
 
   if (provider === 'manual') {
@@ -126,6 +121,10 @@ async function generateAiPlanWithProvider(profile, constraints) {
     throw new Error('Clé API Groq manquante — voir Réglages (console.groq.com)');
   }
 
+  const exercises = getExercisesForAiPrompt(profile, constraints);
+  const systemPrompt = buildAiSystemPrompt();
+  const userPrompt = buildAiUserPrompt(profile, constraints, exercises);
+
   let content;
   try {
     content = await callGroq(
@@ -136,22 +135,32 @@ async function generateAiPlanWithProvider(profile, constraints) {
     );
   } catch (err) {
     if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
-      throw new Error('Réseau ou CORS bloqué — utilise « Copier le prompt » puis « Importer JSON »');
+      throw new Error('Réseau ou CORS bloqué — passe en plan local dans Réglages');
     }
     throw err;
   }
 
-  return parseAndSaveAiPlan(content, profile, constraints);
+  return parseAiPlan(content, profile, constraints);
 }
 
-function parseAndSaveAiPlan(jsonText, profile, constraints) {
+async function generateAiPlanWithProvider(profile, constraints) {
+  const plan = await buildAiPlanPreview(profile, constraints);
+  saveAiPlan(plan);
+  return plan;
+}
+
+function parseAiPlan(jsonText, profile, constraints) {
   validateAiForm(profile, constraints);
-  const data = extractJsonFromText(jsonText);
+  const data = typeof jsonText === 'string' ? extractJsonFromText(jsonText) : jsonText;
   const errors = validateAiPlanData(data, constraints);
   if (errors.length) {
     throw new Error(`Plan invalide :\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? `\n… +${errors.length - 5}` : ''}`);
   }
-  const plan = normalizeAiPlanData(data, profile, constraints);
+  return normalizeAiPlanData(data, profile, constraints);
+}
+
+function parseAndSaveAiPlan(jsonText, profile, constraints) {
+  const plan = parseAiPlan(jsonText, profile, constraints);
   saveAiPlan(plan);
   return plan;
 }
