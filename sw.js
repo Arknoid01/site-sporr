@@ -1,43 +1,48 @@
-const CACHE_NAME = 'sporr-v2';
-const ASSETS = [
-  './',
-  './index.html',
-  './css/style.css',
-  './css/variables.css',
-  './css/components.css',
-  './css/themes.css',
-  './css/animations.css',
-  './js/storage.js',
-  './js/stats.js',
-  './js/charts.js',
-  './js/calendar.js',
-  './js/theme.js',
-  './js/pwa.js',
-  './js/ui.js',
-  './js/app.js',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './manifest.webmanifest',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css',
-  'https://cdn.jsdelivr.net/npm/flatpickr',
-  'https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js',
-  'https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap'
+const CACHE_NAME = 'sporr-v3';
+const LOCAL_ASSETS = [
+  'index.html',
+  'css/style.css',
+  'css/variables.css',
+  'css/components.css',
+  'css/themes.css',
+  'css/animations.css',
+  'js/config.js',
+  'js/storage.js',
+  'js/stats.js',
+  'js/charts.js',
+  'js/calendar.js',
+  'js/theme.js',
+  'js/pwa.js',
+  'js/ui.js',
+  'js/app.js',
+  'icons/icon-192.png',
+  'icons/icon-512.png',
+  'manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(async (cache) => {
+      await Promise.allSettled(
+        LOCAL_ASSETS.map(async (asset) => {
+          const response = await fetch(asset);
+          if (response.ok) {
+            await cache.put(asset, response);
+          }
+        })
+      );
+      await self.skipWaiting();
+    })
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    caches.keys()
+      .then((keys) => Promise.all(
         keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
-      )
-    ).then(() => self.clients.claim())
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
@@ -46,17 +51,17 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
+      if (cached) return cached;
+
+      return fetch(event.request)
         .then((response) => {
-          if (response && response.status === 200) {
+          if (response && response.status === 200 && event.request.url.startsWith(self.location.origin)) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           }
           return response;
         })
-        .catch(() => cached);
-
-      return cached || networkFetch;
+        .catch(() => caches.match('index.html'));
     })
   );
 });

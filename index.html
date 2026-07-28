@@ -31,7 +31,10 @@
       </header>
 
       <div id="install-banner" class="install-banner" hidden>
-        <p>Installe Sporr sur ton Android</p>
+        <div>
+          <p>Installer Sporr sur Android</p>
+          <p class="hint">Bouton ci-contre, ou menu Chrome ⋮</p>
+        </div>
         <button id="install-app-btn" class="secondary-btn" type="button">Installer</button>
       </div>
 
@@ -161,6 +164,16 @@
         <h2>Réglages</h2>
       </header>
 
+      <div id="install-help" class="card" hidden>
+        <h2 class="section-title">Installer sur Android</h2>
+        <ol class="install-steps">
+          <li>Ouvre Sporr dans <strong>Chrome</strong> (pas Samsung Internet)</li>
+          <li>Appuie sur le menu <strong>⋮</strong> en haut à droite</li>
+          <li>Choisis <strong>Installer l’application</strong> ou <strong>Ajouter à l’écran d’accueil</strong></li>
+        </ol>
+        <button id="install-app-settings-btn" class="primary-btn" type="button">Installer Sporr</button>
+      </div>
+
       <form id="settings-form" class="card">
         <div class="form-group">
           <label for="settings-name">Prénom</label>
@@ -212,6 +225,7 @@
     <div id="celebration" class="celebration" aria-hidden="true"></div>
   </div>
 
+  <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/stats.js"></script>
   <script src="js/charts.js"></script>
