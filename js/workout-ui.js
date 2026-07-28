@@ -188,15 +188,23 @@ function initAiCoachForm() {
   else {
     toggleAiPlanModeFields('single');
     toggleCycleFields();
+    toggleFemalePhysioFields();
   }
   window.__aiCoachFormLoaded = true;
 }
 
 function bindCycleFields() {
-  const ids = ['ai-sexe', 'ai-cycle-adapt', 'ai-last-period', 'ai-cycle-length', 'ai-cycle-phase-manual', 'ai-contraception'];
+  const ids = ['ai-sexe', 'ai-cycle-adapt', 'ai-last-period', 'ai-cycle-length', 'ai-cycle-phase-manual', 'ai-contraception', 'ai-pelvic-floor'];
   ids.forEach((id) => {
-    document.getElementById(id)?.addEventListener('change', toggleCycleFields);
-    document.getElementById(id)?.addEventListener('input', toggleCycleFields);
+    document.getElementById(id)?.addEventListener('change', () => {
+      if (id === 'ai-pelvic-floor') window.__pelvicFloorTouched = true;
+      toggleCycleFields();
+      toggleFemalePhysioFields();
+    });
+    document.getElementById(id)?.addEventListener('input', () => {
+      toggleCycleFields();
+      toggleFemalePhysioFields();
+    });
   });
 }
 
@@ -342,6 +350,9 @@ function showAiPlanPreviewModal(plan) {
   const cycleLine = isCycleAdaptationActive(plan.profile)
     ? getCyclePhaseSummary(plan.profile)
     : '';
+  const pelvicLine = isPelvicFloorProtectionActive(plan.profile)
+    ? 'Abdos plancher pelvien (transverse + périnée)'
+    : '';
 
   if (title) title.textContent = isSingle ? 'Aperçu de la séance' : 'Aperçu du programme';
   if (weekLabel) weekLabel.hidden = isSingle;
@@ -355,10 +366,10 @@ function showAiPlanPreviewModal(plan) {
   summary.innerHTML = isSingle
     ? `<strong>${escapeHtml(plan.planName)}</strong><br>
        ~${sessionDur} min · ${escapeHtml(plan.profile?.objectif || '')}<br>
-       Priorités : ${escapeHtml(priorities)} · ${session?.items?.length || 0} exercices${cycleLine ? `<br>Cycle : ${escapeHtml(cycleLine)}` : ''}`
+       Priorités : ${escapeHtml(priorities)} · ${session?.items?.length || 0} exercices${cycleLine ? `<br>Cycle : ${escapeHtml(cycleLine)}` : ''}${pelvicLine ? `<br>${escapeHtml(pelvicLine)}` : ''}`
     : `<strong>${escapeHtml(plan.planName)}</strong><br>
        ${plan.weeks.length} sem · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
-       Priorités : ${escapeHtml(priorities)}${cycleLine ? `<br>Cycle actuel : ${escapeHtml(cycleLine)}` : ''}<br>
+       Priorités : ${escapeHtml(priorities)}${cycleLine ? `<br>Cycle actuel : ${escapeHtml(cycleLine)}` : ''}${pelvicLine ? `<br>${escapeHtml(pelvicLine)}` : ''}<br>
        Semaine 1 : ${legSets} séries jambes/fessiers${plan.constraints?.maxLegSetsWeek ? ` (max ${plan.constraints.maxLegSetsWeek})` : ''}`;
 
   weekSelect.innerHTML = plan.weeks.map((w) =>

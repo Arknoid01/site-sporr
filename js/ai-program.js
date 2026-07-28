@@ -36,7 +36,8 @@ Règles strictes :
 - Muscles prioritaires = plus de volume dessus.
 - Exclus les exercices listés en « à éviter » et les zones à ménager.
 - Séances ≤ durée max (estime ~3 s/rep + repos).
-- Si adaptation cycle menstruel activée : moduler volume, intensité et repos selon la phase hormonale (menstruation = récupération, folliculaire = construction, ovulation = pic contrôlé, lutéale = maintien, fin de cycle = allègement).`;
+- Si adaptation cycle menstruel activée : moduler volume, intensité et repos selon la phase hormonale (menstruation = récupération, folliculaire = construction, ovulation = pic contrôlé, lutéale = maintien, fin de cycle = allègement).
+- Si protection plancher pelvien activée (femme) : abdos UNIQUEMENT en gainage, transverse, dead bug, respiration ventrale — jamais de crunch, sit-up ou relevés de jambes. Consigne : contracter le périnée et ramener le nombril vers la colonne.`;
 }
 
 function formatMuscleList(muscles) {
@@ -86,6 +87,7 @@ ${!isSingle ? `- Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsW
 ${constraints.excludeExercises ? `- Exercices à éviter : ${constraints.excludeExercises}` : ''}
 ${constraints.notes ? `- Notes : ${constraints.notes}` : ''}
 ${formatCyclePromptBlock(profile) ? `\n${formatCyclePromptBlock(profile)}\n` : ''}
+${formatPelvicFloorPromptBlock(profile) ? `\n${formatPelvicFloorPromptBlock(profile)}\n` : ''}
 
 CATALOGUE EXERCICES (exerciseId|nom|muscle|matériel) :
 ${catalog}${catalogNote}
@@ -219,7 +221,8 @@ function readAiProfileFromForm() {
     lastPeriodStart: document.getElementById('ai-last-period')?.value || '',
     cycleLength: Number(document.getElementById('ai-cycle-length')?.value) || 28,
     cyclePhaseManual: document.getElementById('ai-cycle-phase-manual')?.value || 'auto',
-    contraception: document.getElementById('ai-contraception')?.value || 'none'
+    contraception: document.getElementById('ai-contraception')?.value || 'none',
+    pelvicFloorSafe: document.getElementById('ai-pelvic-floor')?.checked !== false
   };
 }
 
@@ -275,7 +278,10 @@ function populateAiCoachForm(saved) {
   set('ai-cycle-length', profile.cycleLength || 28);
   set('ai-cycle-phase-manual', profile.cyclePhaseManual || 'auto');
   set('ai-contraception', profile.contraception || 'none');
+  setCheck('ai-pelvic-floor', profile.pelvicFloorSafe !== false);
+  if (profile.pelvicFloorSafe === false) window.__pelvicFloorTouched = true;
   toggleCycleFields();
+  toggleFemalePhysioFields();
 
   if (constraints) {
     set('ai-max-min', constraints.maxMinutes);
@@ -300,7 +306,9 @@ function clearAiCoachForm() {
   toggleAiPlanModeFields('single');
   const abs = document.getElementById('ai-include-abs');
   if (abs) abs.checked = true;
+  window.__pelvicFloorTouched = false;
   toggleCycleFields();
+  toggleFemalePhysioFields();
   localStorage.removeItem(AI_PROFILE_KEY);
   window.__aiCoachFormLoaded = true;
   showToast('Profil réinitialisé');

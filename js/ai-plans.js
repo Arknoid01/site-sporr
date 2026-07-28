@@ -40,7 +40,7 @@ const LOCAL_EXERCISES_BY_MUSCLE = {
   bras: ['curl', 'extension-triceps', 'wger-91'],
   jambes: ['squat', 'mollets', 'good-morning', 'wger-977'],
   fessiers: ['pont-fessier', 'donkey-kick', 'abduction', 'wger-292'],
-  abdos: ['gainage', 'crunch', 'gainage-lateral', 'wger-178']
+  abdos: ['respiration-transverse', 'gainage', 'dead-bug', 'gainage-lateral', 'oiseau-chien', 'wger-178']
 };
 
 const ALL_WORKOUT_MUSCLES = ['pectoraux', 'dos', 'epaules', 'bras', 'jambes', 'fessiers', 'abdos'];
@@ -106,12 +106,13 @@ function isExerciseExcludedByUser(ex, constraints) {
   return terms.some((term) => text.includes(term));
 }
 
-function passesZoneConstraints(ex, constraints) {
+function passesZoneConstraints(ex, constraints, profile = {}) {
   if (constraints.kneeSensitive && isKneeRiskyExercise(ex)) return false;
   if (constraints.backSensitive && isBackRiskyExercise(ex)) return false;
   if (constraints.shoulderSensitive && isShoulderRiskyExercise(ex)) return false;
   if (constraints.wristSensitive && isWristRiskyExercise(ex)) return false;
   if (isExerciseExcludedByUser(ex, constraints)) return false;
+  if (!passesPelvicFloorFilter(ex, profile)) return false;
   return true;
 }
 
@@ -122,6 +123,7 @@ function scoreExerciseForAi(ex, localIds, profile = {}) {
   if (ex.equipment === 'none') score -= 5;
   const priorities = profile.musclePriorities || [];
   if (priorities.includes(ex.muscle)) score += 35;
+  score += scorePelvicFloorBonus(ex, profile);
   return score;
 }
 
@@ -287,7 +289,7 @@ function getExercisesForAiPrompt(profile, constraints = {}) {
 
   const filtered = all.filter((ex) => {
     if (isExcludedFromAiCatalog(ex)) return false;
-    if (!passesZoneConstraints(ex, constraints)) return false;
+    if (!passesZoneConstraints(ex, constraints, profile)) return false;
     if (materielFilter && !materielFilter.has(ex.equipment)) {
       if (ex.muscle === 'abdos' && ex.equipment === 'none') return true;
       return false;
@@ -333,13 +335,15 @@ function getRestBase(constraints) {
 }
 
 function pickExerciseForMuscle(muscle, profile, constraints, usedIds = new Set()) {
-  const preferred = LOCAL_EXERCISES_BY_MUSCLE[muscle] || [];
+  const preferred = muscle === 'abdos'
+    ? getPreferredAbExerciseIds(profile)
+    : (LOCAL_EXERCISES_BY_MUSCLE[muscle] || []);
   const pool = getExercisesForAiPrompt(profile, constraints).filter((ex) => ex.muscle === muscle);
 
   for (const id of preferred) {
     if (usedIds.has(id)) continue;
     const ex = getExerciseById(id);
-    if (ex && passesZoneConstraints(ex, constraints)) return id;
+    if (ex && passesZoneConstraints(ex, constraints, profile)) return id;
   }
   for (const ex of pool) {
     if (!usedIds.has(ex.id)) return ex.id;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sport-v19';
+const CACHE_NAME = 'sport-v20';
 const LOCAL_ASSETS = [
   'index.html',
   'css/style.css',
@@ -25,6 +25,7 @@ const LOCAL_ASSETS = [
   'js/wger-catalog.js',
   'js/programs.js',
   'js/cycle-sync.js',
+  'js/pelvic-floor.js',
   'js/ai-plans.js',
   'js/ai-program.js',
   'js/route-map.js',

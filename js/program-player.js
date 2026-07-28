@@ -160,7 +160,10 @@ function runNextPlayerStep() {
   document.getElementById('player-exercise-image').innerHTML = ex ? getExerciseImageHtml(ex) : '';
   document.getElementById('player-exercise-desc').textContent = ex?.desc || '';
   document.getElementById('player-exercise-tips').innerHTML = ex
-    ? ex.tips.map((t) => `<li>${t}</li>`).join('')
+    ? [
+      ...(typeof getPelvicFloorCue === 'function' ? [getPelvicFloorCue(ex)].filter(Boolean) : []),
+      ...(ex.tips || [])
+    ].map((t) => `<li>${t}</li>`).join('')
     : '';
 
   if (step.type === 'work') {

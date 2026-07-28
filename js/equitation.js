@@ -8,7 +8,7 @@ const RIDER_FOCUS = {
     placeholder: 'Ex. Gainage posture',
     duration: 20,
     intensity: 'moderee',
-    pool: ['gainage', 'gainage-lateral', 'crunch', 'wger-178']
+    pool: ['gainage', 'gainage-lateral', 'respiration-transverse', 'dead-bug', 'wger-178']
   },
   jambes: {
     label: 'Jambes & adducteurs',
