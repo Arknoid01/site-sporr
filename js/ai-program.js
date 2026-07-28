@@ -50,7 +50,7 @@ function buildAiUserPrompt(profile, constraints, exercises) {
 CONTRAINTES :
 - Durée max par séance : ${constraints.maxMinutes || 60} min
 - Genou sensible : ${constraints.kneeSensitive ? 'OUI — éviter fentes profondes, sauts, plyométrie' : 'non'}
-- Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsWeek || 20}
+- Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsWeek > 0 ? constraints.maxLegSetsWeek : 'non précisé — adapte prudemment'}
 ${constraints.notes ? `- Notes : ${constraints.notes}` : ''}
 
 CATALOGUE EXERCICES (exerciseId|nom|muscle|matériel) :
@@ -115,6 +115,7 @@ async function callOpenAi(apiKey, systemPrompt, userPrompt, model = 'gpt-4o-mini
 }
 
 async function generateAiPlanWithProvider(profile, constraints) {
+  validateAiForm(profile, constraints);
   const settings = loadSettings();
   const provider = settings.aiProvider || 'manual';
   const exercises = getExercisesForAiPrompt(profile);
@@ -148,6 +149,7 @@ async function generateAiPlanWithProvider(profile, constraints) {
 }
 
 function parseAndSaveAiPlan(jsonText, profile, constraints) {
+  validateAiForm(profile, constraints);
   const data = extractJsonFromText(jsonText);
   const errors = validateAiPlanData(data, constraints);
   if (errors.length) {
@@ -159,26 +161,41 @@ function parseAndSaveAiPlan(jsonText, profile, constraints) {
 }
 
 function getAiPromptForClipboard(profile, constraints) {
+  validateAiForm(profile, constraints);
   const exercises = getExercisesForAiPrompt(profile);
   return `${buildAiSystemPrompt()}\n\n---\n\n${buildAiUserPrompt(profile, constraints, exercises)}`;
 }
 
 function readAiProfileFromForm() {
   return {
-    sexe: document.getElementById('ai-sexe')?.value || 'femme',
-    age: document.getElementById('ai-age')?.value || '30',
-    niveau: document.getElementById('ai-niveau')?.value || 'intermédiaire',
-    objectif: document.getElementById('ai-objectif')?.value || 'hypertrophie',
-    seancesSemaine: Number(document.getElementById('ai-seances')?.value) || 4,
-    materiel: document.getElementById('ai-materiel')?.value || 'salle complète'
+    sexe: document.getElementById('ai-sexe')?.value || '',
+    age: document.getElementById('ai-age')?.value || '',
+    niveau: document.getElementById('ai-niveau')?.value || '',
+    objectif: document.getElementById('ai-objectif')?.value || '',
+    seancesSemaine: Number(document.getElementById('ai-seances')?.value) || 0,
+    materiel: document.getElementById('ai-materiel')?.value || ''
   };
 }
 
 function readAiConstraintsFromForm() {
   return {
-    maxMinutes: Number(document.getElementById('ai-max-min')?.value) || 60,
+    maxMinutes: Number(document.getElementById('ai-max-min')?.value) || 0,
     kneeSensitive: document.getElementById('ai-knee')?.checked || false,
-    maxLegSetsWeek: Number(document.getElementById('ai-max-leg-sets')?.value) || 20,
+    maxLegSetsWeek: Number(document.getElementById('ai-max-leg-sets')?.value) || 0,
     notes: document.getElementById('ai-notes')?.value.trim() || ''
   };
+}
+
+function validateAiForm(profile, constraints) {
+  const missing = [];
+  if (!profile.sexe) missing.push('sexe');
+  if (!profile.age) missing.push('âge');
+  if (!profile.niveau) missing.push('niveau');
+  if (!profile.objectif) missing.push('objectif');
+  if (!profile.seancesSemaine || profile.seancesSemaine < 2) missing.push('séances/semaine');
+  if (!profile.materiel) missing.push('matériel');
+  if (!constraints.maxMinutes || constraints.maxMinutes < 15) missing.push('durée max');
+  if (missing.length) {
+    throw new Error(`Complète ton profil : ${missing.join(', ')}`);
+  }
 }

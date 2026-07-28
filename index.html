@@ -294,40 +294,44 @@
         <div id="exercise-browser"></div>
       </div>
       <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
-        <p class="hint">L’IA génère le plan une fois — ensuite tout est stocké dans l’app, sans connexion.</p>
+        <p class="hint">Remplis <strong>ton</strong> profil et tes contraintes — l’IA s’en sert une seule fois pour créer le plan, puis tout reste dans l’app.</p>
         <div class="card ai-coach-card">
           <h3 class="section-title">Profil</h3>
           <div class="ai-form-grid">
             <label>Sexe
-              <select id="ai-sexe">
+              <select id="ai-sexe" required>
+                <option value="" selected disabled>Choisir…</option>
                 <option value="femme">Femme</option>
                 <option value="homme">Homme</option>
               </select>
             </label>
             <label>Âge
-              <input type="number" id="ai-age" min="16" max="80" value="35">
+              <input type="number" id="ai-age" min="16" max="80" placeholder="Ex. 28" required>
             </label>
             <label>Niveau
-              <select id="ai-niveau">
+              <select id="ai-niveau" required>
+                <option value="" selected disabled>Choisir…</option>
                 <option value="débutant">Débutant</option>
-                <option value="intermédiaire" selected>Intermédiaire</option>
+                <option value="intermédiaire">Intermédiaire</option>
                 <option value="avancé">Avancé</option>
               </select>
             </label>
             <label>Objectif
-              <select id="ai-objectif">
-                <option value="hypertrophie" selected>Hypertrophie</option>
+              <select id="ai-objectif" required>
+                <option value="" selected disabled>Choisir…</option>
+                <option value="hypertrophie">Hypertrophie</option>
                 <option value="force">Force</option>
                 <option value="sèche">Sèche / tonification</option>
                 <option value="endurance">Endurance musculaire</option>
               </select>
             </label>
             <label>Séances / semaine
-              <input type="number" id="ai-seances" min="2" max="6" value="4">
+              <input type="number" id="ai-seances" min="2" max="6" placeholder="Ex. 3" required>
             </label>
             <label>Matériel
-              <select id="ai-materiel">
-                <option value="salle complète" selected>Salle complète</option>
+              <select id="ai-materiel" required>
+                <option value="" selected disabled>Choisir…</option>
+                <option value="salle complète">Salle complète</option>
                 <option value="haltères + banc">Haltères + banc</option>
                 <option value="élastiques + barre">Élastiques + barre</option>
                 <option value="poids du corps">Poids du corps</option>
@@ -338,18 +342,18 @@
         <div class="card ai-coach-card">
           <h3 class="section-title">Contraintes</h3>
           <div class="ai-form-grid">
-            <label>Durée max (min)
-              <input type="number" id="ai-max-min" min="20" max="120" value="60">
+            <label>Durée max par séance (min)
+              <input type="number" id="ai-max-min" min="20" max="120" placeholder="Ex. 45" required>
             </label>
             <label>Séries jambes max / semaine
-              <input type="number" id="ai-max-leg-sets" min="4" max="40" value="20">
+              <input type="number" id="ai-max-leg-sets" min="4" max="40" placeholder="Ex. 16">
             </label>
           </div>
           <label class="gen-muscle-label" style="margin-top:12px;">
             <input type="checkbox" id="ai-knee"> Genou sensible (éviter sauts, fentes profondes)
           </label>
-          <label class="form-group" style="margin-top:12px;">Notes
-            <textarea id="ai-notes" placeholder="Ex. préfère machines guidées, pas de développé couché barre"></textarea>
+          <label class="form-group" style="margin-top:12px;">Notes (blessures, préférences, ce qu’il faut éviter…)
+            <textarea id="ai-notes" placeholder="Ex. genou fragile, pas de burpees, j’aime les machines…"></textarea>
           </label>
         </div>
         <button type="button" id="ai-generate-btn" class="primary-btn">Générer avec l’IA</button>
