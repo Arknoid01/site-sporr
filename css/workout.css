@@ -498,6 +498,80 @@
   border-radius: var(--radius-sm);
 }
 
+.ai-coach-card .ai-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ai-coach-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.ai-coach-card select,
+.ai-coach-card input,
+.ai-coach-card textarea {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ai-plans-list {
+  margin-top: 20px;
+}
+
+.ai-plan-card {
+  margin-bottom: var(--gap-md);
+}
+
+.ai-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-week-select {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.ai-plan-sessions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ai-session-btn {
+  width: 100%;
+  text-align: left;
+}
+
+#ai-json-import {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
 .equipment-card h3 {
   margin-bottom: 8px;
   color: var(--secondary);

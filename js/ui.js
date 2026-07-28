@@ -266,6 +266,15 @@ function renderSettingsForm(settings) {
   if (themeToggle) {
     themeToggle.checked = settings.theme === 'dark';
   }
+
+  const aiProvider = document.getElementById('settings-ai-provider');
+  if (aiProvider) aiProvider.value = settings.aiProvider || 'manual';
+  const xaiKey = document.getElementById('settings-xai-key');
+  if (xaiKey) xaiKey.value = settings.xaiKey || '';
+  const openaiKey = document.getElementById('settings-openai-key');
+  if (openaiKey) openaiKey.value = settings.openaiKey || '';
+  const openaiModel = document.getElementById('settings-openai-model');
+  if (openaiModel) openaiModel.value = settings.openaiModel || 'gpt-4o-mini';
 }
 
 function resetAddForm() {
@@ -311,10 +320,15 @@ function bindAddForm(onSubmit) {
   });
 }
 
-function bindSettingsForm(onSave, onReset) {
+function bindSettingsForm(onSave, onReset, onSaveAi) {
   document.getElementById('settings-form').addEventListener('submit', (event) => {
     event.preventDefault();
     onSave();
+  });
+
+  document.getElementById('ai-settings-form')?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    onSaveAi?.();
   });
 
   document.getElementById('reset-data-btn').addEventListener('click', onReset);

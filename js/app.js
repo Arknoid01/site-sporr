@@ -67,6 +67,7 @@ function handleEditSession() {
 
 function handleSaveSettings() {
   const settings = {
+    ...loadSettings(),
     name: document.getElementById('settings-name').value.trim() || 'Sarah',
     goal: document.getElementById('settings-goal').value,
     theme: document.getElementById('settings-theme-dark').checked ? 'dark' : 'light'
@@ -78,6 +79,18 @@ function handleSaveSettings() {
   refreshApp(selectedCalendarDate);
   showToast('Réglages enregistrés');
   showScreen('screen-home');
+}
+
+function handleSaveAiSettings() {
+  const settings = {
+    ...loadSettings(),
+    aiProvider: document.getElementById('settings-ai-provider').value,
+    xaiKey: document.getElementById('settings-xai-key').value.trim(),
+    openaiKey: document.getElementById('settings-openai-key').value.trim(),
+    openaiModel: document.getElementById('settings-openai-model').value
+  };
+  saveSettings(settings);
+  showToast('Clés IA enregistrées (local uniquement)');
 }
 
 function handleResetData() {
@@ -111,7 +124,7 @@ function initApp() {
   bindWorkoutUI();
   bindAddForm(handleAddSession);
   bindEditModal(handleEditSession);
-  bindSettingsForm(handleSaveSettings, handleResetData);
+  bindSettingsForm(handleSaveSettings, handleResetData, handleSaveAiSettings);
 
   initCalendar((date) => {
     selectedCalendarDate = date;

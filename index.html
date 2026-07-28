@@ -231,6 +231,7 @@
         <button type="button" class="renfo-tab" data-renfo-tab="create">Créer</button>
         <button type="button" class="renfo-tab" data-renfo-tab="generator">Générateur</button>
         <button type="button" class="renfo-tab" data-renfo-tab="exercises">Exercices</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="ai-coach">Coach IA</button>
         <button type="button" class="renfo-tab" data-renfo-tab="equipment">Matériel</button>
       </div>
       <div id="renfo-panel-programs" class="renfo-panel">
@@ -291,6 +292,74 @@
           <option value="abdos">Abdominaux</option>
         </select>
         <div id="exercise-browser"></div>
+      </div>
+      <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
+        <p class="hint">L’IA génère le plan une fois — ensuite tout est stocké dans l’app, sans connexion.</p>
+        <div class="card ai-coach-card">
+          <h3 class="section-title">Profil</h3>
+          <div class="ai-form-grid">
+            <label>Sexe
+              <select id="ai-sexe">
+                <option value="femme">Femme</option>
+                <option value="homme">Homme</option>
+              </select>
+            </label>
+            <label>Âge
+              <input type="number" id="ai-age" min="16" max="80" value="35">
+            </label>
+            <label>Niveau
+              <select id="ai-niveau">
+                <option value="débutant">Débutant</option>
+                <option value="intermédiaire" selected>Intermédiaire</option>
+                <option value="avancé">Avancé</option>
+              </select>
+            </label>
+            <label>Objectif
+              <select id="ai-objectif">
+                <option value="hypertrophie" selected>Hypertrophie</option>
+                <option value="force">Force</option>
+                <option value="sèche">Sèche / tonification</option>
+                <option value="endurance">Endurance musculaire</option>
+              </select>
+            </label>
+            <label>Séances / semaine
+              <input type="number" id="ai-seances" min="2" max="6" value="4">
+            </label>
+            <label>Matériel
+              <select id="ai-materiel">
+                <option value="salle complète" selected>Salle complète</option>
+                <option value="haltères + banc">Haltères + banc</option>
+                <option value="élastiques + barre">Élastiques + barre</option>
+                <option value="poids du corps">Poids du corps</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="card ai-coach-card">
+          <h3 class="section-title">Contraintes</h3>
+          <div class="ai-form-grid">
+            <label>Durée max (min)
+              <input type="number" id="ai-max-min" min="20" max="120" value="60">
+            </label>
+            <label>Séries jambes max / semaine
+              <input type="number" id="ai-max-leg-sets" min="4" max="40" value="20">
+            </label>
+          </div>
+          <label class="gen-muscle-label" style="margin-top:12px;">
+            <input type="checkbox" id="ai-knee"> Genou sensible (éviter sauts, fentes profondes)
+          </label>
+          <label class="form-group" style="margin-top:12px;">Notes
+            <textarea id="ai-notes" placeholder="Ex. préfère machines guidées, pas de développé couché barre"></textarea>
+          </label>
+        </div>
+        <button type="button" id="ai-generate-btn" class="primary-btn">Générer avec l’IA</button>
+        <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt (Grok / ChatGPT)</button>
+        <div class="card" style="margin-top:16px;">
+          <h3 class="section-title">Importer la réponse JSON</h3>
+          <textarea id="ai-json-import" placeholder='Colle ici le JSON renvoyé par Grok ou GPT…' rows="5"></textarea>
+          <button type="button" id="ai-import-json-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Importer le plan</button>
+        </div>
+        <div id="ai-plans-list" class="ai-plans-list"></div>
       </div>
       <div id="renfo-panel-equipment" class="renfo-panel" hidden>
         <div id="equipment-guide"></div>
@@ -363,6 +432,36 @@
         </div>
 
         <button type="submit" class="primary-btn">Enregistrer</button>
+      </form>
+
+      <form id="ai-settings-form" class="card">
+        <h2 class="section-title">Coach IA (Grok / GPT)</h2>
+        <p class="hint">Clés stockées uniquement sur ton téléphone. L’IA sert à créer le plan — ensuite plus besoin d’internet.</p>
+        <div class="form-group">
+          <label for="settings-ai-provider">Fournisseur</label>
+          <select id="settings-ai-provider">
+            <option value="manual">Manuel (copier/coller JSON)</option>
+            <option value="xai">xAI — Grok</option>
+            <option value="openai">OpenAI — GPT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="settings-xai-key">Clé API xAI (Grok)</label>
+          <input type="password" id="settings-xai-key" autocomplete="off" placeholder="xai-…">
+        </div>
+        <div class="form-group">
+          <label for="settings-openai-key">Clé API OpenAI</label>
+          <input type="password" id="settings-openai-key" autocomplete="off" placeholder="sk-…">
+        </div>
+        <div class="form-group">
+          <label for="settings-openai-model">Modèle OpenAI</label>
+          <select id="settings-openai-model">
+            <option value="gpt-4o-mini">gpt-4o-mini (rapide, économique)</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+          </select>
+        </div>
+        <button type="submit" class="secondary-btn" style="width:100%;">Enregistrer clés IA</button>
       </form>
 
       <div class="card">
@@ -585,6 +684,8 @@
   <script src="js/exercise-catalog.js"></script>
   <script src="js/wger-catalog.js"></script>
   <script src="js/programs.js"></script>
+  <script src="js/ai-plans.js"></script>
+  <script src="js/ai-program.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/route-map.js"></script>
   <script src="js/program-player.js"></script>

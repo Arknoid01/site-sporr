@@ -4,7 +4,12 @@ const SETTINGS_KEY = 'sporrSettings';
 const DEFAULT_SETTINGS = {
   name: 'Sarah',
   goal: '',
-  theme: 'light'
+  theme: 'light',
+  aiProvider: 'manual',
+  xaiKey: '',
+  xaiModel: 'grok-2-latest',
+  openaiKey: '',
+  openaiModel: 'gpt-4o-mini'
 };
 
 function parseSession(raw) {
@@ -67,9 +72,7 @@ function loadSettings() {
   const settings = { ...DEFAULT_SETTINGS };
   data.split('|').forEach((entry) => {
     const [key, ...valueParts] = entry.split(':');
-    if (key in settings) {
-      settings[key] = valueParts.join(':');
-    }
+    if (key) settings[key] = valueParts.join(':');
   });
 
   return settings;
@@ -132,4 +135,5 @@ function resetAllData() {
   localStorage.removeItem(SPORTS_KEY);
   localStorage.removeItem(PROGRAMS_KEY);
   localStorage.removeItem(RUNS_KEY);
+  localStorage.removeItem('sporrAiPlans');
 }

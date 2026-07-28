@@ -17,6 +17,7 @@ function openRunningHub() {
 function renderRenfoHub() {
   renderProgramsList();
   renderExerciseBrowser();
+  renderAiPlansList();
   updateBuilderDurationPreview();
 }
 
@@ -162,6 +163,144 @@ function switchRenfoTab(tab) {
   document.querySelectorAll('.renfo-panel').forEach((panel) => {
     panel.hidden = panel.id !== `renfo-panel-${tab}`;
   });
+  if (tab === 'exercises') renderExerciseBrowser();
+  if (tab === 'ai-coach') renderAiPlansList();
+}
+
+function renderAiPlansList() {
+  const container = document.getElementById('ai-plans-list');
+  if (!container) return;
+
+  const plans = loadAiPlans();
+  if (plans.length === 0) {
+    container.innerHTML = '<p class="empty-state">Aucun plan IA enregistré.</p>';
+    return;
+  }
+
+  container.innerHTML = plans.map((plan) => {
+    const week = plan.currentWeek || 1;
+    const weekData = plan.weeks.find((w) => w.week === week);
+    const sessions = weekData?.sessions || [];
+    return `
+      <article class="card ai-plan-card" data-plan-id="${plan.id}">
+        <div class="ai-plan-header">
+          <strong>${escapeHtml(plan.planName)}</strong>
+          <button type="button" class="delete-btn compact" data-del-plan="${plan.id}">✕</button>
+        </div>
+        <p class="hint">${plan.weeks.length} semaines · ${plan.profile?.objectif || ''} · ${plan.profile?.seancesSemaine || '?'} séances/sem</p>
+        <label>Semaine active
+          <select data-plan-week="${plan.id}" class="ai-week-select">
+            ${plan.weeks.map((w) => `<option value="${w.week}" ${w.week === week ? 'selected' : ''}>S${w.week}${w.focus ? ` — ${escapeHtml(w.focus)}` : ''}</option>`).join('')}
+          </select>
+        </label>
+        <div class="ai-plan-sessions">
+          ${sessions.map((session, idx) => `
+            <button type="button" class="secondary-btn ai-session-btn" data-plan-id="${plan.id}" data-week="${week}" data-session="${idx}">
+              ▶ ${escapeHtml(session.name)} (${session.items.length} ex.)
+            </button>
+          `).join('')}
+        </div>
+        <button type="button" class="secondary-btn compact" data-import-week="${plan.id}" data-week="${week}" style="width:100%;margin-top:8px;">
+          Enregistrer semaine ${week} dans Programmes
+        </button>
+      </article>
+    `;
+  }).join('');
+
+  container.querySelectorAll('[data-del-plan]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (confirm('Supprimer ce plan IA ?')) {
+        deleteAiPlan(btn.dataset.delPlan);
+        renderAiPlansList();
+        showToast('Plan supprimé');
+      }
+    });
+  });
+
+  container.querySelectorAll('.ai-week-select').forEach((select) => {
+    select.addEventListener('change', () => {
+      setAiPlanCurrentWeek(select.dataset.planWeek, Number(select.value));
+      renderAiPlansList();
+    });
+  });
+
+  container.querySelectorAll('.ai-session-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const plan = getAiPlanById(btn.dataset.planId);
+      const program = sessionToProgram(plan, Number(btn.dataset.week), Number(btn.dataset.session));
+      if (program) startProgramPlayer(program);
+    });
+  });
+
+  container.querySelectorAll('[data-import-week]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const plan = getAiPlanById(btn.dataset.importWeek);
+      const count = importAiPlanWeekAsPrograms(plan, Number(btn.dataset.week));
+      renderProgramsList();
+      showToast(`${count} séances ajoutées aux Programmes`);
+      hapticSuccess();
+    });
+  });
+}
+
+async function handleAiGenerate() {
+  const profile = readAiProfileFromForm();
+  const constraints = readAiConstraintsFromForm();
+  const btn = document.getElementById('ai-generate-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Génération…';
+  }
+
+  try {
+    const plan = await generateAiPlanWithProvider(profile, constraints);
+    renderAiPlansList();
+    switchRenfoTab('ai-coach');
+    showToast(`Plan « ${plan.planName} » créé !`);
+    hapticSuccess();
+  } catch (err) {
+    if (err.message === 'MANUAL_MODE') {
+      showToast('Mode manuel : copie le prompt dans Grok/GPT puis importe le JSON');
+    } else {
+      showToast(err.message.slice(0, 120));
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Générer avec l’IA';
+    }
+  }
+}
+
+function handleAiCopyPrompt() {
+  const profile = readAiProfileFromForm();
+  const constraints = readAiConstraintsFromForm();
+  const text = getAiPromptForClipboard(profile, constraints);
+  navigator.clipboard?.writeText(text).then(() => {
+    showToast('Prompt copié — colle-le dans Grok ou ChatGPT');
+  }).catch(() => {
+    document.getElementById('ai-json-import').value = text;
+    showToast('Prompt affiché dans la zone JSON (copie manuelle)');
+  });
+}
+
+function handleAiImportJson() {
+  const raw = document.getElementById('ai-json-import')?.value.trim();
+  if (!raw) {
+    showToast('Colle d’abord le JSON');
+    return;
+  }
+  try {
+    const profile = readAiProfileFromForm();
+    const constraints = readAiConstraintsFromForm();
+    const plan = parseAndSaveAiPlan(raw, profile, constraints);
+    document.getElementById('ai-json-import').value = '';
+    renderAiPlansList();
+    showToast(`Plan « ${plan.planName} » importé !`);
+    hapticSuccess();
+  } catch (err) {
+    showToast(err.message.slice(0, 140));
+  }
 }
 
 function resetBuilder() {
@@ -376,6 +515,10 @@ function bindWorkoutUI() {
     showToast(`${result.imported} programmes wger ajoutés !`);
     hapticSuccess();
   });
+
+  document.getElementById('ai-generate-btn')?.addEventListener('click', handleAiGenerate);
+  document.getElementById('ai-copy-prompt-btn')?.addEventListener('click', handleAiCopyPrompt);
+  document.getElementById('ai-import-json-btn')?.addEventListener('click', handleAiImportJson);
 
   renderEquipmentGuide();
   bindProgramPlayer();
