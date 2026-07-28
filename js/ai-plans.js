@@ -1,4 +1,15 @@
 const AI_PLANS_KEY = 'sporrAiPlans';
+const AI_PROFILE_KEY = 'sporrAiCoachProfile';
+
+const MUSCLE_LABELS = {
+  fessiers: 'Fessiers',
+  jambes: 'Jambes',
+  dos: 'Dos',
+  pectoraux: 'Pectoraux',
+  bras: 'Bras',
+  epaules: 'Épaules',
+  abdos: 'Abdominaux'
+};
 
 const KNEE_SENSITIVE_KEYWORDS = [
   'jump', 'saut', 'burpee', 'fente', 'lunge', 'pistol', 'plyo', 'bulgare',
@@ -6,6 +17,38 @@ const KNEE_SENSITIVE_KEYWORDS = [
   'mountain climber', 'step jack', 'nordic', 'thruster', 'walking lunge',
   'marche de', 'talons fesses', 'genoux hauts', 'escaladeur', 'bronco'
 ];
+
+const BACK_SENSITIVE_KEYWORDS = [
+  'good morning', 'soulevé', 'deadlift', 'hyperextension', 'stiff', 'romanian',
+  'rdl', 'good-morning', 'superman', 'hyper ext', 'lombaire'
+];
+
+const SHOULDER_SENSITIVE_KEYWORDS = [
+  'overhead', 'militaire', 'handstand', 'dips', 'push press', 'arnold',
+  'muscle-up', 'pompes piquées', 'pike', 'handstand', 'thruster', 'arraché', 'épaulé'
+];
+
+const WRIST_SENSITIVE_KEYWORDS = [
+  'poignet', 'wrist', 'front squat', 'muscle-up', 'handstand', 'pompe sur les doigts',
+  'barre au front', 'curl des poignets', 'enrouleur'
+];
+
+const LOCAL_EXERCISES_BY_MUSCLE = {
+  pectoraux: ['developpe', 'ecartes', 'wger-73'],
+  dos: ['rowing', 'tirage-vertical', 'pull-over', 'wger-83'],
+  epaules: ['developpe-epaules', 'elevations', 'wger-566'],
+  bras: ['curl', 'extension-triceps', 'wger-91'],
+  jambes: ['squat', 'mollets', 'good-morning', 'wger-977'],
+  fessiers: ['pont-fessier', 'donkey-kick', 'abduction', 'wger-292'],
+  abdos: ['gainage', 'crunch', 'gainage-lateral', 'wger-178']
+};
+
+const SPLIT_LABELS = {
+  auto: 'Automatique',
+  'upper-lower': 'Haut / Bas',
+  'push-pull-legs': 'Push / Pull / Legs',
+  'full-body': 'Full body'
+};
 
 const AI_CATALOG_EXCLUDE_KEYWORDS = [
   'étirement', 'stretch', 'yoga', 'foam', 'meditation', 'breathing', 'swim',
@@ -39,11 +82,51 @@ function isKneeRiskyExercise(ex) {
   return KNEE_SENSITIVE_KEYWORDS.some((kw) => text.includes(kw));
 }
 
-function scoreExerciseForAi(ex, localIds) {
+function isBackRiskyExercise(ex) {
+  const text = `${ex.name} ${ex.desc || ''}`.toLowerCase();
+  return BACK_SENSITIVE_KEYWORDS.some((kw) => text.includes(kw));
+}
+
+function isShoulderRiskyExercise(ex) {
+  const text = `${ex.name} ${ex.desc || ''}`.toLowerCase();
+  return SHOULDER_SENSITIVE_KEYWORDS.some((kw) => text.includes(kw));
+}
+
+function isWristRiskyExercise(ex) {
+  const text = `${ex.name} ${ex.desc || ''}`.toLowerCase();
+  return WRIST_SENSITIVE_KEYWORDS.some((kw) => text.includes(kw));
+}
+
+function parseExcludeList(text) {
+  return (text || '')
+    .split(/[,;\n]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function isExerciseExcludedByUser(ex, constraints) {
+  const terms = parseExcludeList(constraints.excludeExercises);
+  if (!terms.length) return false;
+  const text = `${ex.name} ${ex.id} ${ex.desc || ''}`.toLowerCase();
+  return terms.some((term) => text.includes(term));
+}
+
+function passesZoneConstraints(ex, constraints) {
+  if (constraints.kneeSensitive && isKneeRiskyExercise(ex)) return false;
+  if (constraints.backSensitive && isBackRiskyExercise(ex)) return false;
+  if (constraints.shoulderSensitive && isShoulderRiskyExercise(ex)) return false;
+  if (constraints.wristSensitive && isWristRiskyExercise(ex)) return false;
+  if (isExerciseExcludedByUser(ex, constraints)) return false;
+  return true;
+}
+
+function scoreExerciseForAi(ex, localIds, profile = {}) {
   let score = 0;
   if (localIds.has(ex.id)) score += 100;
   if (ex.equipment === 'barre' || ex.equipment === 'elastiques') score += 20;
   if (ex.equipment === 'none') score -= 5;
+  const priorities = profile.musclePriorities || [];
+  if (priorities.includes(ex.muscle)) score += 35;
   return score;
 }
 
@@ -106,8 +189,9 @@ function validateAiPlanData(data, constraints = {}) {
   const errors = [];
   if (!data?.planName) errors.push('Nom du plan manquant');
   if (!Array.isArray(data.weeks) || data.weeks.length === 0) errors.push('Semaines manquantes');
-  if (data.weeks?.length > 0 && data.weeks.length < 12) {
-    errors.push(`Attention : ${data.weeks.length} semaine(s) seulement (12 recommandé)`);
+  const expectedWeeks = Number(constraints.planWeeks) || 12;
+  if (data.weeks?.length > 0 && data.weeks.length < expectedWeeks) {
+    errors.push(`Attention : ${data.weeks.length} semaine(s) seulement (${expectedWeeks} demandé)`);
   }
 
   const maxLeg = Number(constraints.maxLegSetsWeek) > 0 ? Number(constraints.maxLegSetsWeek) : 999;
@@ -202,13 +286,12 @@ function setAiPlanCurrentWeek(planId, weekNum) {
 
 function getExercisesForAiPrompt(profile, constraints = {}) {
   const all = getAllExercises();
-  const kneeSensitive = constraints.kneeSensitive === true;
   const materielFilter = parseMaterielFilter(profile.materiel);
   const localIds = new Set(EXERCISE_CATALOG.map((ex) => ex.id));
 
   const filtered = all.filter((ex) => {
     if (isExcludedFromAiCatalog(ex)) return false;
-    if (kneeSensitive && isKneeRiskyExercise(ex)) return false;
+    if (!passesZoneConstraints(ex, constraints)) return false;
     if (materielFilter && !materielFilter.has(ex.equipment)) {
       if (ex.muscle === 'abdos' && ex.equipment === 'none') return true;
       return false;
@@ -217,7 +300,7 @@ function getExercisesForAiPrompt(profile, constraints = {}) {
   });
 
   const sorted = filtered.sort(
-    (a, b) => scoreExerciseForAi(b, localIds) - scoreExerciseForAi(a, localIds)
+    (a, b) => scoreExerciseForAi(b, localIds, profile) - scoreExerciseForAi(a, localIds, profile)
   );
 
   const seen = new Set();
@@ -244,130 +327,165 @@ function pickExercise(candidates, fallbackId) {
   return fallbackId && getExerciseById(fallbackId) ? fallbackId : candidates[0];
 }
 
-function buildLocalSessionTemplates(profile, constraints) {
-  const knee = constraints.kneeSensitive;
-  const sessions = Number(profile.seancesSemaine) || 2;
-  const objectif = (profile.objectif || 'force').toLowerCase();
+function getRestBase(constraints) {
+  const map = {
+    short: { sets: 45, after: 30 },
+    medium: { sets: 60, after: 45 },
+    long: { sets: 90, after: 75 }
+  };
+  return map[constraints.restPreference] || map.medium;
+}
 
-  const upperPush = pickExercise(['developpe', 'wger-73', 'wger-1094'], 'developpe');
-  const upperPull = pickExercise(['rowing', 'wger-83', 'wger-84'], 'rowing');
-  const shoulders = pickExercise(['developpe-epaules', 'wger-566', 'wger-687'], 'developpe-epaules');
-  const arms = pickExercise(['curl', 'wger-91', 'extension-triceps'], 'curl');
+function pickExerciseForMuscle(muscle, profile, constraints, usedIds = new Set()) {
+  const preferred = LOCAL_EXERCISES_BY_MUSCLE[muscle] || [];
+  const pool = getExercisesForAiPrompt(profile, constraints).filter((ex) => ex.muscle === muscle);
 
-  const lowerMain = knee
-    ? pickExercise(['squat', 'wger-977', 'wger-1963'], 'squat')
-    : pickExercise(['squat', 'wger-1801', 'wger-1437'], 'squat');
-  const glutes = pickExercise(['pont-fessier', 'wger-292', 'donkey-kick'], 'pont-fessier');
-  const calves = pickExercise(['mollets', 'wger-1243'], 'mollets');
-  const hinge = pickExercise(['good-morning', 'wger-1700'], 'good-morning');
-  const core = pickExercise(['gainage', 'wger-1307', 'deadbug'], 'gainage');
+  for (const id of preferred) {
+    if (usedIds.has(id)) continue;
+    const ex = getExerciseById(id);
+    if (ex && passesZoneConstraints(ex, constraints)) return id;
+  }
+  for (const ex of pool) {
+    if (!usedIds.has(ex.id)) return ex.id;
+  }
+  return null;
+}
 
-  const baseReps = objectif.includes('force') ? 6 : objectif.includes('endurance') ? 15 : 10;
-
-  const mk = (exerciseId, sets, value, mode = 'reps', restSets = 60, restAfter = 45) => ({
-    exerciseId,
-    sets,
-    mode,
-    value,
-    restSets,
-    restAfter
+function buildItemsForMuscles(muscles, profile, constraints, exCount, baseReps, restBase) {
+  const used = new Set();
+  const priorities = profile.musclePriorities || [];
+  const ordered = [...muscles].sort((a, b) => {
+    const ap = priorities.includes(a) ? 0 : 1;
+    const bp = priorities.includes(b) ? 0 : 1;
+    return ap - bp;
   });
 
-  const templates = [];
+  const items = [];
+  for (const muscle of ordered) {
+    if (items.length >= exCount) break;
+    const id = pickExerciseForMuscle(muscle, profile, constraints, used);
+    if (!id) continue;
+    used.add(id);
+    const ex = getExerciseById(id);
+    const sets = priorities.includes(muscle) ? 4 : 3;
+    const mode = ex?.defaultMode || 'reps';
+    const value = mode === 'time'
+      ? 30
+      : Math.max(4, priorities.includes(muscle) ? baseReps - 1 : baseReps);
+    items.push({
+      exerciseId: id,
+      sets,
+      mode,
+      value,
+      restSets: restBase.sets,
+      restAfter: restBase.after
+    });
+  }
+  return items;
+}
 
-  if (sessions <= 2) {
-    templates.push({
-      name: 'Force haut du corps',
-      items: [
-        mk(upperPush, 3, baseReps),
-        mk(upperPull, 3, baseReps),
-        mk(shoulders, 3, baseReps + 2)
-      ]
-    });
-    templates.push({
-      name: knee ? 'Force bas genou-safe' : 'Force bas du corps',
-      items: knee
-        ? [
-            mk(lowerMain, 3, baseReps + 2),
-            mk(glutes, 2, 12),
-            mk(calves, 2, 15)
-          ]
-        : [
-            mk(lowerMain, 3, baseReps),
-            mk(hinge, 2, 10),
-            mk(glutes, 2, 12)
-          ]
-    });
-  } else if (sessions === 3) {
-    templates.push({
-      name: 'Push',
-      items: [mk(upperPush, 3, baseReps), mk(shoulders, 3, baseReps + 2), mk(arms, 2, 10)]
-    });
-    templates.push({
-      name: 'Pull',
-      items: [
-        mk(upperPull, 3, baseReps),
-        mk(pickExercise(['pull-over', 'tirage-vertical'], 'tirage-vertical'), 3, baseReps),
-        mk(arms, 2, 10)
-      ]
-    });
-    templates.push({
-      name: knee ? 'Jambes genou-safe' : 'Jambes',
-      items: knee
-        ? [mk(lowerMain, 3, baseReps + 2), mk(glutes, 2, 12), mk(core, 2, 30, 'time')]
-        : [mk(lowerMain, 3, baseReps), mk(hinge, 2, 10), mk(glutes, 2, 12)]
-    });
-  } else {
-    templates.push({
-      name: 'Push',
-      items: [mk(upperPush, 3, baseReps), mk(shoulders, 3, baseReps), mk(arms, 2, 10)]
-    });
-    templates.push({
-      name: 'Pull',
-      items: [mk(upperPull, 3, baseReps), mk(pickExercise(['tirage-vertical', 'pull-over'], 'tirage-vertical'), 3, baseReps)]
-    });
-    templates.push({
-      name: knee ? 'Jambes genou-safe' : 'Jambes',
-      items: [mk(lowerMain, 3, baseReps), mk(glutes, 2, 12), mk(calves, 2, 15)]
-    });
-    templates.push({
-      name: 'Full body',
-      items: [mk(upperPush, 2, baseReps + 2), mk(upperPull, 2, baseReps + 2), mk(core, 2, 30, 'time')]
+function resolveSplitType(profile, sessions) {
+  const split = profile.splitType || 'auto';
+  if (split !== 'auto') return split;
+  if (sessions <= 2) return 'upper-lower';
+  if (sessions === 3) return 'push-pull-legs';
+  return 'upper-lower';
+}
+
+function buildSplitBlueprints(split, sessions, constraints) {
+  const includeAbs = constraints.includeAbs !== false;
+  const abs = includeAbs ? ['abdos'] : [];
+  const lower = ['jambes', 'fessiers', ...abs];
+  const upper = ['pectoraux', 'dos', 'epaules', 'bras'];
+  const push = ['pectoraux', 'epaules', 'bras'];
+  const pull = ['dos', 'bras'];
+  const kneeLabel = constraints.kneeSensitive ? ' genou-safe' : '';
+
+  if (split === 'full-body') {
+    const base = [...upper, ...lower.filter((m) => m !== 'abdos' || includeAbs)];
+    return Array.from({ length: sessions }, (_, i) => {
+      const rotated = [...base.slice(i % base.length), ...base.slice(0, i % base.length)];
+      return { name: `Full body ${i + 1}`, muscles: rotated };
     });
   }
 
-  return templates.slice(0, sessions);
+  if (split === 'upper-lower') {
+    return Array.from({ length: sessions }, (_, i) => (
+      i % 2 === 0
+        ? { name: 'Haut du corps', muscles: upper }
+        : { name: `Bas du corps${kneeLabel}`, muscles: lower }
+    ));
+  }
+
+  if (split === 'push-pull-legs') {
+    if (sessions <= 2) {
+      return [
+        { name: 'Push', muscles: push },
+        { name: `Pull + Legs${kneeLabel}`, muscles: [...pull, ...lower] }
+      ];
+    }
+    const cycle = [
+      { name: 'Push', muscles: push },
+      { name: 'Pull', muscles: pull },
+      { name: `Legs${kneeLabel}`, muscles: lower }
+    ];
+    return Array.from({ length: sessions }, (_, i) => cycle[i % 3]);
+  }
+
+  return Array.from({ length: sessions }, (_, i) => (
+    i % 2 === 0
+      ? { name: 'Haut du corps', muscles: upper }
+      : { name: `Bas du corps${kneeLabel}`, muscles: lower }
+  ));
 }
 
-function progressionForWeek(weekNum, profile) {
+function buildLocalSessionTemplates(profile, constraints) {
+  const sessions = Number(profile.seancesSemaine) || 2;
+  const exCount = Math.min(5, Math.max(3, Number(profile.exercisesPerSession) || 3));
   const objectif = (profile.objectif || 'force').toLowerCase();
+  const baseReps = objectif.includes('force') ? 6 : objectif.includes('endurance') ? 15 : 10;
+  const restBase = getRestBase(constraints);
+  const split = resolveSplitType(profile, sessions);
+  const blueprints = buildSplitBlueprints(split, sessions, constraints);
+
+  return blueprints.map((bp) => ({
+    name: bp.name,
+    items: buildItemsForMuscles(bp.muscles, profile, constraints, exCount, baseReps, restBase)
+  })).filter((tpl) => tpl.items.length > 0);
+}
+
+function progressionForWeek(weekNum, profile, constraints = {}) {
+  const objectif = (profile.objectif || 'force').toLowerCase();
+  const totalWeeks = Number(profile.planWeeks) || 12;
+  const quarter = Math.max(1, Math.ceil(totalWeeks / 4));
+  const restBase = getRestBase(constraints);
   let phase = 'Technique';
   let setsBonus = 0;
   let repsAdjust = 0;
-  let restSets = 60;
-  let restAfter = 45;
+  let restSets = restBase.sets;
+  let restAfter = restBase.after;
 
-  if (weekNum <= 3) {
+  if (weekNum <= quarter) {
     phase = 'Fondations — maîtrise le mouvement, charge légère';
     repsAdjust = objectif.includes('force') ? 2 : 0;
-    restSets = 55;
-  } else if (weekNum <= 6) {
+    restSets = Math.max(40, restBase.sets - 5);
+  } else if (weekNum <= quarter * 2) {
     phase = 'Accumulation — monte progressivement la charge';
     repsAdjust = 0;
-    restSets = 65;
-    restAfter = 55;
-  } else if (weekNum <= 9) {
+    restSets = restBase.sets + 5;
+    restAfter = restBase.after + 10;
+  } else if (weekNum <= quarter * 3) {
     phase = 'Intensification — reps plus basses, repos plus longs';
     setsBonus = 1;
     repsAdjust = objectif.includes('force') ? -2 : 0;
-    restSets = 75;
-    restAfter = 60;
+    restSets = restBase.sets + 15;
+    restAfter = restBase.after + 15;
   } else {
-    phase = 'Pic — force max, charge la plus lourde du cycle';
+    phase = 'Pic — charge la plus lourde du cycle';
     setsBonus = 1;
     repsAdjust = objectif.includes('force') ? -3 : -1;
-    restSets = 90;
-    restAfter = 75;
+    restSets = restBase.sets + 25;
+    restAfter = restBase.after + 25;
   }
 
   return { phase, setsBonus, repsAdjust, restSets, restAfter };
@@ -376,12 +494,18 @@ function progressionForWeek(weekNum, profile) {
 function generateLocalAiPlan(profile, constraints) {
   validateAiForm(profile, constraints);
   const templates = buildLocalSessionTemplates(profile, constraints);
+  if (!templates.length) {
+    throw new Error('Aucune séance générée — assouplis tes filtres ou zones à ménager');
+  }
   const sessionsPerWeek = templates.length;
   const objectif = profile.objectif || 'force';
+  const planWeeks = Number(profile.planWeeks) || 12;
+  const splitLabel = SPLIT_LABELS[resolveSplitType(profile, sessionsPerWeek)] || 'Perso';
 
   const weeks = [];
-  for (let w = 1; w <= 12; w += 1) {
-    const prog = progressionForWeek(w, profile);
+  for (let w = 1; w <= planWeeks; w += 1) {
+    const prog = progressionForWeek(w, profile, constraints);
+    const mid = Math.ceil(planWeeks / 2);
     weeks.push({
       week: w,
       focus: `S${w} — ${prog.phase}`,
@@ -389,7 +513,7 @@ function generateLocalAiPlan(profile, constraints) {
         name: tpl.name,
         items: tpl.items.map((item) => {
           const baseValue = item.mode === 'time'
-            ? item.value + (w > 6 ? 10 : 0)
+            ? item.value + (w > mid ? 10 : 0)
             : Math.max(4, item.value + prog.repsAdjust);
           return {
             exerciseId: item.exerciseId,
@@ -405,28 +529,43 @@ function generateLocalAiPlan(profile, constraints) {
   }
 
   const planData = {
-    planName: `${objectif.charAt(0).toUpperCase() + objectif.slice(1)} 12 sem · ${sessionsPerWeek}×/sem`,
+    planName: `${objectif.charAt(0).toUpperCase() + objectif.slice(1)} ${planWeeks} sem · ${splitLabel}`,
     weeks
   };
 
-  const errors = validateAiPlanData(planData, constraints);
+  const errors = validateAiPlanData(planData, { ...constraints, planWeeks });
   if (errors.length) {
-    const relaxed = templates.map((tpl) => ({
-      ...tpl,
-      items: tpl.items.map((item) => ({ ...item, sets: Math.max(2, item.sets - 1) }))
-    }));
     planData.weeks = weeks.map((week) => ({
       ...week,
-      sessions: relaxed.map((tpl) => ({
-        name: tpl.name,
-        items: tpl.items.map((item) => ({ ...item, restSets: 45, restAfter: 30 }))
+      sessions: week.sessions.map((session) => ({
+        ...session,
+        items: session.items.map((item) => ({
+          ...item,
+          sets: Math.max(2, item.sets - 1),
+          restSets: getRestBase(constraints).sets,
+          restAfter: getRestBase(constraints).after
+        }))
       }))
     }));
-    const retryErrors = validateAiPlanData(planData, constraints);
+    const retryErrors = validateAiPlanData(planData, { ...constraints, planWeeks });
     if (retryErrors.length) {
       throw new Error(`Plan local impossible : ${retryErrors.slice(0, 3).join('; ')}`);
     }
   }
 
   return normalizeAiPlanData(planData, profile, constraints);
+}
+
+function saveAiCoachProfile(profile, constraints) {
+  localStorage.setItem(AI_PROFILE_KEY, JSON.stringify({ profile, constraints, savedAt: Date.now() }));
+}
+
+function loadAiCoachProfile() {
+  const raw = localStorage.getItem(AI_PROFILE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }

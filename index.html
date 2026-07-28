@@ -294,7 +294,8 @@
         <div id="exercise-browser"></div>
       </div>
       <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
-        <p class="hint">Remplis ton profil, clique <strong>Générer le programme</strong>, vérifie l’aperçu puis valide ou refuse.</p>
+        <p class="hint">Remplis ton profil, personnalise le programme, génère puis valide l’aperçu. Ton profil est mémorisé sur cet appareil.</p>
+        <form id="ai-coach-form" onsubmit="return false;">
         <div class="card ai-coach-card">
           <h3 class="section-title">Profil</h3>
           <div class="ai-form-grid">
@@ -340,7 +341,54 @@
           </div>
         </div>
         <div class="card ai-coach-card">
-          <h3 class="section-title">Contraintes</h3>
+          <h3 class="section-title">Personnalisation</h3>
+          <div class="ai-form-grid">
+            <label>Type de split
+              <select id="ai-split">
+                <option value="auto">Automatique (selon séances/sem)</option>
+                <option value="upper-lower">Haut / Bas</option>
+                <option value="push-pull-legs">Push / Pull / Legs</option>
+                <option value="full-body">Full body</option>
+              </select>
+            </label>
+            <label>Durée du programme
+              <select id="ai-plan-weeks">
+                <option value="8">8 semaines</option>
+                <option value="12" selected>12 semaines</option>
+                <option value="16">16 semaines</option>
+              </select>
+            </label>
+            <label>Exercices / séance
+              <select id="ai-ex-per-session">
+                <option value="3">3 exercices</option>
+                <option value="4" selected>4 exercices</option>
+                <option value="5">5 exercices</option>
+              </select>
+            </label>
+            <label>Temps de repos
+              <select id="ai-rest">
+                <option value="short">Court (45 s)</option>
+                <option value="medium" selected>Moyen (60 s)</option>
+                <option value="long">Long (90 s)</option>
+              </select>
+            </label>
+          </div>
+          <p class="hint" style="margin:12px 0 8px;">Muscles prioritaires <span class="hint">(plus de volume)</span></p>
+          <div class="gen-muscles-grid ai-priority-grid">
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="fessiers"> Fessiers</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="jambes"> Jambes</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="dos"> Dos</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="pectoraux"> Pectoraux</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="bras"> Bras</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="epaules"> Épaules</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="abdos"> Abdos</label>
+          </div>
+          <label class="gen-muscle-label" style="margin-top:8px;">
+            <input type="checkbox" id="ai-include-abs" checked> Inclure des exercices abdos
+          </label>
+        </div>
+        <div class="card ai-coach-card">
+          <h3 class="section-title">Contraintes &amp; sécurité</h3>
           <div class="ai-form-grid">
             <label>Durée max par séance (min)
               <input type="number" id="ai-max-min" min="15" max="120" placeholder="Ex. 45" required>
@@ -349,14 +397,25 @@
               <input type="number" id="ai-max-leg-sets" min="4" max="40" placeholder="Ex. 16">
             </label>
           </div>
-          <label class="gen-muscle-label" style="margin-top:12px;">
-            <input type="checkbox" id="ai-knee"> Genou sensible (éviter sauts, fentes profondes)
+          <p class="hint" style="margin:12px 0 8px;">Zones à ménager</p>
+          <div class="gen-muscles-grid ai-zones-grid">
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-knee"> Genoux</label>
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-back"> Dos / lombaires</label>
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-shoulder"> Épaules</label>
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-wrist"> Poignets</label>
+          </div>
+          <label class="form-group" style="margin-top:12px;">Exercices à éviter <span class="hint">(noms séparés par des virgules)</span>
+            <input type="text" id="ai-exclude" placeholder="Ex. burpees, fentes, développé militaire…">
           </label>
-          <label class="form-group" style="margin-top:12px;">Notes (blessures, préférences, ce qu’il faut éviter…)
-            <textarea id="ai-notes" placeholder="Ex. genou fragile, pas de burpees, j’aime les machines…"></textarea>
+          <label class="form-group" style="margin-top:12px;">Notes libres
+            <textarea id="ai-notes" placeholder="Ex. préfère les exercices unilatéraux, pas de burpees…"></textarea>
           </label>
         </div>
-        <button type="button" id="ai-generate-btn" class="primary-btn">Générer le programme</button>
+        </form>
+        <div class="ai-coach-actions">
+          <button type="button" id="ai-generate-btn" class="primary-btn">Générer le programme</button>
+          <button type="button" id="ai-clear-profile-btn" class="secondary-btn compact">Réinitialiser le profil</button>
+        </div>
         <details class="ai-advanced-options" style="margin-top:12px;">
           <summary class="hint" style="cursor:pointer;">Options avancées (Groq manuel)</summary>
           <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt pour Groq</button>

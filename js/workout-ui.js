@@ -164,7 +164,17 @@ function switchRenfoTab(tab) {
     panel.hidden = panel.id !== `renfo-panel-${tab}`;
   });
   if (tab === 'exercises') renderExerciseBrowser();
-  if (tab === 'ai-coach') renderAiPlansList();
+  if (tab === 'ai-coach') {
+    initAiCoachForm();
+    renderAiPlansList();
+  }
+}
+
+function initAiCoachForm() {
+  if (window.__aiCoachFormLoaded) return;
+  const saved = loadAiCoachProfile();
+  if (saved) populateAiCoachForm(saved);
+  window.__aiCoachFormLoaded = true;
 }
 
 function renderAiPlansList() {
@@ -285,9 +295,13 @@ function showAiPlanPreviewModal(plan) {
 
   const sessionsPerWeek = plan.weeks[0]?.sessions?.length || 0;
   const legSets = countWeekLegSets(plan.weeks[0]);
+  const priorities = (plan.profile?.musclePriorities || [])
+    .map((m) => MUSCLE_LABELS[m] || m).join(', ') || 'équilibré';
+  const split = SPLIT_LABELS[plan.profile?.splitType] || plan.profile?.splitType || 'auto';
   summary.innerHTML = `
     <strong>${escapeHtml(plan.planName)}</strong><br>
-    ${plan.weeks.length} semaines · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
+    ${plan.weeks.length} sem · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
+    Split : ${escapeHtml(split)} · Priorités : ${escapeHtml(priorities)}<br>
     Semaine 1 : ${legSets} séries jambes/fessiers${plan.constraints?.maxLegSetsWeek ? ` (max ${plan.constraints.maxLegSetsWeek})` : ''}
   `;
 
@@ -340,6 +354,7 @@ async function handleAiGenerate() {
   }
 
   try {
+    saveAiCoachProfile(profile, constraints);
     const plan = await buildAiPlanPreview(profile, constraints);
     showAiPlanPreviewModal(plan);
   } catch (err) {
@@ -411,6 +426,7 @@ function handleAiImportJson() {
   try {
     const profile = readAiProfileFromForm();
     const constraints = readAiConstraintsFromForm();
+    saveAiCoachProfile(profile, constraints);
     const plan = parseAiPlan(raw, profile, constraints);
     showAiPlanPreviewModal(plan);
   } catch (err) {
@@ -632,6 +648,7 @@ function bindWorkoutUI() {
   });
 
   document.getElementById('ai-generate-btn')?.addEventListener('click', handleAiGenerate);
+  document.getElementById('ai-clear-profile-btn')?.addEventListener('click', clearAiCoachForm);
   document.getElementById('ai-copy-prompt-btn')?.addEventListener('click', handleAiCopyPrompt);
   document.getElementById('ai-import-json-btn')?.addEventListener('click', handleAiImportJson);
   initAiPlanPreviewModal();

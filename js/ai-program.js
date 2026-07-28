@@ -29,12 +29,27 @@ function buildAiSystemPrompt() {
 Règles strictes :
 - Utilise UNIQUEMENT des exerciseId présents dans le catalogue fourni.
 - mode = "reps" | "time" | "maxrep" ; value = répétitions ou secondes.
-- Respecte TOUTES les contraintes (durée, genou, séries jambes/semaine).
-- Génère exactement 12 semaines avec progression réaliste (volume, reps ou charge suggérée dans "focus").
+- Respecte TOUTES les contraintes (durée, zones sensibles, séries jambes/semaine, split, priorités).
+- Génère exactement le nombre de semaines demandé avec progression réaliste (volume, reps ou charge dans "focus").
 - Chaque semaine a le même nombre de séances que demandé.
 - repos en secondes : restSets (entre séries), restAfter (après l'exercice).
-- Évite les exercices à impact genou si genou sensible.
+- Respecte le type de split et les muscles prioritaires (plus de volume dessus).
+- Exclus les exercices listés en « à éviter » et les zones à ménager.
 - Séances ≤ durée max (estime ~3 s/rep + repos).`;
+}
+
+function formatMuscleList(muscles) {
+  if (!muscles?.length) return 'équilibré (aucune priorité)';
+  return muscles.map((m) => MUSCLE_LABELS[m] || m).join(', ');
+}
+
+function formatZoneList(constraints) {
+  const zones = [];
+  if (constraints.kneeSensitive) zones.push('genoux');
+  if (constraints.backSensitive) zones.push('dos/lombaires');
+  if (constraints.shoulderSensitive) zones.push('épaules');
+  if (constraints.wristSensitive) zones.push('poignets');
+  return zones.length ? zones.join(', ') : 'aucune';
 }
 
 function buildAiUserPrompt(profile, constraints, exercises) {
@@ -42,6 +57,8 @@ function buildAiUserPrompt(profile, constraints, exercises) {
   const catalogNote = exercises.length >= AI_CATALOG_MAX
     ? `\n(Catalogue filtré : ${exercises.length} exercices pertinents pour ton matériel et tes contraintes.)`
     : '';
+  const planWeeks = profile.planWeeks || 12;
+  const split = SPLIT_LABELS[profile.splitType] || profile.splitType || 'automatique';
   return `PROFIL :
 - Sexe : ${profile.sexe || 'non précisé'}
 - Âge : ${profile.age || '?'} ans
@@ -50,10 +67,19 @@ function buildAiUserPrompt(profile, constraints, exercises) {
 - Séances/semaine : ${profile.seancesSemaine || 4}
 - Matériel : ${profile.materiel || 'salle complète'}
 
+PERSONNALISATION :
+- Durée du programme : ${planWeeks} semaines
+- Type de split : ${split}
+- Exercices par séance : ${profile.exercisesPerSession || 3}
+- Repos : ${constraints.restPreference === 'short' ? 'court' : constraints.restPreference === 'long' ? 'long' : 'moyen'}
+- Muscles prioritaires : ${formatMuscleList(profile.musclePriorities)}
+- Inclure abdos : ${constraints.includeAbs !== false ? 'oui' : 'non'}
+
 CONTRAINTES :
 - Durée max par séance : ${constraints.maxMinutes || 60} min
-- Genou sensible : ${constraints.kneeSensitive ? 'OUI — éviter fentes profondes, sauts, plyométrie' : 'non'}
+- Zones à ménager : ${formatZoneList(constraints)}
 - Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsWeek > 0 ? constraints.maxLegSetsWeek : 'non précisé — adapte prudemment'}
+${constraints.excludeExercises ? `- Exercices à éviter : ${constraints.excludeExercises}` : ''}
 ${constraints.notes ? `- Notes : ${constraints.notes}` : ''}
 
 CATALOGUE EXERCICES (exerciseId|nom|muscle|matériel) :
@@ -61,8 +87,8 @@ ${catalog}${catalogNote}
 
 IMPORTANT : réponds UNIQUEMENT avec le JSON du programme (pas ce prompt, pas de markdown).
 
-Génère un programme 12 semaines. Schéma JSON :
-${AI_JSON_SCHEMA}`;
+Génère un programme ${planWeeks} semaines. Schéma JSON :
+${AI_JSON_SCHEMA.replace('12 semaines', `${planWeeks} semaines`)}`;
 }
 
 function extractJsonFromText(text) {
@@ -178,7 +204,11 @@ function readAiProfileFromForm() {
     niveau: document.getElementById('ai-niveau')?.value || '',
     objectif: document.getElementById('ai-objectif')?.value || '',
     seancesSemaine: Number(document.getElementById('ai-seances')?.value) || 0,
-    materiel: document.getElementById('ai-materiel')?.value || ''
+    materiel: document.getElementById('ai-materiel')?.value || '',
+    splitType: document.getElementById('ai-split')?.value || 'auto',
+    planWeeks: Number(document.getElementById('ai-plan-weeks')?.value) || 12,
+    exercisesPerSession: Number(document.getElementById('ai-ex-per-session')?.value) || 3,
+    musclePriorities: [...document.querySelectorAll('.ai-priority-check:checked')].map((c) => c.value)
   };
 }
 
@@ -186,9 +216,66 @@ function readAiConstraintsFromForm() {
   return {
     maxMinutes: Number(document.getElementById('ai-max-min')?.value) || 0,
     kneeSensitive: document.getElementById('ai-knee')?.checked || false,
+    backSensitive: document.getElementById('ai-back')?.checked || false,
+    shoulderSensitive: document.getElementById('ai-shoulder')?.checked || false,
+    wristSensitive: document.getElementById('ai-wrist')?.checked || false,
     maxLegSetsWeek: Number(document.getElementById('ai-max-leg-sets')?.value) || 0,
-    notes: document.getElementById('ai-notes')?.value.trim() || ''
+    restPreference: document.getElementById('ai-rest')?.value || 'medium',
+    includeAbs: document.getElementById('ai-include-abs')?.checked !== false,
+    excludeExercises: document.getElementById('ai-exclude')?.value.trim() || '',
+    notes: document.getElementById('ai-notes')?.value.trim() || '',
+    planWeeks: Number(document.getElementById('ai-plan-weeks')?.value) || 12
   };
+}
+
+function populateAiCoachForm(saved) {
+  if (!saved?.profile) return;
+  const { profile, constraints } = saved;
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null && val !== '') el.value = val;
+  };
+  const setCheck = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  };
+
+  set('ai-sexe', profile.sexe);
+  set('ai-age', profile.age);
+  set('ai-niveau', profile.niveau);
+  set('ai-objectif', profile.objectif);
+  set('ai-seances', profile.seancesSemaine);
+  set('ai-materiel', profile.materiel);
+  set('ai-split', profile.splitType || 'auto');
+  set('ai-plan-weeks', profile.planWeeks || 12);
+  set('ai-ex-per-session', profile.exercisesPerSession || 3);
+
+  document.querySelectorAll('.ai-priority-check').forEach((cb) => {
+    cb.checked = (profile.musclePriorities || []).includes(cb.value);
+  });
+
+  if (constraints) {
+    set('ai-max-min', constraints.maxMinutes);
+    set('ai-max-leg-sets', constraints.maxLegSetsWeek);
+    set('ai-rest', constraints.restPreference || 'medium');
+    set('ai-exclude', constraints.excludeExercises);
+    set('ai-notes', constraints.notes);
+    setCheck('ai-knee', constraints.kneeSensitive);
+    setCheck('ai-back', constraints.backSensitive);
+    setCheck('ai-shoulder', constraints.shoulderSensitive);
+    setCheck('ai-wrist', constraints.wristSensitive);
+    setCheck('ai-include-abs', constraints.includeAbs !== false);
+  }
+}
+
+function clearAiCoachForm() {
+  document.getElementById('ai-coach-form')?.reset();
+  document.querySelectorAll('.ai-priority-check').forEach((cb) => { cb.checked = false; });
+  const abs = document.getElementById('ai-include-abs');
+  if (abs) abs.checked = true;
+  localStorage.removeItem(AI_PROFILE_KEY);
+  window.__aiCoachFormLoaded = true;
+  showToast('Profil réinitialisé');
 }
 
 function validateAiForm(profile, constraints) {
