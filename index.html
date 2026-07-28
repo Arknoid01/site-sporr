@@ -351,6 +351,41 @@
             </label>
           </div>
         </div>
+        <div class="card ai-coach-card" id="ai-cycle-card" hidden>
+          <h3 class="section-title">Cycle menstruel</h3>
+          <label class="gen-muscle-label">
+            <input type="checkbox" id="ai-cycle-adapt"> Adapter le programme à mon cycle hormonal
+          </label>
+          <p class="hint" id="ai-cycle-phase-hint"></p>
+          <div class="ai-cycle-fields" hidden>
+            <div class="ai-form-grid" style="margin-top:12px;">
+              <label id="ai-cycle-date-wrap">Dernières règles (J1)
+                <input type="date" id="ai-last-period">
+              </label>
+              <label>Durée du cycle (jours)
+                <input type="number" id="ai-cycle-length" min="21" max="40" value="28" placeholder="28">
+              </label>
+              <label>Phase (manuelle)
+                <select id="ai-cycle-phase-manual">
+                  <option value="auto" selected>Auto (calculée)</option>
+                  <option value="menstruation">Menstruation</option>
+                  <option value="follicular">Phase folliculaire</option>
+                  <option value="ovulation">Ovulation</option>
+                  <option value="luteal">Phase lutéale</option>
+                  <option value="late-luteal">Fin de cycle</option>
+                </select>
+              </label>
+              <label>Contraception hormonale
+                <select id="ai-contraception">
+                  <option value="none" selected>Aucune / non hormonale</option>
+                  <option value="pilule">Pilule / anneau / patch</option>
+                  <option value="implant">Implant / DIU hormonal</option>
+                  <option value="autre">Autre (hormones exogènes)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
         <div class="card ai-coach-card">
           <h3 class="section-title">Personnalisation</h3>
           <div class="ai-form-grid">
@@ -845,6 +880,7 @@
   <script src="js/exercise-catalog.js"></script>
   <script src="js/wger-catalog.js"></script>
   <script src="js/programs.js"></script>
+  <script src="js/cycle-sync.js"></script>
   <script src="js/ai-plans.js"></script>
   <script src="js/ai-program.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

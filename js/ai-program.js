@@ -35,7 +35,8 @@ Règles strictes :
 - repos en secondes : restSets (entre séries), restAfter (après l'exercice).
 - Muscles prioritaires = plus de volume dessus.
 - Exclus les exercices listés en « à éviter » et les zones à ménager.
-- Séances ≤ durée max (estime ~3 s/rep + repos).`;
+- Séances ≤ durée max (estime ~3 s/rep + repos).
+- Si adaptation cycle menstruel activée : moduler volume, intensité et repos selon la phase hormonale (menstruation = récupération, folliculaire = construction, ovulation = pic contrôlé, lutéale = maintien, fin de cycle = allègement).`;
 }
 
 function formatMuscleList(muscles) {
@@ -84,6 +85,7 @@ CONTRAINTES :
 ${!isSingle ? `- Max séries jambes+fessiers/semaine : ${constraints.maxLegSetsWeek > 0 ? constraints.maxLegSetsWeek : 'non précisé — adapte prudemment'}` : ''}
 ${constraints.excludeExercises ? `- Exercices à éviter : ${constraints.excludeExercises}` : ''}
 ${constraints.notes ? `- Notes : ${constraints.notes}` : ''}
+${formatCyclePromptBlock(profile) ? `\n${formatCyclePromptBlock(profile)}\n` : ''}
 
 CATALOGUE EXERCICES (exerciseId|nom|muscle|matériel) :
 ${catalog}${catalogNote}
@@ -212,7 +214,12 @@ function readAiProfileFromForm() {
     materiel: document.getElementById('ai-materiel')?.value || '',
     planWeeks: Number(document.getElementById('ai-plan-weeks')?.value) || 12,
     exercisesPerSession: Number(document.getElementById('ai-ex-per-session')?.value) || 4,
-    musclePriorities: [...document.querySelectorAll('.ai-priority-check:checked')].map((c) => c.value)
+    musclePriorities: [...document.querySelectorAll('.ai-priority-check:checked')].map((c) => c.value),
+    cycleAdaptation: document.getElementById('ai-cycle-adapt')?.checked || false,
+    lastPeriodStart: document.getElementById('ai-last-period')?.value || '',
+    cycleLength: Number(document.getElementById('ai-cycle-length')?.value) || 28,
+    cyclePhaseManual: document.getElementById('ai-cycle-phase-manual')?.value || 'auto',
+    contraception: document.getElementById('ai-contraception')?.value || 'none'
   };
 }
 
@@ -263,6 +270,13 @@ function populateAiCoachForm(saved) {
     cb.checked = (profile.musclePriorities || []).includes(cb.value);
   });
 
+  setCheck('ai-cycle-adapt', profile.cycleAdaptation);
+  set('ai-last-period', profile.lastPeriodStart);
+  set('ai-cycle-length', profile.cycleLength || 28);
+  set('ai-cycle-phase-manual', profile.cyclePhaseManual || 'auto');
+  set('ai-contraception', profile.contraception || 'none');
+  toggleCycleFields();
+
   if (constraints) {
     set('ai-max-min', constraints.maxMinutes);
     set('ai-max-leg-sets', constraints.maxLegSetsWeek);
@@ -286,6 +300,7 @@ function clearAiCoachForm() {
   toggleAiPlanModeFields('single');
   const abs = document.getElementById('ai-include-abs');
   if (abs) abs.checked = true;
+  toggleCycleFields();
   localStorage.removeItem(AI_PROFILE_KEY);
   window.__aiCoachFormLoaded = true;
   showToast('Profil réinitialisé');

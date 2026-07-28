@@ -185,8 +185,19 @@ function initAiCoachForm() {
   if (window.__aiCoachFormLoaded) return;
   const saved = loadAiCoachProfile();
   if (saved) populateAiCoachForm(saved);
-  else toggleAiPlanModeFields('single');
+  else {
+    toggleAiPlanModeFields('single');
+    toggleCycleFields();
+  }
   window.__aiCoachFormLoaded = true;
+}
+
+function bindCycleFields() {
+  const ids = ['ai-sexe', 'ai-cycle-adapt', 'ai-last-period', 'ai-cycle-length', 'ai-cycle-phase-manual', 'ai-contraception'];
+  ids.forEach((id) => {
+    document.getElementById(id)?.addEventListener('change', toggleCycleFields);
+    document.getElementById(id)?.addEventListener('input', toggleCycleFields);
+  });
 }
 
 function bindAiCoachModeTabs() {
@@ -328,6 +339,9 @@ function showAiPlanPreviewModal(plan) {
   const sessionDur = session
     ? Math.round(estimateProgramDuration({ items: session.items, restBetween: 60 }) / 60)
     : 0;
+  const cycleLine = isCycleAdaptationActive(plan.profile)
+    ? getCyclePhaseSummary(plan.profile)
+    : '';
 
   if (title) title.textContent = isSingle ? 'Aperçu de la séance' : 'Aperçu du programme';
   if (weekLabel) weekLabel.hidden = isSingle;
@@ -341,10 +355,10 @@ function showAiPlanPreviewModal(plan) {
   summary.innerHTML = isSingle
     ? `<strong>${escapeHtml(plan.planName)}</strong><br>
        ~${sessionDur} min · ${escapeHtml(plan.profile?.objectif || '')}<br>
-       Priorités : ${escapeHtml(priorities)} · ${session?.items?.length || 0} exercices`
+       Priorités : ${escapeHtml(priorities)} · ${session?.items?.length || 0} exercices${cycleLine ? `<br>Cycle : ${escapeHtml(cycleLine)}` : ''}`
     : `<strong>${escapeHtml(plan.planName)}</strong><br>
        ${plan.weeks.length} sem · ${sessionsPerWeek} séance(s)/sem · ${escapeHtml(plan.profile?.objectif || '')}<br>
-       Priorités : ${escapeHtml(priorities)}<br>
+       Priorités : ${escapeHtml(priorities)}${cycleLine ? `<br>Cycle actuel : ${escapeHtml(cycleLine)}` : ''}<br>
        Semaine 1 : ${legSets} séries jambes/fessiers${plan.constraints?.maxLegSetsWeek ? ` (max ${plan.constraints.maxLegSetsWeek})` : ''}`;
 
   weekSelect.innerHTML = plan.weeks.map((w) =>
@@ -712,6 +726,7 @@ function bindWorkoutUI() {
   bindRunning();
   bindEquitation();
   bindAiCoachModeTabs();
+  bindCycleFields();
 }
 
 function escapeHtml(str) {

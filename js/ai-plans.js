@@ -397,8 +397,10 @@ function buildSessionBlueprints(profile, constraints) {
   });
 }
 
-function buildLocalSessionTemplates(profile, constraints) {
-  const exCount = Math.min(6, Math.max(3, Number(profile.exercisesPerSession) || 4));
+function buildLocalSessionTemplates(profile, constraints, weekOffsetDays = 0) {
+  const baseExCount = Math.min(6, Math.max(3, Number(profile.exercisesPerSession) || 4));
+  const cycle = getCycleAdjustments(profile, weekOffsetDays);
+  const exCount = Math.max(2, baseExCount + (cycle?.exCountMod || 0));
   const objectif = (profile.objectif || 'force').toLowerCase();
   const baseReps = objectif.includes('force') ? 6 : objectif.includes('endurance') ? 15 : 10;
   const restBase = getRestBase(constraints);
@@ -408,6 +410,20 @@ function buildLocalSessionTemplates(profile, constraints) {
     name: bp.name,
     items: buildItemsForMuscles(bp.muscles, profile, constraints, exCount, baseReps, restBase)
   })).filter((tpl) => tpl.items.length > 0);
+}
+
+function applyCycleToProgression(prog, profile, weekOffsetDays) {
+  const cycle = getCycleAdjustments(profile, weekOffsetDays);
+  if (!cycle) return prog;
+  return {
+    ...prog,
+    setsBonus: prog.setsBonus + (cycle.setsMod || 0),
+    repsAdjust: prog.repsAdjust + (cycle.repsAdjust || 0),
+    restSets: prog.restSets + (cycle.restBonus || 0),
+    restAfter: prog.restAfter + (cycle.restBonus || 0),
+    cyclePhase: cycle.phaseLabel,
+    cycleFocus: cycle.focusText
+  };
 }
 
 function progressionForWeek(weekNum, profile, constraints = {}) {
@@ -449,23 +465,37 @@ function progressionForWeek(weekNum, profile, constraints = {}) {
 
 function generateLocalAiPlan(profile, constraints) {
   validateAiForm(profile, constraints);
-  const templates = buildLocalSessionTemplates(profile, constraints);
-  if (!templates.length) {
-    throw new Error('Aucune séance générée — assouplis tes filtres ou zones à ménager');
-  }
   const isSingle = profile.planMode === 'single';
   const objectif = profile.objectif || 'force';
   const planWeeks = isSingle ? 1 : (Number(profile.planWeeks) || 12);
+  const baseTemplates = buildLocalSessionTemplates(profile, constraints, 0);
+  if (!baseTemplates.length) {
+    throw new Error('Aucune séance générée — assouplis tes filtres ou zones à ménager');
+  }
 
   const weeks = [];
   for (let w = 1; w <= planWeeks; w += 1) {
-    const prog = isSingle
-      ? { phase: 'Séance du jour', setsBonus: 0, repsAdjust: 0, restSets: getRestBase(constraints).sets, restAfter: getRestBase(constraints).after }
+    const weekOffsetDays = isSingle ? 0 : (w - 1) * 7;
+    const templates = isSingle
+      ? baseTemplates
+      : buildLocalSessionTemplates(profile, constraints, weekOffsetDays);
+    const restBase = getRestBase(constraints);
+    let prog = isSingle
+      ? { phase: 'Séance du jour', setsBonus: 0, repsAdjust: 0, restSets: restBase.sets, restAfter: restBase.after }
       : progressionForWeek(w, profile, constraints);
+    prog = applyCycleToProgression(prog, profile, weekOffsetDays);
     const mid = Math.ceil(planWeeks / 2);
+    const focusParts = [];
+    if (!isSingle) focusParts.push(`S${w} — ${prog.phase}`);
+    if (prog.cyclePhase) focusParts.push(prog.cyclePhase);
+    if (prog.cycleFocus && isCycleAdaptationActive(profile)) {
+      focusParts.push(prog.cycleFocus);
+    }
     weeks.push({
       week: w,
-      focus: isSingle ? 'Séance unique' : `S${w} — ${prog.phase}`,
+      focus: isSingle
+        ? (prog.cyclePhase ? `${prog.cyclePhase} · ${prog.cycleFocus || 'Séance unique'}` : 'Séance unique')
+        : focusParts.join(' · '),
       sessions: templates.map((tpl) => ({
         name: tpl.name,
         items: tpl.items.map((item) => {
@@ -474,7 +504,7 @@ function generateLocalAiPlan(profile, constraints) {
             : Math.max(4, item.value + prog.repsAdjust);
           return {
             exerciseId: item.exerciseId,
-            sets: item.sets + prog.setsBonus,
+            sets: Math.max(2, item.sets + prog.setsBonus),
             mode: item.mode,
             value: baseValue,
             restSets: prog.restSets,
@@ -487,8 +517,8 @@ function generateLocalAiPlan(profile, constraints) {
 
   const planData = {
     planName: isSingle
-      ? templates[0]?.name || 'Séance personnalisée'
-      : `${objectif.charAt(0).toUpperCase() + objectif.slice(1)} ${planWeeks} sem · ${templates.length}×/sem`,
+      ? baseTemplates[0]?.name || 'Séance personnalisée'
+      : `${objectif.charAt(0).toUpperCase() + objectif.slice(1)} ${planWeeks} sem · ${baseTemplates.length}×/sem`,
     weeks
   };
 
