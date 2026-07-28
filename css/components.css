@@ -132,7 +132,8 @@
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);

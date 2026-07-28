@@ -16,12 +16,18 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
 </head>
 <body>
+  <div id="splash" class="splash" aria-hidden="true">
+    <div class="splash-logo">Sporr</div>
+    <p class="splash-tagline">Pour Sarah</p>
+  </div>
+
   <div class="app-shell">
     <section id="screen-home" class="screen active">
       <header class="page-header">
         <div>
           <p class="card-title">Tableau de bord</p>
           <h1 id="greeting">Bonjour, Sarah !</h1>
+          <p class="quote-text" id="daily-quote"></p>
         </div>
         <button id="open-settings" class="icon-btn" type="button" aria-label="Réglages">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
@@ -58,6 +64,12 @@
         </div>
       </div>
 
+      <div class="card premium-card">
+        <p class="card-title">Bilan de la semaine</p>
+        <p class="recap-value" id="recap-minutes">0 min</p>
+        <span class="recap-delta" id="recap-delta">—</span>
+      </div>
+
       <div class="card">
         <p class="card-title">Objectif hebdomadaire</p>
         <div class="progress-track">
@@ -65,6 +77,9 @@
         </div>
         <p class="hint" id="goal-progress-text">Définis ton objectif hebdo dans les réglages</p>
       </div>
+
+      <h2 class="section-title">Trophées</h2>
+      <div id="achievements-list" class="badges-scroll"></div>
 
       <h2 class="section-title">Séances du jour</h2>
       <div id="today-sessions"></div>
@@ -225,9 +240,47 @@
     <div id="celebration" class="celebration" aria-hidden="true"></div>
   </div>
 
+  <div id="edit-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet" role="dialog" aria-labelledby="edit-modal-title">
+      <div class="modal-header">
+        <h2 id="edit-modal-title">Modifier la séance</h2>
+        <button id="close-edit-modal" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <form id="edit-session-form">
+        <div class="form-group">
+          <label for="edit-session-type">Type</label>
+          <select id="edit-session-type" required>
+            <option value="Yoga">Yoga</option>
+            <option value="Renforcement">Renforcement</option>
+            <option value="Running">Running</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-session-duration">Durée (minutes)</label>
+          <input type="number" id="edit-session-duration" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-session-date">Date</label>
+          <input type="date" id="edit-session-date" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-session-calories">Calories</label>
+          <input type="number" id="edit-session-calories" min="0">
+        </div>
+        <div class="form-group">
+          <label for="edit-session-note">Note</label>
+          <textarea id="edit-session-note"></textarea>
+        </div>
+        <button type="submit" class="primary-btn">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
   <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/stats.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/effects.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/theme.js"></script>

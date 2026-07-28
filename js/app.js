@@ -24,11 +24,44 @@ function handleAddSession() {
     note
   });
 
+  const settings = loadSettings();
+  const newBadges = checkAchievements(loadSessions(), settings);
+
   resetAddForm();
   refreshApp(selectedCalendarDate);
   showScreen('screen-home');
   triggerCelebration();
-  showToast(randomEncouragement());
+  hapticSuccess();
+
+  if (newBadges.length > 0) {
+    showToast(`${newBadges[0].emoji} Badge débloqué : ${newBadges[0].title}`);
+  } else {
+    showToast(randomEncouragement());
+  }
+}
+
+function handleEditSession() {
+  if (!editingSession) return;
+
+  const updated = {
+    date: document.getElementById('edit-session-date').value,
+    type: document.getElementById('edit-session-type').value,
+    duration: document.getElementById('edit-session-duration').value,
+    calories: document.getElementById('edit-session-calories').value,
+    note: document.getElementById('edit-session-note').value.trim()
+  };
+
+  if (!updated.date || !updated.type || Number(updated.duration) < 1) {
+    showToast('Vérifie les champs de la séance');
+    return;
+  }
+
+  updateSession(editingSession, updated);
+  checkAchievements(loadSessions(), loadSettings());
+  closeEditModal();
+  refreshApp(selectedCalendarDate);
+  showToast('Séance mise à jour');
+  hapticSuccess();
 }
 
 function handleSaveSettings() {
@@ -40,6 +73,7 @@ function handleSaveSettings() {
 
   saveSettings(settings);
   applyTheme(settings.theme);
+  checkAchievements(loadSessions(), settings);
   refreshApp(selectedCalendarDate);
   showToast('Réglages enregistrés');
   showScreen('screen-home');
@@ -65,10 +99,12 @@ function initApp() {
     saveSettings(settings);
   }
 
+  hideSplash();
   initTheme();
   initPwa();
   bindNavigation();
   bindAddForm(handleAddSession);
+  bindEditModal(handleEditSession);
   bindSettingsForm(handleSaveSettings, handleResetData);
 
   initCalendar((date) => {
@@ -76,6 +112,7 @@ function initApp() {
     renderCalendarSessions(loadSessions(), date);
   });
 
+  checkAchievements(loadSessions(), settings);
   refreshApp(selectedCalendarDate);
   showScreen('screen-home');
 }

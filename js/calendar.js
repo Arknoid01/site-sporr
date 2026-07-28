@@ -15,11 +15,13 @@ function initCalendar(onDateChange) {
       }
     },
     onDayCreate(_dObj, _dStr, _fp, dayElem) {
-      const activeDates = getActiveDates(loadSessions());
+      const counts = getSessionCountByDate(loadSessions());
       const value = formatDate(dayElem.dateObj);
-      if (activeDates.includes(value)) {
-        dayElem.classList.add('has-session');
-      }
+      const count = counts[value] || 0;
+
+      if (count === 1) dayElem.classList.add('has-session', 'heat-1');
+      if (count === 2) dayElem.classList.add('has-session', 'heat-2');
+      if (count >= 3) dayElem.classList.add('has-session', 'heat-3');
     }
   });
 }

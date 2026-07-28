@@ -91,7 +91,26 @@ function deleteSession(date, type, duration) {
   return sessions;
 }
 
+function updateSession(original, updated) {
+  const sessions = loadSessions();
+  const index = sessions.findIndex(
+    (session) =>
+      session.date === original.date &&
+      session.type === original.type &&
+      session.duration === String(original.duration) &&
+      (session.note || '') === (original.note || '') &&
+      (session.calories || '') === String(original.calories || '')
+  );
+
+  if (index === -1) return sessions;
+
+  sessions[index] = updated;
+  saveSessions(sessions);
+  return sessions;
+}
+
 function resetAllData() {
   localStorage.removeItem(SESSIONS_KEY);
   localStorage.removeItem(SETTINGS_KEY);
+  localStorage.removeItem('sporrBadges');
 }

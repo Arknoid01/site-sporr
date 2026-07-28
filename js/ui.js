@@ -7,6 +7,7 @@ const SPORT_ICONS = {
 let selectedSport = '';
 let selectedDuration = 30;
 let toastTimer = null;
+let editingSession = null;
 
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach((screen) => {
@@ -77,7 +78,7 @@ function createSessionCard(session, showDate = false) {
   const calories = session.calories ? `${session.calories} kcal` : '—';
 
   return `
-    <article class="session-card">
+    <article class="session-card" data-type="${session.type}">
       <div class="session-card-header">
         <span class="session-type-badge" data-type="${session.type}">
           <span class="sport-icon">${SPORT_ICONS[session.type] || ''}</span>
@@ -90,15 +91,28 @@ function createSessionCard(session, showDate = false) {
         <span>${calories}</span>
       </div>
       ${note}
-      <button
-        type="button"
-        class="delete-btn"
-        data-date="${session.date}"
-        data-type="${session.type}"
-        data-duration="${session.duration}"
-      >
-        Supprimer
-      </button>
+      <div class="session-actions">
+        <button
+          type="button"
+          class="edit-btn"
+          data-date="${session.date}"
+          data-type="${session.type}"
+          data-duration="${session.duration}"
+          data-calories="${session.calories || ''}"
+          data-note="${encodeURIComponent(session.note || '')}"
+        >
+          Modifier
+        </button>
+        <button
+          type="button"
+          class="delete-btn"
+          data-date="${session.date}"
+          data-type="${session.type}"
+          data-duration="${session.duration}"
+        >
+          Supprimer
+        </button>
+      </div>
     </article>
   `;
 }
@@ -146,6 +160,18 @@ function renderSessionList(containerId, sessions, emptyMessage, showDate = false
       showToast('Séance supprimée');
     });
   });
+
+  container.querySelectorAll('.edit-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      openEditModal({
+        date: button.dataset.date,
+        type: button.dataset.type,
+        duration: button.dataset.duration,
+        calories: button.dataset.calories,
+        note: decodeURIComponent(button.dataset.note || '')
+      });
+    });
+  });
 }
 
 function renderDashboard(sessions, settings) {
@@ -154,18 +180,33 @@ function renderDashboard(sessions, settings) {
   const weekMinutes = sumDuration(weekSessions);
   const goal = Number(settings.goal || 0);
   const progress = goal > 0 ? Math.min((weekMinutes / goal) * 100, 100) : 0;
+  const streak = calculateStreak(sessions);
+  const recap = getWeekComparison(sessions);
 
   document.getElementById('greeting').textContent = `${greetingForHour()}, ${settings.name} !`;
-  document.getElementById('today-minutes').textContent = `${sumDuration(todaySessions)} min`;
+
+  const quoteEl = document.getElementById('daily-quote');
+  if (quoteEl) quoteEl.textContent = dailyQuote();
+
+  animateValue(document.getElementById('today-minutes'), sumDuration(todaySessions), ' min');
   document.getElementById('today-count').textContent = `${todaySessions.length} séance${todaySessions.length > 1 ? 's' : ''}`;
-  document.getElementById('today-calories').textContent = `${sumCalories(todaySessions) || 0} kcal`;
-  document.getElementById('week-minutes').textContent = `${weekMinutes} min`;
-  document.getElementById('streak-count').textContent = `${calculateStreak(sessions)} jour${calculateStreak(sessions) > 1 ? 's' : ''}`;
+  animateValue(document.getElementById('today-calories'), sumCalories(todaySessions) || 0, ' kcal');
+  animateValue(document.getElementById('week-minutes'), weekMinutes, ' min');
+  document.getElementById('streak-count').textContent = `${streak} jour${streak > 1 ? 's' : ''}`;
   document.getElementById('goal-progress-fill').style.width = `${progress}%`;
   document.getElementById('goal-progress-text').textContent = goal > 0
     ? `${weekMinutes} / ${goal} min cette semaine`
     : 'Définis ton objectif hebdo dans les réglages';
 
+  const recapMinutes = document.getElementById('recap-minutes');
+  const recapDelta = document.getElementById('recap-delta');
+  if (recapMinutes) recapMinutes.textContent = `${recap.thisMinutes} min`;
+  if (recapDelta) {
+    recapDelta.textContent = recap.label;
+    recapDelta.classList.toggle('negative', recap.delta !== null && recap.delta < 0);
+  }
+
+  renderAchievements();
   renderSessionList(
     'today-sessions',
     todaySessions,
@@ -278,6 +319,40 @@ function bindSettingsForm(onSave, onReset) {
   });
 
   document.getElementById('reset-data-btn').addEventListener('click', onReset);
+}
+
+function openEditModal(session) {
+  editingSession = { ...session };
+  const overlay = document.getElementById('edit-modal');
+  if (!overlay) return;
+
+  document.getElementById('edit-session-date').value = session.date;
+  document.getElementById('edit-session-type').value = session.type;
+  document.getElementById('edit-session-duration').value = session.duration;
+  document.getElementById('edit-session-calories').value = session.calories || '';
+  document.getElementById('edit-session-note').value = session.note || '';
+  overlay.hidden = false;
+}
+
+function closeEditModal() {
+  editingSession = null;
+  const overlay = document.getElementById('edit-modal');
+  if (overlay) overlay.hidden = true;
+}
+
+function bindEditModal(onSave) {
+  const overlay = document.getElementById('edit-modal');
+  if (!overlay) return;
+
+  document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) closeEditModal();
+  });
+
+  document.getElementById('edit-session-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    onSave();
+  });
 }
 
 function refreshApp(selectedDate) {

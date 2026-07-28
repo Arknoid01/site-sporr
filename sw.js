@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sporr-v3';
+const CACHE_NAME = 'sporr-v4';
 const LOCAL_ASSETS = [
   'index.html',
   'css/style.css',
@@ -6,9 +6,12 @@ const LOCAL_ASSETS = [
   'css/components.css',
   'css/themes.css',
   'css/animations.css',
+  'css/premium.css',
   'js/config.js',
   'js/storage.js',
   'js/stats.js',
+  'js/achievements.js',
+  'js/effects.js',
   'js/charts.js',
   'js/calendar.js',
   'js/theme.js',
