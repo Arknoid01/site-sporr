@@ -93,7 +93,7 @@ function formatDurationSeconds(totalSec) {
 }
 
 function generateProgramByMuscles(muscles, exerciseCount = 5) {
-  const pool = EXERCISE_CATALOG.filter((ex) => muscles.includes(ex.muscle));
+  const pool = getAllExercises().filter((ex) => muscles.includes(ex.muscle));
   const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, exerciseCount);
   return shuffled.map((ex) => ({
     exerciseId: ex.id,
@@ -109,7 +109,7 @@ function generateProgramByTime(muscles, targetMinutes) {
   const targetSec = targetMinutes * 60;
   const items = [];
   let total = 0;
-  const pool = [...EXERCISE_CATALOG.filter((ex) => muscles.includes(ex.muscle))].sort(() => Math.random() - 0.5);
+  const pool = [...getAllExercises().filter((ex) => muscles.includes(ex.muscle))].sort(() => Math.random() - 0.5);
 
   for (const ex of pool) {
     if (total >= targetSec) break;

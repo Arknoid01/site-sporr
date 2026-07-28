@@ -98,6 +98,25 @@
   margin-bottom: var(--gap-md);
 }
 
+.exercise-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.exercise-photo {
+  background: var(--surface);
+}
+
+.catalog-hint {
+  margin-bottom: 12px;
+}
+
+.wger-credit a {
+  color: var(--primary);
+}
+
 .exercise-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

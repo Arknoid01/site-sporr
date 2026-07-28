@@ -273,6 +273,11 @@
         </div>
       </div>
       <div id="renfo-panel-exercises" class="renfo-panel" hidden>
+        <select id="catalog-source" style="width:100%;padding:12px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border);">
+          <option value="local">Exercices Sarah (21 · élastiques & barre)</option>
+          <option value="wger">Catalogue wger (828 · dont photos)</option>
+        </select>
+        <input type="search" id="exercise-search" placeholder="Rechercher un exercice…" style="width:100%;padding:12px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border);">
         <select id="muscle-filter" style="width:100%;padding:12px;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
           <option value="all">Tous les muscles</option>
           <option value="fessiers">Fessiers</option>
@@ -467,6 +472,7 @@
       <h2 id="ex-detail-name"></h2>
       <span class="ex-detail-badge" id="ex-detail-muscle"></span>
       <p class="hint" id="ex-detail-equipment"></p>
+      <p class="hint" id="ex-detail-source" hidden></p>
     </div>
     <div class="card">
       <h3 class="section-title">Comment faire</h3>
@@ -575,6 +581,7 @@
   <script src="js/pwa.js"></script>
   <script src="js/timer.js"></script>
   <script src="js/exercise-catalog.js"></script>
+  <script src="js/wger-catalog.js"></script>
   <script src="js/programs.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/route-map.js"></script>

@@ -1,5 +1,7 @@
 let builderState = { name: '', items: [], step: 'name', muscles: [] };
 let selectedMuscleFilter = 'all';
+let selectedCatalogSource = 'local';
+let exerciseSearchQuery = '';
 let viewingExerciseId = null;
 
 function openRenfoHub() {
@@ -66,33 +68,64 @@ function renderExerciseBrowser() {
   const container = document.getElementById('exercise-browser');
   if (!container) return;
 
-  const groups = selectedMuscleFilter === 'all'
-    ? Object.keys(MUSCLE_GROUPS)
-    : [selectedMuscleFilter];
+  const meta = typeof WGER_CATALOG_META !== 'undefined' ? WGER_CATALOG_META : null;
+  const isWger = selectedCatalogSource === 'wger';
+  const maxShow = isWger && !exerciseSearchQuery ? 48 : 80;
 
-  container.innerHTML = groups.map((muscle) => {
-    const exercises = getExercisesByMuscle(muscle);
-    if (!exercises.length) return '';
-    const group = MUSCLE_GROUPS[muscle];
-    return `
-      <div class="muscle-section">
-        <h3 class="muscle-section-title">${group.emoji} ${group.label}</h3>
-        <div class="exercise-grid">
-          ${exercises.map((ex) => `
-            <button type="button" class="exercise-card" data-ex-id="${ex.id}">
-              ${getExerciseImageHtml(ex)}
-              <span class="exercise-card-label">${ex.name}</span>
-              <span class="play-badge">▶</span>
-            </button>
-          `).join('')}
+  let exercises = searchExercises(exerciseSearchQuery, selectedMuscleFilter, selectedCatalogSource);
+  const total = exercises.length;
+  exercises = exercises.slice(0, maxShow);
+
+  if (total === 0) {
+    container.innerHTML = '<p class="empty-state">Aucun exercice trouvé. Essaie un autre mot-clé ou muscle.</p>';
+    return;
+  }
+
+  const hint = isWger && !exerciseSearchQuery && total > maxShow
+    ? `<p class="hint catalog-hint">${total} exercices wger — utilise la recherche pour en voir plus (${maxShow} affichés)</p>`
+    : isWger && exerciseSearchQuery
+      ? `<p class="hint catalog-hint">${total} résultat(s) · ${meta?.withImages || 0} photos dans le catalogue</p>`
+      : '';
+
+  if (selectedCatalogSource === 'local') {
+    const groups = selectedMuscleFilter === 'all'
+      ? Object.keys(MUSCLE_GROUPS)
+      : [selectedMuscleFilter];
+
+    container.innerHTML = hint + groups.map((muscle) => {
+      const groupExercises = exercises.filter((ex) => ex.muscle === muscle);
+      if (!groupExercises.length) return '';
+      const group = MUSCLE_GROUPS[muscle];
+      return `
+        <div class="muscle-section">
+          <h3 class="muscle-section-title">${group.emoji} ${group.label}</h3>
+          <div class="exercise-grid">
+            ${groupExercises.map((ex) => renderExerciseCard(ex)).join('')}
+          </div>
         </div>
+      `;
+    }).join('');
+  } else {
+    container.innerHTML = hint + `
+      <div class="exercise-grid">
+        ${exercises.map((ex) => renderExerciseCard(ex)).join('')}
       </div>
     `;
-  }).join('');
+  }
 
   container.querySelectorAll('.exercise-card').forEach((card) => {
     card.addEventListener('click', () => openExerciseDetail(card.dataset.exId));
   });
+}
+
+function renderExerciseCard(ex) {
+  return `
+    <button type="button" class="exercise-card" data-ex-id="${ex.id}">
+      ${getExerciseImageHtml(ex)}
+      <span class="exercise-card-label">${escapeHtml(ex.name)}</span>
+      <span class="play-badge">▶</span>
+    </button>
+  `;
 }
 
 function openExerciseDetail(exId) {
@@ -109,6 +142,12 @@ function openExerciseDetail(exId) {
   document.getElementById('ex-detail-equipment').textContent =
     ex.equipment === 'barre' ? 'Barre + élastiques' :
     ex.equipment === 'elastiques' ? 'Élastiques' : 'Sans matériel';
+
+  const sourceEl = document.getElementById('ex-detail-source');
+  if (sourceEl) {
+    sourceEl.textContent = ex.source === 'wger' ? 'Source : wger.de (CC-BY-SA)' : '';
+    sourceEl.hidden = ex.source !== 'wger';
+  }
 }
 
 function closeExerciseDetail() {
@@ -263,7 +302,15 @@ function runGenerator(type) {
 function renderEquipmentGuide() {
   const container = document.getElementById('equipment-guide');
   if (!container) return;
-  container.innerHTML = Object.values(EQUIPMENT_GUIDE).map((guide) => `
+  const wgerMeta = typeof WGER_CATALOG_META !== 'undefined' ? WGER_CATALOG_META : null;
+  const wgerBlock = wgerMeta ? `
+    <div class="card equipment-card wger-credit">
+      <h3>Catalogue wger</h3>
+      <p class="hint">${wgerMeta.count} exercices importés (${wgerMeta.withImages} avec photo). Données sous licence <a href="https://wger.de" target="_blank" rel="noopener">wger.de</a> (CC-BY-SA).</p>
+      <p class="hint">Mise à jour : ${new Date(wgerMeta.fetchedAt).toLocaleDateString('fr-FR')}</p>
+    </div>
+  ` : '';
+  container.innerHTML = wgerBlock + Object.values(EQUIPMENT_GUIDE).map((guide) => `
     <div class="card equipment-card">
       <h3>${guide.title}</h3>
       <ul class="equipment-list">${guide.points.map((p) => `<li>${p}</li>`).join('')}</ul>
@@ -297,6 +344,16 @@ function bindWorkoutUI() {
 
   document.getElementById('muscle-filter')?.addEventListener('change', (e) => {
     selectedMuscleFilter = e.target.value;
+    renderExerciseBrowser();
+  });
+
+  document.getElementById('catalog-source')?.addEventListener('change', (e) => {
+    selectedCatalogSource = e.target.value;
+    renderExerciseBrowser();
+  });
+
+  document.getElementById('exercise-search')?.addEventListener('input', (e) => {
+    exerciseSearchQuery = e.target.value;
     renderExerciseBrowser();
   });
 

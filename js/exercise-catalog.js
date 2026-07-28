@@ -98,14 +98,50 @@ const EXERCISE_CATALOG = [
 ];
 
 function getExerciseById(id) {
-  return EXERCISE_CATALOG.find((ex) => ex.id === id);
+  const local = EXERCISE_CATALOG.find((ex) => ex.id === id);
+  if (local) return local;
+  if (typeof WGER_EXERCISES !== 'undefined') {
+    return WGER_EXERCISES.find((ex) => ex.id === id);
+  }
+  return undefined;
 }
 
-function getExercisesByMuscle(muscle) {
-  return EXERCISE_CATALOG.filter((ex) => ex.muscle === muscle);
+function getAllExercises() {
+  const wger = typeof WGER_EXERCISES !== 'undefined' ? WGER_EXERCISES : [];
+  return [...EXERCISE_CATALOG, ...wger];
+}
+
+function getExercisesByMuscle(muscle, source = 'all') {
+  const local = EXERCISE_CATALOG.filter((ex) => ex.muscle === muscle);
+  const wger = (typeof WGER_EXERCISES !== 'undefined' ? WGER_EXERCISES : [])
+    .filter((ex) => ex.muscle === muscle);
+  if (source === 'local') return local;
+  if (source === 'wger') return wger;
+  return [...local, ...wger];
+}
+
+function searchExercises(query, muscle = 'all', source = 'wger') {
+  const q = query.trim().toLowerCase();
+  let pool = source === 'local'
+    ? EXERCISE_CATALOG
+    : source === 'wger' && typeof WGER_EXERCISES !== 'undefined'
+      ? WGER_EXERCISES
+      : getAllExercises();
+
+  if (muscle !== 'all') {
+    pool = pool.filter((ex) => ex.muscle === muscle);
+  }
+  if (!q) return pool;
+  return pool.filter((ex) =>
+    ex.name.toLowerCase().includes(q) ||
+    (ex.desc && ex.desc.toLowerCase().includes(q))
+  );
 }
 
 function getExerciseImageHtml(exercise) {
+  if (exercise.image) {
+    return `<img src="${exercise.image}" class="exercise-thumb exercise-photo" alt="" loading="lazy">`;
+  }
   const colors = {
     jambes: '#3A86FF', fessiers: '#FF6B35', dos: '#7B2FF7',
     pectoraux: '#00C9A7', bras: '#FFD23F', epaules: '#FF4D6D', abdos: '#06D6A0'
