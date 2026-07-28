@@ -27,7 +27,14 @@ js/
   app.js
 ```
 
-## Stockage local (sans JSON)
+## Catalogue wger (exercices publics)
+
+```bash
+npm run fetch-wger
+```
+
+Récupère ~828 exercices publics depuis [wger.de](https://wger.de) (sans compte) et régénère `js/wger-catalog.js` (~264 avec photos). Licence CC-BY-SA — crédit wger dans l’onglet Matériel.
+
 
 Séances (`sporrSessions`) :
 ```
