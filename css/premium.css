@@ -217,6 +217,105 @@
   pointer-events: none;
 }
 
+.insight-item {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(123, 47, 247, 0.08);
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.insight-item:last-child {
+  margin-bottom: 0;
+}
+
+.trend-item {
+  background: rgba(0, 201, 167, 0.1);
+}
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.record-item:last-child {
+  border-bottom: none;
+}
+
+.record-item strong {
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+.summary-stat {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.summary-stat.wide {
+  grid-column: 1 / -1;
+}
+
+.summary-stat strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.2rem;
+}
+
+.summary-sheet .recap-delta {
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.sport-setting-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.sport-setting-item:last-child {
+  border-bottom: none;
+}
+
+.sport-setting-item .hint {
+  margin-left: auto;
+  font-size: 0.8rem;
+}
+
+.delete-btn.compact {
+  margin-top: 0;
+  width: auto;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+}
+
+.sport-emoji-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.sport-icon .sport-emoji-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
 .stat-card.highlight::after {
   background: rgba(255, 255, 255, 0.12);
 }

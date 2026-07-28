@@ -77,7 +77,7 @@
 
 .sport-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   row-gap: var(--tile-gap-row);
   column-gap: var(--tile-gap-col);
   margin-bottom: var(--section-gap);

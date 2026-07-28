@@ -1,9 +1,3 @@
-const SPORT_ICONS = {
-  Yoga: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-1 6.5 2 3.5 3-1.5V18h2v-7l-4 2-2.5-4.5H9v11h2v-6.5Z"/></svg>`,
-  Renforcement: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h2v4H4v-4Zm14 0h2v4h-2v-4ZM7 11h10v2H7v-2Zm-3 3h2v2H4v-2Zm16 0h2v2h-2v-2Z"/></svg>`,
-  Running: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2ZM9.8 8.9 7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5V9c-1.9 0-3.5-.9-4.6-2.3l-1.1-1.6c-.4-.6-1-1-1.7-1.2l-.6-.2V4h-2v2.5l2.2.5Z"/></svg>`
-};
-
 let selectedSport = '';
 let selectedDuration = 30;
 let toastTimer = null;
@@ -36,9 +30,13 @@ function renderSportButtons() {
   const container = document.getElementById('sport-buttons');
   if (!container) return;
 
-  container.innerHTML = SPORT_TYPES.map((sport) => `
+  const sports = getSportNames();
+  const columns = sports.length <= 3 ? 3 : 2;
+  container.style.gridTemplateColumns = `repeat(${Math.min(columns, 3)}, 1fr)`;
+
+  container.innerHTML = sports.map((sport) => `
     <button type="button" class="sport-btn ${selectedSport === sport ? 'selected' : ''}" data-sport="${sport}">
-      <span class="sport-icon">${SPORT_ICONS[sport]}</span>
+      <span class="sport-icon">${getSportIconHtml(sport)}</span>
       <span>${sport}</span>
     </button>
   `).join('');
@@ -81,7 +79,7 @@ function createSessionCard(session, showDate = false) {
     <article class="session-card" data-type="${session.type}">
       <div class="session-card-header">
         <span class="session-type-badge" data-type="${session.type}">
-          <span class="sport-icon">${SPORT_ICONS[session.type] || ''}</span>
+          <span class="sport-icon">${getSportIconHtml(session.type)}</span>
           ${session.type}
         </span>
         ${showDate ? `<span class="session-date">${formatDisplayDate(session.date)}</span>` : ''}
@@ -247,6 +245,9 @@ function renderStats(sessions, settings) {
   }
 
   refreshCharts(sessions);
+  renderPersonalRecords(sessions);
+  renderTrends(sessions);
+  renderInsights(sessions, settings);
 }
 
 function renderCalendarSessions(sessions, selectedDate) {
@@ -326,6 +327,7 @@ function openEditModal(session) {
   const overlay = document.getElementById('edit-modal');
   if (!overlay) return;
 
+  populateSportSelect(document.getElementById('edit-session-type'));
   document.getElementById('edit-session-date').value = session.date;
   document.getElementById('edit-session-type').value = session.type;
   document.getElementById('edit-session-duration').value = session.duration;
@@ -364,6 +366,7 @@ function refreshApp(selectedDate) {
   renderStats(sessions, settings);
   renderCalendarSessions(sessions, calendarDate);
   renderSettingsForm(settings);
+  renderSportsSettings();
   highlightActiveDays();
   refreshCharts(sessions);
 }

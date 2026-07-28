@@ -21,7 +21,8 @@ function handleAddSession() {
     type: selectedSport,
     duration,
     calories,
-    note
+    note,
+    time: currentTimeString()
   });
 
   const settings = loadSettings();
@@ -105,6 +106,8 @@ function initApp() {
   bindNavigation();
   bindAddTabs();
   bindTimerControls();
+  bindWeeklySummary();
+  bindSportsSettings();
   bindAddForm(handleAddSession);
   bindEditModal(handleEditSession);
   bindSettingsForm(handleSaveSettings, handleResetData);
@@ -114,6 +117,7 @@ function initApp() {
     renderCalendarSessions(loadSessions(), date);
   });
 
+  populateSportSelect(document.getElementById('edit-session-type'));
   checkAchievements(loadSessions(), settings);
   refreshApp(selectedCalendarDate);
   showScreen('screen-home');

@@ -113,7 +113,8 @@ function openTimerOverlay(sport, minutes) {
     totalSeconds: minutes * 60,
     remainingSeconds: minutes * 60,
     paused: false,
-    milestones: new Set()
+    milestones: new Set(),
+    startedAt: currentTimeString()
   };
 
   const overlay = document.getElementById('timer-overlay');
@@ -168,6 +169,11 @@ function stopTimerEarly() {
   finishTimerSession(false, elapsedMinutes);
 }
 
+function currentTimeString() {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+}
+
 function finishTimerSession(completed, customMinutes) {
   clearInterval(timerInterval);
   timerInterval = null;
@@ -181,7 +187,8 @@ function finishTimerSession(completed, customMinutes) {
     type: timerState.sport,
     duration: String(minutes),
     calories: '',
-    note: completed ? 'Séance au chronomètre' : 'Séance arrêtée avant la fin'
+    note: completed ? 'Séance au chronomètre' : 'Séance arrêtée avant la fin',
+    time: timerState.startedAt || currentTimeString()
   });
 
   const settings = loadSettings();

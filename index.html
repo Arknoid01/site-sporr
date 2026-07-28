@@ -72,6 +72,9 @@
         <p class="card-title">Bilan de la semaine</p>
         <p class="recap-value" id="recap-minutes">0 min</p>
         <span class="recap-delta" id="recap-delta">—</span>
+        <button type="button" id="open-weekly-summary" class="secondary-btn" style="margin-top: 14px; width: 100%;">
+          Voir le résumé complet
+        </button>
       </div>
 
       <div class="card">
@@ -163,6 +166,21 @@
       </div>
 
       <div class="card">
+        <h2 class="section-title">Records personnels</h2>
+        <div id="records-list"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Insights</h2>
+        <div id="insights-list"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Tendances</h2>
+        <div id="trends-list"></div>
+      </div>
+
+      <div class="card">
         <h2 class="section-title">Répartition par activité</h2>
         <div class="chart-box small">
           <canvas id="pie-chart"></canvas>
@@ -231,6 +249,22 @@
         <button type="submit" class="primary-btn">Enregistrer</button>
       </form>
 
+      <div class="card">
+        <h2 class="section-title">Mes sports</h2>
+        <div id="sports-settings-list"></div>
+        <form id="add-sport-form" style="margin-top: 16px;">
+          <div class="form-group">
+            <label for="new-sport-name">Ajouter un sport</label>
+            <input type="text" id="new-sport-name" placeholder="Ex. Natation" required>
+          </div>
+          <div class="form-group">
+            <label for="new-sport-icon">Icône</label>
+            <select id="new-sport-icon" required></select>
+          </div>
+          <button type="submit" class="secondary-btn" style="width: 100%;">Ajouter le sport</button>
+        </form>
+      </div>
+
       <div class="settings-actions">
         <button id="reset-data-btn" class="danger-btn" type="button">Réinitialiser toutes les données</button>
       </div>
@@ -283,6 +317,37 @@
     </div>
   </div>
 
+  <div id="weekly-summary-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet summary-sheet" role="dialog" aria-labelledby="weekly-summary-title">
+      <div class="modal-header">
+        <h2 id="weekly-summary-title">Résumé de la semaine</h2>
+        <button id="close-weekly-summary" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-stat">
+          <span class="card-title">Minutes</span>
+          <strong id="summary-minutes">0 min</strong>
+        </div>
+        <div class="summary-stat">
+          <span class="card-title">Séances</span>
+          <strong id="summary-sessions">0</strong>
+        </div>
+        <div class="summary-stat wide">
+          <span class="card-title">Évolution</span>
+          <strong id="summary-delta" class="recap-delta">—</strong>
+        </div>
+        <div class="summary-stat">
+          <span class="card-title">Sport préféré</span>
+          <strong id="summary-sport">—</strong>
+        </div>
+        <div class="summary-stat">
+          <span class="card-title">Meilleur jour</span>
+          <strong id="summary-day">—</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="edit-modal" class="modal-overlay" hidden>
     <div class="modal-sheet" role="dialog" aria-labelledby="edit-modal-title">
       <div class="modal-header">
@@ -292,11 +357,7 @@
       <form id="edit-session-form">
         <div class="form-group">
           <label for="edit-session-type">Type</label>
-          <select id="edit-session-type" required>
-            <option value="Yoga">Yoga</option>
-            <option value="Renforcement">Renforcement</option>
-            <option value="Running">Running</option>
-          </select>
+          <select id="edit-session-type" required></select>
         </div>
         <div class="form-group">
           <label for="edit-session-duration">Durée (minutes)</label>
@@ -321,7 +382,9 @@
 
   <script src="js/config.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/sports.js"></script>
   <script src="js/stats.js"></script>
+  <script src="js/analytics.js"></script>
   <script src="js/achievements.js"></script>
   <script src="js/effects.js"></script>
   <script src="js/charts.js"></script>

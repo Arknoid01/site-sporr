@@ -1,5 +1,3 @@
-const SPORT_TYPES = ['Yoga', 'Renforcement', 'Running'];
-
 const ENCOURAGEMENTS = [
   'Bravo Sarah, continue comme ça !',
   'Une séance de plus, tu assures !',

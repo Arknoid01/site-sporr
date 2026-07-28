@@ -11,23 +11,38 @@ function parseSession(raw) {
   const parts = raw.split(':');
   if (parts.length < 3) return null;
 
+  let time = '';
+  let noteEnd = parts.length;
+
+  if (parts.length > 4 && /^\d{2}:\d{2}$/.test(parts[parts.length - 1])) {
+    time = parts[parts.length - 1];
+    noteEnd = parts.length - 1;
+  }
+
   return {
     date: parts[0],
     type: parts[1],
     duration: parts[2],
     calories: parts[3] || '',
-    note: parts.slice(4).join(':') || ''
+    note: parts.slice(4, noteEnd).join(':') || '',
+    time
   };
 }
 
 function serializeSession(session) {
-  return [
+  const fields = [
     session.date,
     session.type,
     session.duration,
     session.calories || '',
     session.note || ''
-  ].join(':');
+  ];
+
+  if (session.time) {
+    fields.push(session.time);
+  }
+
+  return fields.join(':');
 }
 
 function loadSessions() {
@@ -99,7 +114,8 @@ function updateSession(original, updated) {
       session.type === original.type &&
       session.duration === String(original.duration) &&
       (session.note || '') === (original.note || '') &&
-      (session.calories || '') === String(original.calories || '')
+      (session.calories || '') === String(original.calories || '') &&
+      (session.time || '') === (original.time || '')
   );
 
   if (index === -1) return sessions;
@@ -113,4 +129,5 @@ function resetAllData() {
   localStorage.removeItem(SESSIONS_KEY);
   localStorage.removeItem(SETTINGS_KEY);
   localStorage.removeItem('sporrBadges');
+  localStorage.removeItem(SPORTS_KEY);
 }
