@@ -1,0 +1,109 @@
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseOnce {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.04);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes celebratePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  40% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+.stat-card,
+.card,
+.session-card {
+  animation: popIn 0.4s ease both;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.04s; }
+.stat-card:nth-child(2) { animation-delay: 0.08s; }
+.stat-card:nth-child(3) { animation-delay: 0.12s; }
+.stat-card:nth-child(4) { animation-delay: 0.16s; }
+
+.primary-btn,
+.secondary-btn,
+.sport-btn,
+.duration-btn,
+.nav-item,
+.icon-btn,
+.delete-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primary-btn:active,
+.secondary-btn:active,
+.sport-btn:active,
+.duration-btn:active,
+.nav-item:active,
+.icon-btn:active,
+.delete-btn:active {
+  transform: scale(0.97);
+}
+
+.stat-card.highlight.pulse {
+  animation: pulseOnce 0.45s ease;
+}
+
+.celebration {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.celebration-burst {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 53, 0.5), transparent 70%);
+  animation: celebratePop 0.7s ease forwards;
+}
+
+.progress-fill {
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

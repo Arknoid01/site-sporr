@@ -1,0 +1,691 @@
+/* Module Renforcement & Course */
+
+.hub-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--gap-md);
+  margin-bottom: var(--section-gap);
+}
+
+.hub-card {
+  border: none;
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: white;
+  text-align: left;
+  box-shadow: var(--shadow);
+  min-height: 88px;
+}
+
+.hub-card-renfo {
+  background: linear-gradient(135deg, #7B2FF7, #9b5cff);
+}
+
+.hub-card-running {
+  background: linear-gradient(135deg, #00C9A7, #06d6a0);
+}
+
+.ai-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: var(--gap-md);
+}
+
+.ai-mode-tab {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ai-mode-tab.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  color: var(--primary);
+}
+
+.ai-program-only[hidden],
+.ai-single-only[hidden] {
+  display: none !important;
+}
+
+.subscreen-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.subscreen-header h1 {
+  font-size: 1.4rem;
+  flex: 1;
+}
+
+.renfo-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  margin-bottom: var(--section-gap);
+  scrollbar-width: none;
+}
+
+.renfo-tab {
+  flex: 0 0 auto;
+  border: none;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 800;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  box-shadow: var(--shadow);
+}
+
+.renfo-tab.active {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.program-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  margin-bottom: var(--gap-md);
+  box-shadow: var(--shadow);
+}
+
+.program-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.primary-btn.compact,
+.delete-btn.compact {
+  width: auto;
+  padding: 10px 14px;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.muscle-section {
+  margin-bottom: var(--section-gap);
+}
+
+.muscle-section-title {
+  font-size: 1rem;
+  margin-bottom: var(--gap-md);
+}
+
+.exercise-thumb {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.exercise-thumb:not(.exercise-photo) {
+  aspect-ratio: 1;
+}
+
+.exercise-photo {
+  background: #1a1a24;
+  object-fit: contain;
+  object-position: center;
+}
+
+.exercise-card .exercise-thumb:not(.exercise-photo) {
+  height: 100px;
+}
+
+.exercise-card .exercise-photo {
+  height: 130px;
+  width: 100%;
+}
+
+.ex-detail-hero #ex-detail-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 0 auto 12px;
+  max-width: min(100%, 320px);
+  background: #1a1a24;
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+.ex-detail-hero .exercise-thumb:not(.exercise-photo) {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+.ex-detail-hero .exercise-photo {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 280px;
+  margin: 0 auto;
+}
+
+#player-exercise-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  max-width: 280px;
+  margin: 0 auto 12px;
+  background: #1a1a24;
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+
+#player-exercise-image .exercise-photo {
+  max-width: 100%;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+#player-exercise-image .exercise-thumb:not(.exercise-photo) {
+  width: 140px;
+  height: 140px;
+}
+
+.catalog-hint {
+  margin-bottom: 12px;
+}
+
+.wger-credit a {
+  color: var(--primary);
+}
+
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-md);
+}
+
+.exercise-card {
+  position: relative;
+  border: none;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  padding: 0;
+  background: #2a2a38;
+  color: white;
+  text-align: left;
+  min-height: 168px;
+}
+
+.exercise-card .exercise-thumb {
+  display: block;
+}
+
+.exercise-card-label {
+  display: block;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.play-badge {
+  position: absolute;
+  bottom: 48px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a1a24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.exercise-list-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: var(--gap-sm);
+  box-shadow: var(--shadow);
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.exercise-list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chevron {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+.exercise-detail-overlay,
+.program-player-overlay,
+.running-live-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.exercise-detail-overlay[hidden],
+.program-player-overlay[hidden],
+.running-live-overlay[hidden] {
+  display: none !important;
+}
+
+.ex-detail-hero {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.ex-detail-hero .exercise-thumb {
+  margin: 0 auto 12px;
+}
+
+.ex-detail-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(123, 47, 247, 0.15);
+  color: var(--secondary);
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.tips-list,
+.equipment-list {
+  margin: 12px 0 0 18px;
+  color: var(--text-muted);
+  display: grid;
+  gap: 8px;
+}
+
+.set-config-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.set-config-row label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.set-config-row input,
+.set-config-row select {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.builder-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#builder-duration-preview {
+  text-align: center;
+  font-weight: 800;
+  color: var(--primary);
+  margin: var(--gap-md) 0;
+}
+
+.gen-muscles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-sm);
+  margin-bottom: var(--gap-md);
+}
+
+.gen-muscle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.player-progress-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.player-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+#player-timer-display {
+  font-size: 3.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 16px 0;
+}
+
+#player-timer-display.rest-mode {
+  color: var(--accent);
+}
+
+.player-reps-panel {
+  margin: 8px 0 16px;
+}
+
+.rep-tap-btn {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 20px 16px;
+  border: 3px solid var(--primary);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255, 107, 53, 0.08), rgba(123, 47, 247, 0.06));
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.rep-tap-btn:active {
+  transform: scale(0.98);
+}
+
+.rep-tap-btn.rep-target-reached {
+  border-color: var(--accent);
+  background: rgba(0, 201, 167, 0.15);
+}
+
+.rep-current {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.rep-target {
+  font-size: 1.4rem;
+  color: var(--text-muted);
+}
+
+.rep-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.rep-adjust-btn {
+  flex: 0 0 auto;
+  min-width: 56px;
+  padding: 10px 14px;
+}
+
+.rep-actions .hint {
+  flex: 1;
+  margin: 0;
+}
+
+.route-map-container {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-top: 12px;
+  background: var(--surface);
+}
+
+.run-live-map {
+  height: 160px;
+  margin: 0 0 16px;
+}
+
+.route-map-container .leaflet-control-attribution {
+  font-size: 0.62rem;
+}
+
+.run-live-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+  margin: 20px 0;
+}
+
+.run-stat {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.run-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.run-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.run-target-display {
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 8px 0 12px;
+  padding: 8px 12px;
+  background: rgba(255, 107, 53, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+.run-live-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.equi-history-item .secondary-btn.compact {
+  min-width: 40px;
+  padding: 8px 10px;
+}
+
+#run-interval-display {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 107, 53, 0.12);
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+#run-route-canvas {
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.ai-plans-list {
+  margin-top: 20px;
+}
+
+.ai-plan-card {
+  margin-bottom: var(--gap-md);
+}
+
+.ai-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-week-select {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.ai-plan-sessions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ai-session-btn {
+  width: 100%;
+  text-align: left;
+}
+
+#ai-prompt-preview {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.ai-preview-sheet {
+  max-height: min(92vh, 720px);
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-preview-summary {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ai-preview-week-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ai-preview-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  max-height: 42vh;
+}
+
+.ai-preview-session {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.ai-preview-session h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.ai-preview-exercise {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.ai-preview-exercise:first-of-type {
+  border-top: none;
+}
+
+.ai-preview-exercise-meta {
+  color: var(--text-muted, #888);
+  white-space: nowrap;
+}
+
+.ai-preview-import-label {
+  margin: 8px 0 14px;
+}
+
+.ai-preview-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+}
+
+.ai-advanced-options summary {
+  padding: 0;
+}
+
+.ai-coach-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.ai-coach-actions .compact {
+  align-self: center;
+  font-size: 0.85rem;
+}
+
+.ai-priority-grid,
+.ai-zones-grid {
+  margin-bottom: 0;
+}
+
+.equipment-card h3 {
+  margin-bottom: 8px;
+  color: var(--secondary);
+}

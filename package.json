@@ -1,0 +1,8 @@
+{
+  "name": "site-sporr",
+  "private": true,
+  "scripts": {
+    "fetch-wger": "node scripts/fetch-wger.mjs",
+    "fetch-wger:translate": "node scripts/fetch-wger.mjs --translate"
+  }
+}

@@ -1,0 +1,286 @@
+.session-card {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: var(--gap-md);
+}
+
+.session-card:last-child {
+  margin-bottom: 0;
+}
+
+#today-sessions,
+#calendar-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+#today-sessions .session-card,
+#calendar-sessions .session-card {
+  margin-bottom: 0;
+}
+
+.session-card-header,
+.session-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.session-card-body {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.session-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.session-type-badge[data-type='Yoga'] {
+  color: var(--primary);
+}
+
+.session-type-badge[data-type='Renforcement'] {
+  color: var(--secondary);
+}
+
+.session-type-badge[data-type='Running'] {
+  color: var(--accent);
+}
+
+.session-type-badge[data-type='Équitation'] {
+  color: var(--equi);
+}
+
+.session-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.session-note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--note-bg, #fff4ec);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.sport-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.sport-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  row-gap: var(--tile-gap-row);
+  column-gap: var(--tile-gap-col);
+  margin-bottom: var(--section-gap);
+}
+
+.sport-btn,
+.duration-btn {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 14px 8px;
+  font-weight: 800;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.sport-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 96px;
+}
+
+.sport-btn.selected,
+.duration-btn.selected {
+  border-color: transparent;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: var(--shadow);
+}
+
+.duration-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  row-gap: var(--gap-md);
+  column-gap: var(--gap-md);
+  margin-bottom: var(--section-gap);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: var(--gap-md);
+}
+
+.form-group label {
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.form-group textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.primary-btn,
+.secondary-btn,
+.delete-btn,
+.danger-btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  font-weight: 800;
+}
+
+.primary-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--primary), #ff8f66);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.secondary-btn {
+  background: var(--secondary-btn-bg, #f4f0ec);
+  color: var(--text);
+}
+
+.delete-btn {
+  margin-top: 12px;
+  width: 100%;
+  background: var(--delete-btn-bg, #fff0f3);
+  color: var(--danger);
+}
+
+.danger-btn {
+  width: 100%;
+  background: var(--danger);
+  color: white;
+}
+
+.top-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.top-item:last-child {
+  border-bottom: none;
+}
+
+.settings-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: 6px;
+}
+
+#calendar-picker {
+  display: none;
+}
+
+.calendar-shell {
+  display: flex;
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.calendar-wrapper {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-wrapper .flatpickr-calendar {
+  width: 100% !important;
+  max-width: 360px;
+  margin: 0 auto !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.calendar-wrapper .flatpickr-calendar.inline {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+}
+
+.calendar-wrapper .flatpickr-months,
+.calendar-wrapper .flatpickr-innerContainer,
+.calendar-wrapper .flatpickr-rContainer,
+.calendar-wrapper .flatpickr-days,
+.calendar-wrapper .dayContainer {
+  width: 100% !important;
+}
+
+.calendar-wrapper .flatpickr-day {
+  max-width: none;
+  flex: 1 1 14.28%;
+}
+
+.calendar-day-title {
+  text-align: center;
+  margin: var(--gap-md) 0;
+}
+
+.flatpickr-calendar {
+  box-shadow: none !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.flatpickr-day.has-session {
+  background: rgba(255, 107, 53, 0.18);
+  border-color: rgba(255, 107, 53, 0.35);
+  font-weight: 800;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.flatpickr-day.today {
+  border-color: var(--secondary);
+}

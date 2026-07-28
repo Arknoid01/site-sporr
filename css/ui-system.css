@@ -1,0 +1,221 @@
+/* Système UI cohérent — formulaires, boutons, sous-écrans */
+
+:root {
+  --equi: #a16207;
+  --equi-light: #c97b3d;
+  --surface-alt: color-mix(in srgb, var(--surface) 92%, var(--text) 8%);
+}
+
+[data-theme='dark'] {
+  --surface-alt: #242433;
+}
+
+/* Contrôles de formulaire unifiés */
+.form-control,
+.form-group input,
+.form-group select,
+.form-group textarea,
+.ai-form-grid input,
+.ai-form-grid select,
+.ai-coach-card textarea,
+#ai-prompt-preview,
+#ai-json-import,
+.filter-stack select,
+.filter-stack input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.form-control:focus,
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.ai-form-grid input:focus,
+.ai-form-grid select:focus {
+  outline: 2px solid color-mix(in srgb, var(--primary) 40%, transparent);
+  outline-offset: 1px;
+}
+
+.ai-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.ai-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Boutons pleine largeur */
+.btn-block {
+  width: 100%;
+}
+
+.btn-block-top {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.btn-block-bottom {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.btn-block-gap {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Titres dans les cartes (évite les marges énormes du .section-title global) */
+.card .section-title,
+.ai-coach-card .section-title {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+}
+
+.card .section-title + .hint,
+.ai-coach-card .section-title + .hint {
+  margin-top: -8px;
+  margin-bottom: 12px;
+}
+
+/* Sous-écrans (Renfo, Course, Équitation, Réglages) */
+.subscreen-header .secondary-btn {
+  width: auto;
+  min-width: 44px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.subscreen-lead {
+  margin: -4px 0 16px;
+}
+
+.hub-card-sub {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.35;
+}
+
+.panel-intro {
+  margin-bottom: 16px;
+}
+
+.section-label {
+  margin: 12px 0 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.filter-stack {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stack-top {
+  margin-top: 12px;
+}
+
+.stack-bottom {
+  margin-bottom: 12px;
+}
+
+/* Onglets Renfo — scroll plus lisible */
+.renfo-tabs {
+  padding-bottom: 4px;
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+
+/* Cartes hub — ombre & interaction */
+.hub-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hub-card:active {
+  transform: scale(0.98);
+}
+
+.hub-card-equitation {
+  background: linear-gradient(135deg, var(--equi), var(--equi-light));
+}
+
+/* Historiques listes */
+.exercise-list-item {
+  transition: background 0.15s ease;
+}
+
+.exercise-list-item:active {
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+}
+
+/* Options avancées Coach IA */
+.ai-advanced-options {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+  background: var(--surface-alt);
+}
+
+.ai-advanced-options summary {
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+
+.ai-advanced-options summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-advanced-options .card {
+  margin-top: 12px;
+  margin-bottom: 0;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+/* Réglages — actions empilées */
+.settings-actions .secondary-btn,
+.settings-actions .danger-btn {
+  width: 100%;
+}
+
+.settings-actions .secondary-btn + .danger-btn {
+  margin-top: 0;
+}
+
+/* Cartes d'activité sur les hubs */
+.card-accent-running {
+  border-left: 4px solid var(--accent);
+}
+
+.card-accent-equi {
+  border-left: 4px solid var(--equi);
+}
+
+.card-accent-renfo {
+  border-left: 4px solid var(--secondary);
+}
+
+/* Accueil — CTA principal */
+.home-timer-cta {
+  margin-bottom: var(--section-gap);
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}

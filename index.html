@@ -1,79 +1,911 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <title>Site de Suivi Sportif</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#ff6b35">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="Suivi sportif personnel — Yoga, Renforcement, Running">
+  <title>Sport — Suivi sportif de Sarah</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/fr.js"></script>
 </head>
 <body>
-  <h1>Tableau de Bord Sportif</h1>
-  
-  <!-- Formulaire d'ajout de séance -->
-  <div id="session-form">
-    <h2>Ajouter une séance</h2>
-    <form id="add-session-form">
-      <input type="date" id="session-date" required>
-      <select id="session-type" required>
-        <option value="">Sélectionnez le type d'exercice</option>
-        <option value="Running">Running</option>
-        <option value="Cycling">Cycling</option>
-        <option value="Swimming">Swimming</option>
-        <option value="Walking">Walking</option>
-        <option value="Weightlifting">Weightlifting</option>
-        <option value="Yoga">Yoga</option>
-        <option value="Other">Autre</option>
-      </select>
-      <input type="number" id="session-duration" placeholder="Durée (minutes)" min="1" required>
-      <input type="number" id="session-calories" placeholder="Calories brûlées" min="1">
-      <button type="submit">Ajouter la séance</button>
-    </form>
+  <div id="splash" class="splash" aria-hidden="true">
+    <div class="splash-logo">Sport</div>
+    <p class="splash-tagline">Pour Sarah</p>
   </div>
 
-  <!-- Modal d'ajout de séance -->
-  <div id="add-session-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
-    <div style="background-color: white; margin: 10% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px;">
-      <h3>Ajouter une séance</h3>
-      <input type="text" id="modal-session-name" placeholder="Nom de la séance" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
-      <input type="date" id="modal-date-picker" required style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px;">
-      <button id="save-session-btn" style="background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">Enregistrer</button>
-      <button id="cancel-modal-btn" style="background-color: #95a5a6; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Annuler</button>
+  <div class="app-shell">
+    <section id="screen-home" class="screen active">
+      <header class="page-header">
+        <div>
+          <p class="card-title">Tableau de bord</p>
+          <h1 id="greeting">Bonjour, Sarah !</h1>
+          <p class="quote-text" id="daily-quote"></p>
+        </div>
+        <button id="open-settings" class="icon-btn" type="button" aria-label="Réglages">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+            <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.07 7.07 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.49.42l-.36 2.54c-.58.22-1.13.53-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.43.34.69.22l2.39-.96c.5.41 1.05.72 1.63.94l.36 2.54A.5.5 0 0 0 10 22h4a.5.5 0 0 0 .49-.42l.36-2.54c.58-.22 1.13-.53 1.63-.94l2.39.96c.26.1.55 0 .69-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/>
+          </svg>
+        </button>
+      </header>
+
+      <div id="install-banner" class="install-banner" hidden>
+        <div>
+          <p>Installer Sport sur Android</p>
+          <p class="hint">Bouton ci-contre, ou menu Chrome ⋮</p>
+        </div>
+        <button id="install-app-btn" class="secondary-btn" type="button">Installer</button>
+      </div>
+
+      <button id="home-start-session" class="primary-btn home-timer-cta" type="button">
+        ▶ Lancer une séance
+      </button>
+
+      <div class="hub-cards">
+        <button type="button" id="open-renfo-hub" class="hub-card hub-card-renfo">💪 Renforcement<br><span class="hub-card-sub">Programmes & exercices</span></button>
+        <button type="button" id="open-running-hub" class="hub-card hub-card-running">🏃 Course<br><span class="hub-card-sub">GPS & intervalles</span></button>
+        <button type="button" id="open-equitation-hub" class="hub-card hub-card-equitation">🐴 Équitation<br><span class="hub-card-sub">Prépa physique cavalier</span></button>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card highlight">
+          <p class="card-title">Aujourd’hui</p>
+          <p class="stat-value" id="today-minutes">0 min</p>
+          <p id="today-count">0 séance</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Calories</p>
+          <p class="stat-value" id="today-calories">0 kcal</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Cette semaine</p>
+          <p class="stat-value" id="week-minutes">0 min</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Série</p>
+          <p class="stat-value" id="streak-count">0 jour</p>
+        </div>
+      </div>
+
+      <div class="card premium-card">
+        <p class="card-title">Bilan de la semaine</p>
+        <p class="recap-value" id="recap-minutes">0 min</p>
+        <span class="recap-delta" id="recap-delta">—</span>
+        <button type="button" id="open-weekly-summary" class="secondary-btn btn-block-top">
+          Voir le résumé complet
+        </button>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Objectif hebdomadaire</p>
+        <div class="progress-track">
+          <div class="progress-fill" id="goal-progress-fill"></div>
+        </div>
+        <p class="hint" id="goal-progress-text">Définis ton objectif hebdo dans les réglages</p>
+      </div>
+
+      <h2 class="section-title">Trophées</h2>
+      <div id="achievements-list" class="badges-scroll"></div>
+
+      <h2 class="section-title">Séances du jour</h2>
+      <div id="today-sessions"></div>
+    </section>
+
+    <section id="screen-add" class="screen">
+      <header class="page-header">
+        <h1>Séance</h1>
+      </header>
+
+      <div class="add-tabs" role="tablist">
+        <button type="button" class="add-tab active" data-tab="timer" role="tab">Chronomètre</button>
+        <button type="button" class="add-tab" data-tab="manual" role="tab">Manuel</button>
+      </div>
+
+      <p class="card-title">Type de séance</p>
+      <div id="sport-buttons" class="sport-grid"></div>
+
+      <p class="card-title">Durée</p>
+      <div id="duration-buttons" class="duration-grid"></div>
+
+      <div class="form-group">
+        <label for="session-duration-custom">Durée (minutes)</label>
+        <input type="number" id="session-duration-custom" min="1" value="30" required>
+      </div>
+
+      <div id="add-tab-timer" role="tabpanel">
+        <button type="button" id="launch-timer-btn" class="primary-btn launch-timer-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z"/></svg>
+          Démarrer le chronomètre
+        </button>
+      </div>
+
+      <div id="add-tab-manual" hidden role="tabpanel">
+      <form id="add-session-form">
+
+        <div class="form-group">
+          <label for="session-date">Date</label>
+          <input type="date" id="session-date" required>
+        </div>
+
+        <div class="form-group">
+          <label for="session-calories">Calories (optionnel)</label>
+          <input type="number" id="session-calories" min="0" placeholder="Ex. 250">
+        </div>
+
+        <div class="form-group">
+          <label for="session-note">Note</label>
+          <textarea id="session-note" placeholder="Ex. Yoga du matin, super séance !"></textarea>
+        </div>
+
+        <button type="submit" class="primary-btn">Enregistrer la séance</button>
+      </form>
+      </div>
+    </section>
+
+    <section id="screen-stats" class="screen">
+      <header class="page-header">
+        <h1>Statistiques</h1>
+      </header>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <p class="card-title">Semaine</p>
+          <p class="stat-value" id="stats-week-total">0 min</p>
+        </div>
+        <div class="stat-card">
+          <p class="card-title">Séances</p>
+          <p class="stat-value" id="stats-total-sessions">0</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Série actuelle</p>
+        <p class="stat-value" id="stats-streak">0</p>
+        <p class="hint" id="stats-goal-summary"></p>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Records personnels</h2>
+        <div id="records-list"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Insights</h2>
+        <div id="insights-list"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Tendances</h2>
+        <div id="trends-list"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Répartition par activité</h2>
+        <div class="chart-box small">
+          <canvas id="pie-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Minutes par semaine</h2>
+        <div class="chart-box">
+          <canvas id="trend-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="section-title">Top activités</h2>
+        <div id="top-activities"></div>
+      </div>
+    </section>
+
+    <section id="screen-calendar" class="screen">
+      <header class="page-header">
+        <h1>Calendrier</h1>
+      </header>
+
+      <div class="calendar-shell card">
+        <div class="calendar-wrapper">
+          <input type="text" id="calendar-picker" aria-label="Sélectionner une date">
+        </div>
+      </div>
+
+      <p class="card-title calendar-day-title" id="selected-date-label"></p>
+      <div id="calendar-sessions"></div>
+    </section>
+
+    <section id="screen-renfo" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-renfo" class="secondary-btn" type="button">←</button>
+        <h1>Renforcement</h1>
+      </header>
+      <div class="renfo-tabs">
+        <button type="button" class="renfo-tab active" data-renfo-tab="programs">Programmes</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="create">Créer</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="generator">Générateur</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="exercises">Exercices</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="ai-coach">Coach IA</button>
+        <button type="button" class="renfo-tab" data-renfo-tab="equipment">Matériel</button>
+      </div>
+      <div id="renfo-panel-programs" class="renfo-panel">
+        <p class="hint panel-intro">Les programmes wger (séries, reps, temps de repos) se créent via le générateur ou l’import ci-dessous.</p>
+        <button type="button" id="import-wger-programs-btn" class="secondary-btn btn-block-bottom">Importer programmes exemples wger</button>
+        <div id="programs-list"></div>
+      </div>
+      <div id="renfo-panel-create" class="renfo-panel" hidden>
+        <p class="card-title">Nom du programme</p>
+        <input type="text" id="builder-name-input" class="form-control stack-bottom" placeholder="Ex. Jambes & fessiers">
+        <p class="hint">Ajoute des exercices depuis l’onglet Exercices, puis configure séries, reps/temps et repos.</p>
+        <div id="builder-items-list"></div>
+        <p id="builder-duration-preview">Durée estimée : —</p>
+        <button type="button" id="builder-save-btn" class="primary-btn">Enregistrer le programme</button>
+      </div>
+      <div id="renfo-panel-generator" class="renfo-panel" hidden>
+        <p class="card-title">Muscles ciblés</p>
+        <div class="gen-muscles-grid">
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="fessiers"> Fessiers</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="jambes"> Jambes</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="dos"> Dos</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="pectoraux"> Pectoraux</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="bras"> Bras</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="epaules"> Épaules</label>
+          <label class="gen-muscle-label"><input type="checkbox" class="gen-muscle-check" value="abdos"> Abdos</label>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Par muscles</h3>
+          <div class="form-group">
+            <label for="gen-exercise-count">Nombre d’exercices</label>
+            <input type="number" id="gen-exercise-count" min="3" max="10" value="5">
+          </div>
+          <button type="button" id="gen-by-muscles-btn" class="primary-btn">Générer</button>
+        </div>
+        <div class="card">
+          <h3 class="section-title">Par durée</h3>
+          <div class="form-group">
+            <label for="gen-time-minutes">Durée cible (minutes)</label>
+            <input type="number" id="gen-time-minutes" min="10" max="90" value="30">
+          </div>
+          <button type="button" id="gen-by-time-btn" class="secondary-btn btn-block">Générer par temps</button>
+        </div>
+      </div>
+      <div id="renfo-panel-exercises" class="renfo-panel" hidden>
+        <div class="filter-stack">
+          <select id="catalog-source" class="form-control">
+            <option value="local">Exercices Sarah (21 · élastiques & barre)</option>
+            <option value="wger">Catalogue wger (828 · dont photos)</option>
+          </select>
+          <input type="search" id="exercise-search" class="form-control" placeholder="Rechercher un exercice…">
+          <select id="muscle-filter" class="form-control">
+            <option value="all">Tous les muscles</option>
+            <option value="fessiers">Fessiers</option>
+            <option value="jambes">Jambes</option>
+            <option value="dos">Dos</option>
+            <option value="pectoraux">Pectoraux</option>
+            <option value="bras">Bras</option>
+            <option value="epaules">Épaules</option>
+            <option value="abdos">Abdominaux</option>
+          </select>
+        </div>
+        <div id="exercise-browser"></div>
+      </div>
+      <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
+        <p class="hint panel-intro">Choisis une <strong>séance unique</strong> ou un programme, personnalise, puis valide l’aperçu.</p>
+        <form id="ai-coach-form" onsubmit="return false;">
+        <div class="ai-mode-tabs" role="tablist">
+          <button type="button" class="ai-mode-tab active" data-ai-mode="single" role="tab">Séance unique</button>
+          <button type="button" class="ai-mode-tab" data-ai-mode="program" role="tab">Programme</button>
+        </div>
+        <div class="card ai-coach-card ai-single-only">
+          <h3 class="section-title">Ma séance</h3>
+          <label class="form-group">Nom de la séance (optionnel)
+            <input type="text" id="ai-session-name" placeholder="Ex. Renfo express du mardi">
+          </label>
+        </div>
+        <div class="card ai-coach-card">
+          <h3 class="section-title">Profil</h3>
+          <div class="ai-form-grid">
+            <label>Sexe
+              <select id="ai-sexe" required>
+                <option value="" selected disabled>Choisir…</option>
+                <option value="femme">Femme</option>
+                <option value="homme">Homme</option>
+              </select>
+            </label>
+            <label>Âge
+              <input type="number" id="ai-age" min="16" max="80" placeholder="Ex. 28" required>
+            </label>
+            <label>Niveau
+              <select id="ai-niveau" required>
+                <option value="" selected disabled>Choisir…</option>
+                <option value="débutant">Débutant</option>
+                <option value="intermédiaire">Intermédiaire</option>
+                <option value="avancé">Avancé</option>
+              </select>
+            </label>
+            <label>Objectif
+              <select id="ai-objectif" required>
+                <option value="" selected disabled>Choisir…</option>
+                <option value="hypertrophie">Hypertrophie</option>
+                <option value="force">Force</option>
+                <option value="sèche">Sèche / tonification</option>
+                <option value="endurance">Endurance musculaire</option>
+              </select>
+            </label>
+            <label class="ai-program-only">Séances / semaine
+              <input type="number" id="ai-seances" min="2" max="6" placeholder="Ex. 3">
+            </label>
+            <label>Matériel
+              <select id="ai-materiel" required>
+                <option value="" selected disabled>Choisir…</option>
+                <option value="salle complète">Salle complète</option>
+                <option value="haltères + banc">Haltères + banc</option>
+                <option value="élastiques + barre">Élastiques + barre</option>
+                <option value="poids du corps">Poids du corps</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="card ai-coach-card" id="ai-cycle-card" hidden>
+          <h3 class="section-title">Cycle menstruel</h3>
+          <label class="gen-muscle-label">
+            <input type="checkbox" id="ai-cycle-adapt"> Adapter le programme à mon cycle hormonal
+          </label>
+          <p class="hint" id="ai-cycle-phase-hint"></p>
+          <div class="ai-cycle-fields" hidden>
+            <div class="ai-form-grid stack-top">
+              <label id="ai-cycle-date-wrap">Dernières règles (J1)
+                <input type="date" id="ai-last-period">
+              </label>
+              <label>Durée du cycle (jours)
+                <input type="number" id="ai-cycle-length" min="21" max="40" value="28" placeholder="28">
+              </label>
+              <label>Phase (manuelle)
+                <select id="ai-cycle-phase-manual">
+                  <option value="auto" selected>Auto (calculée)</option>
+                  <option value="menstruation">Menstruation</option>
+                  <option value="follicular">Phase folliculaire</option>
+                  <option value="ovulation">Ovulation</option>
+                  <option value="luteal">Phase lutéale</option>
+                  <option value="late-luteal">Fin de cycle</option>
+                </select>
+              </label>
+              <label>Contraception hormonale
+                <select id="ai-contraception">
+                  <option value="none" selected>Aucune / non hormonale</option>
+                  <option value="pilule">Pilule / anneau / patch</option>
+                  <option value="implant">Implant / DIU hormonal</option>
+                  <option value="autre">Autre (hormones exogènes)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="card ai-coach-card" id="ai-female-physio-card" hidden>
+          <h3 class="section-title">Physiologie féminine</h3>
+          <label class="gen-muscle-label">
+            <input type="checkbox" id="ai-pelvic-floor" checked> Abdos respectueux du plancher pelvien
+          </label>
+          <p class="hint">Privilégie gainage, transverse, dead bug et respiration ventrale. Consigne : contracter le périnée et ramener le nombril vers la colonne. Évite crunch, relevés de jambes et exercices à forte pression abdominale.</p>
+        </div>
+        <div class="card ai-coach-card">
+          <h3 class="section-title">Personnalisation</h3>
+          <div class="ai-form-grid">
+            <label class="ai-program-only">Durée du programme
+              <select id="ai-plan-weeks">
+                <option value="8">8 semaines</option>
+                <option value="12" selected>12 semaines</option>
+                <option value="16">16 semaines</option>
+              </select>
+            </label>
+            <label>Exercices / séance
+              <select id="ai-ex-per-session">
+                <option value="3">3 exercices</option>
+                <option value="4" selected>4 exercices</option>
+                <option value="5">5 exercices</option>
+              </select>
+            </label>
+            <label>Temps de repos
+              <select id="ai-rest">
+                <option value="short">Court (45 s)</option>
+                <option value="medium" selected>Moyen (60 s)</option>
+                <option value="long">Long (90 s)</option>
+              </select>
+            </label>
+          </div>
+          <p class="section-label">Muscles prioritaires <span class="hint">(plus de volume)</span></p>
+          <div class="gen-muscles-grid ai-priority-grid">
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="fessiers"> Fessiers</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="jambes"> Jambes</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="dos"> Dos</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="pectoraux"> Pectoraux</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="bras"> Bras</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="epaules"> Épaules</label>
+            <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="abdos"> Abdos</label>
+          </div>
+          <label class="gen-muscle-label stack-top">
+            <input type="checkbox" id="ai-include-abs" checked> Inclure des exercices abdos
+          </label>
+        </div>
+        <div class="card ai-coach-card">
+          <h3 class="section-title">Contraintes &amp; sécurité</h3>
+          <div class="ai-form-grid">
+            <label>Durée max par séance (min)
+              <input type="number" id="ai-max-min" min="15" max="120" placeholder="Ex. 45" required>
+            </label>
+            <label class="ai-program-only">Séries jambes max / semaine
+              <input type="number" id="ai-max-leg-sets" min="4" max="40" placeholder="Ex. 16">
+            </label>
+          </div>
+          <p class="section-label">Zones à ménager</p>
+          <div class="gen-muscles-grid ai-zones-grid">
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-knee"> Genoux</label>
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-back"> Dos / lombaires</label>
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-shoulder"> Épaules</label>
+            <label class="gen-muscle-label"><input type="checkbox" id="ai-wrist"> Poignets</label>
+          </div>
+          <label class="form-group stack-top">Exercices à éviter <span class="hint">(noms séparés par des virgules)</span>
+            <input type="text" id="ai-exclude" placeholder="Ex. burpees, fentes, développé militaire…">
+          </label>
+          <label class="form-group stack-top">Notes libres
+            <textarea id="ai-notes" placeholder="Ex. préfère les exercices unilatéraux, pas de burpees…"></textarea>
+          </label>
+        </div>
+        </form>
+        <div class="ai-coach-actions">
+          <button type="button" id="ai-generate-btn" class="primary-btn">Générer le programme</button>
+          <button type="button" id="ai-clear-profile-btn" class="secondary-btn compact">Réinitialiser le profil</button>
+        </div>
+        <details class="ai-advanced-options">
+          <summary class="hint">Options avancées (Groq manuel)</summary>
+          <button type="button" id="ai-copy-prompt-btn" class="secondary-btn btn-block-gap">Copier le prompt pour Groq</button>
+          <div class="card">
+            <h3 class="section-title">Prompt à envoyer à Groq</h3>
+            <textarea id="ai-prompt-preview" class="form-control" readonly placeholder="Clique « Copier le prompt »…" rows="3"></textarea>
+          </div>
+          <div class="card">
+            <h3 class="section-title">Importer la réponse JSON</h3>
+            <textarea id="ai-json-import" class="form-control" placeholder='{"planName":"…","weeks":[…]}' rows="4"></textarea>
+            <button type="button" id="ai-import-json-btn" class="secondary-btn btn-block-gap">Prévisualiser le JSON</button>
+          </div>
+        </details>
+        <div id="ai-plans-list" class="ai-plans-list"></div>
+      </div>
+      <div id="renfo-panel-equipment" class="renfo-panel" hidden>
+        <div id="equipment-guide"></div>
+      </div>
+    </section>
+
+    <section id="screen-running" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-running" class="secondary-btn" type="button">←</button>
+        <h1>Course</h1>
+      </header>
+      <div class="card card-accent-running">
+        <div class="form-group">
+          <label for="run-type-select">Type de course</label>
+          <select id="run-type-select">
+            <option value="footing">Footing / endurance fond</option>
+            <option value="endurance">Endurance active</option>
+            <option value="fractionne">Fractionné / VMA</option>
+            <option value="sortie-longue">Sortie longue</option>
+            <option value="recuperation">Récupération active</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="run-terrain-select">Terrain</label>
+          <select id="run-terrain-select">
+            <option value="route">Route / bitume</option>
+            <option value="trail">Trail / nature</option>
+            <option value="piste">Piste / stade</option>
+          </select>
+        </div>
+        <div class="ai-form-grid">
+          <label class="form-group">Objectif distance (km)
+            <input type="number" id="run-target-km" min="0" step="0.1" placeholder="Ex. 5">
+          </label>
+          <label class="form-group">Objectif durée (min)
+            <input type="number" id="run-target-min" min="0" placeholder="Ex. 30">
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="run-name-input">Nom de la course</label>
+          <input type="text" id="run-name-input" placeholder="Ex. Course du matin">
+        </div>
+        <div class="form-group">
+          <label for="run-desc-input">Notes</label>
+          <textarea id="run-desc-input" placeholder="Ex. parc du matin, footing léger…"></textarea>
+        </div>
+        <div class="form-group" id="run-interval-group">
+          <label for="run-interval-select">Fractionné (optionnel)</label>
+          <select id="run-interval-select">
+            <option value="">Sans intervalles</option>
+            <option value="0">30/30 x8</option>
+            <option value="1">1 min / 1 min x6</option>
+            <option value="2">2 min / 1 min x5</option>
+          </select>
+        </div>
+        <button type="button" id="start-run-btn" class="primary-btn">▶ Démarrer la course</button>
+      </div>
+      <h2 class="section-title">Mes courses</h2>
+      <div id="runs-list"></div>
+    </section>
+
+    <section id="screen-equitation" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-equitation" class="secondary-btn" type="button">←</button>
+        <h1>Prépa cavalier</h1>
+      </header>
+      <p class="hint subscreen-lead">Renforcement et mobilité pour le cavalier — pas une séance montée.</p>
+      <div class="card card-accent-equi">
+        <div class="form-group">
+          <label for="equi-type-select">Objectif de la séance</label>
+          <select id="equi-type-select">
+            <option value="gainage-posture">Gainage & posture</option>
+            <option value="jambes">Jambes & adducteurs</option>
+            <option value="equilibre">Équilibre & proprioception</option>
+            <option value="souplesse">Souplesse hanches & dos</option>
+            <option value="renfo-complet">Renfo complet cavalier</option>
+            <option value="recuperation">Récupération active</option>
+          </select>
+          <p id="equi-focus-desc" class="hint stack-top">Core, dos droit, stabilité en selle</p>
+        </div>
+        <div class="form-group">
+          <label for="equi-intensity-select">Intensité</label>
+          <select id="equi-intensity-select">
+            <option value="legere">Légère</option>
+            <option value="moderee" selected>Modérée</option>
+            <option value="intense">Intense</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="equi-target-min">Durée visée (min)</label>
+          <input type="number" id="equi-target-min" min="10" max="60" placeholder="Ex. 25">
+        </div>
+        <div class="form-group">
+          <label for="equi-name-input">Nom de la séance (optionnel)</label>
+          <input type="text" id="equi-name-input" placeholder="Ex. Gainage posture">
+        </div>
+        <div class="form-group">
+          <label for="equi-notes-input">Notes</label>
+          <textarea id="equi-notes-input" placeholder="Ex. avant monte, focus bassin, après compétition…"></textarea>
+        </div>
+        <button type="button" id="start-equi-btn" class="primary-btn">▶ Générer et lancer la séance</button>
+      </div>
+      <h2 class="section-title">Historique prépa cavalier</h2>
+      <div id="equi-sessions-list"></div>
+    </section>
+
+    <section id="screen-settings" class="screen">
+      <header class="subscreen-header">
+        <button id="back-from-settings" class="secondary-btn" type="button">←</button>
+        <h1>Réglages</h1>
+      </header>
+
+      <div id="install-help" class="card" hidden>
+        <h2 class="section-title">Installer sur Android</h2>
+        <ol class="install-steps">
+          <li>Ouvre Sport dans <strong>Chrome</strong> (pas Samsung Internet)</li>
+          <li>Appuie sur le menu <strong>⋮</strong> en haut à droite</li>
+          <li>Choisis <strong>Installer l’application</strong> ou <strong>Ajouter à l’écran d’accueil</strong></li>
+        </ol>
+        <button id="install-app-settings-btn" class="primary-btn" type="button">Installer Sport</button>
+      </div>
+
+      <form id="settings-form" class="card">
+        <div class="form-group">
+          <label for="settings-name">Prénom</label>
+          <input type="text" id="settings-name" value="Sarah">
+        </div>
+
+        <div class="form-group">
+          <label for="settings-goal">Objectif hebdomadaire (minutes)</label>
+          <input type="number" id="settings-goal" min="0" placeholder="Ex. 150">
+          <p class="hint">Laisse vide si tu préfères ne pas te fixer d’objectif pour l’instant.</p>
+        </div>
+
+        <div class="form-group theme-switch">
+          <span class="theme-switch-label">Mode sombre</span>
+          <label class="toggle">
+            <input type="checkbox" id="settings-theme-dark" aria-label="Activer le mode sombre">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <button type="submit" class="primary-btn">Enregistrer</button>
+      </form>
+
+      <form id="ai-settings-form" class="card">
+        <h2 class="section-title">Coach IA (Groq)</h2>
+        <p class="hint">Clé Groq stockée sur ton téléphone uniquement. Modèle recommandé : <strong>GPT-OSS 120B</strong> (gratuit avec limites sur console.groq.com).</p>
+        <div class="form-group">
+          <label for="settings-ai-provider">Mode</label>
+          <select id="settings-ai-provider">
+            <option value="local" selected>Plan local instantané (recommandé)</option>
+            <option value="manual">Manuel (copier prompt → prévisualiser JSON)</option>
+            <option value="groq">Groq — génération auto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="settings-groq-key">Clé API Groq</label>
+          <input type="password" id="settings-groq-key" autocomplete="off" placeholder="gsk_…">
+        </div>
+        <div class="form-group">
+          <label for="settings-groq-model">Modèle</label>
+          <select id="settings-groq-model">
+            <option value="openai/gpt-oss-120b">GPT-OSS 120B (recommandé)</option>
+            <option value="openai/gpt-oss-20b">GPT-OSS 20B (plus rapide)</option>
+          </select>
+        </div>
+        <button type="submit" class="secondary-btn btn-block">Enregistrer clé Groq</button>
+      </form>
+
+      <div class="card">
+        <h2 class="section-title">Mes sports</h2>
+        <div id="sports-settings-list"></div>
+        <form id="add-sport-form" class="stack-top">
+          <div class="form-group">
+            <label for="new-sport-name">Ajouter un sport</label>
+            <input type="text" id="new-sport-name" placeholder="Ex. Natation" required>
+          </div>
+          <div class="form-group">
+            <label for="new-sport-icon">Icône</label>
+            <select id="new-sport-icon" required></select>
+          </div>
+          <button type="submit" class="secondary-btn btn-block">Ajouter le sport</button>
+        </form>
+      </div>
+
+      <div class="settings-actions">
+        <button id="export-data-btn" class="secondary-btn btn-block-bottom" type="button">Exporter mes données (JSON)</button>
+        <button id="reset-data-btn" class="danger-btn" type="button">Réinitialiser toutes les données</button>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button class="nav-item active" data-screen="screen-home" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8h5Z"/></svg>
+        Accueil
+      </button>
+      <button class="nav-item" data-screen="screen-add" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10h-2a8 8 0 1 1-8-8V2Zm1 0v8.59l5.3 5.3 1.4-1.42L14 9.17V2h-1Z"/></svg>
+        Séance
+      </button>
+      <button class="nav-item" data-screen="screen-stats" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h2v8H3v-8Zm4-4h2v12H7V9Zm4 3h2v9h-2v-9Zm4-6h2v15h-2V6Zm4 4h2v11h-2V10Z"/></svg>
+        Stats
+      </button>
+      <button class="nav-item" data-screen="screen-calendar" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11h2v2H7v-2Zm4 0h2v2h-2v-2Zm4 0h2v2h-2v-2ZM5 4h1V2h2v2h8V2h2v2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm16 16V9H3v11h18Z"/></svg>
+        Calendrier
+      </button>
+    </nav>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="celebration" class="celebration" aria-hidden="true"></div>
+  </div>
+
+  <div id="timer-overlay" class="timer-overlay" hidden>
+    <div class="timer-panel">
+      <span class="timer-sport-label" id="timer-sport-label">Yoga</span>
+      <div class="timer-ring-wrap" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff6b35"/>
+              <stop offset="100%" stop-color="#7b2ff7"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="60" cy="60" r="54"/>
+          <circle class="timer-ring-progress" id="timer-ring-progress" cx="60" cy="60" r="54"/>
+        </svg>
+        <div class="timer-display" id="timer-display" aria-live="polite">30:00</div>
+      </div>
+      <p class="timer-message" id="timer-message">C’est parti !</p>
+      <div class="timer-actions">
+        <button type="button" id="timer-pause-btn" class="secondary-btn">Pause</button>
+        <button type="button" id="timer-stop-btn" class="danger-btn">Arrêter</button>
+      </div>
     </div>
   </div>
 
-  <!-- Graphique et calendrier -->
-  <div id="chart-container">
-    <div id="calendar">
-      <label for="date-picker">Sélectionner une date :</label>
-      <input type="date" id="date-picker">
+  <div id="weekly-summary-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet summary-sheet" role="dialog" aria-labelledby="weekly-summary-title">
+      <div class="modal-header">
+        <h2 id="weekly-summary-title">Résumé de la semaine</h2>
+        <button id="close-weekly-summary" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-stat">
+          <span class="card-title">Minutes</span>
+          <strong id="summary-minutes">0 min</strong>
+        </div>
+        <div class="summary-stat">
+          <span class="card-title">Séances</span>
+          <strong id="summary-sessions">0</strong>
+        </div>
+        <div class="summary-stat wide">
+          <span class="card-title">Évolution</span>
+          <strong id="summary-delta" class="recap-delta">—</strong>
+        </div>
+        <div class="summary-stat">
+          <span class="card-title">Sport préféré</span>
+          <strong id="summary-sport">—</strong>
+        </div>
+        <div class="summary-stat">
+          <span class="card-title">Meilleur jour</span>
+          <strong id="summary-day">—</strong>
+        </div>
+      </div>
     </div>
-    <canvas id="myChart" width="400" height="200"></canvas>
   </div>
 
-  <!-- Tableau récapitulatif des séances -->
-  <div id="sessions-table">
-    <h2>Séances enregistrées</h2>
-    <table id="sessions-list">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Exercice</th>
-          <th>Durée (min)</th>
-          <th>Calories</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="sessions-body">
-      </tbody>
-    </table>
+  <div id="exercise-detail-overlay" class="exercise-detail-overlay" hidden>
+    <header class="subscreen-header">
+      <button id="close-exercise-detail" class="secondary-btn" type="button">←</button>
+      <h2>Détail</h2>
+    </header>
+    <div class="ex-detail-hero">
+      <div id="ex-detail-image"></div>
+      <h2 id="ex-detail-name"></h2>
+      <span class="ex-detail-badge" id="ex-detail-muscle"></span>
+      <p class="hint" id="ex-detail-equipment"></p>
+      <p class="hint" id="ex-detail-source" hidden></p>
+    </div>
+    <div class="card">
+      <h3 class="section-title">Comment faire</h3>
+      <p id="ex-detail-desc"></p>
+      <h3 class="section-title">Points importants</h3>
+      <ul class="tips-list" id="ex-detail-tips"></ul>
+    </div>
+    <button type="button" id="add-ex-to-builder" class="primary-btn">Ajouter au programme</button>
   </div>
 
-  <!-- Bouton de réinitialisation -->
-  <button id="reset-btn">Réinitialiser les données</button>
+  <div id="program-player-overlay" class="program-player-overlay" hidden>
+    <div class="player-progress-track"><div class="player-progress-fill" id="player-progress-fill"></div></div>
+    <p class="card-title" id="player-phase-label"></p>
+    <h2 id="player-exercise-name"></h2>
+    <div id="player-exercise-image"></div>
+    <p id="player-mode-hint" class="hint"></p>
+    <div id="player-timer-display">0:00</div>
+    <div id="player-reps-panel" class="player-reps-panel" hidden>
+      <button type="button" id="player-rep-tap" class="rep-tap-btn" aria-label="Compter une répétition">
+        <span id="player-rep-current" class="rep-current">0</span>
+        <span id="player-rep-target" class="rep-target"></span>
+      </button>
+      <div class="rep-actions">
+        <button type="button" id="player-rep-minus" class="secondary-btn rep-adjust-btn">−1</button>
+        <p class="hint" id="player-rep-hint">Tape pour compter une répétition</p>
+      </div>
+    </div>
+    <p class="hint">Temps écoulé : <span id="player-total-elapsed">0 s</span></p>
+    <div class="card">
+      <p id="player-exercise-desc"></p>
+      <ul class="tips-list" id="player-exercise-tips"></ul>
+    </div>
+    <div class="timer-actions">
+      <button type="button" id="player-action-btn" class="primary-btn">Série terminée ✓</button>
+      <button type="button" id="player-stop-btn" class="danger-btn">Arrêter</button>
+    </div>
+  </div>
 
-  <!-- Bouton pour ouvrir le modal d'ajout -->
-  <button id="add-session-button" style="background-color: #27ae60; color: white; padding: 12px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; width: 100%;">Ajouter une séance</button>
+  <div id="running-live-overlay" class="running-live-overlay" hidden>
+    <h2 id="run-name-display">Course</h2>
+    <div id="run-interval-display" hidden></div>
+    <div class="run-live-stats">
+      <div class="run-stat"><div class="run-stat-value" id="run-time-display">0:00</div><div class="run-stat-label">Temps</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="run-distance-display">0 m</div><div class="run-stat-label">Distance</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="run-elevation-display">0 m D+</div><div class="run-stat-label">Dénivelé +</div></div>
+      <div class="run-stat"><div class="run-stat-value" id="run-pace-display">—</div><div class="run-stat-label">Allure</div></div>
+    </div>
+    <div id="run-target-display" class="run-target-display" hidden></div>
+    <div id="run-live-map" class="route-map-container run-live-map" aria-label="Carte du parcours en direct"></div>
+    <div class="run-live-actions">
+      <button type="button" id="pause-run-btn" class="secondary-btn">Pause</button>
+      <button type="button" id="stop-run-btn" class="danger-btn">Terminer</button>
+    </div>
+  </div>
 
-  <script src="app.js"></script>
+  <div id="run-summary-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 id="run-summary-name">Course</h2>
+        <button id="close-run-summary" class="icon-btn" type="button">✕</button>
+      </div>
+      <div class="run-summary-stats" id="run-summary-stats"></div>
+      <div id="run-route-map" class="route-map-container"></div>
+      <canvas id="run-route-canvas" width="320" height="180" hidden aria-hidden="true"></canvas>
+    </div>
+  </div>
+
+  <div id="ai-plan-preview-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet ai-preview-sheet" role="dialog" aria-labelledby="ai-preview-title">
+      <div class="modal-header">
+        <h2 id="ai-preview-title">Aperçu du programme</h2>
+        <button id="ai-preview-close" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <div id="ai-preview-summary" class="ai-preview-summary"></div>
+      <label class="ai-preview-week-label ai-program-only">Semaine
+        <select id="ai-preview-week-select" class="ai-week-select"></select>
+      </label>
+      <div id="ai-preview-content" class="ai-preview-content"></div>
+      <label class="gen-muscle-label ai-preview-import-label">
+        <input type="checkbox" id="ai-preview-import-week" checked>
+        <span id="ai-preview-import-label-text">Ajouter aux Programmes à la validation</span>
+      </label>
+      <div class="ai-preview-actions">
+        <button type="button" id="ai-preview-reject" class="secondary-btn">Refuser</button>
+        <button type="button" id="ai-preview-accept" class="primary-btn">Valider</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-modal" class="modal-overlay" hidden>
+    <div class="modal-sheet" role="dialog" aria-labelledby="edit-modal-title">
+      <div class="modal-header">
+        <h2 id="edit-modal-title">Modifier la séance</h2>
+        <button id="close-edit-modal" class="icon-btn" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <form id="edit-session-form">
+        <div class="form-group">
+          <label for="edit-session-type">Type</label>
+          <select id="edit-session-type" required></select>
+        </div>
+        <div class="form-group">
+          <label for="edit-session-duration">Durée (minutes)</label>
+          <input type="number" id="edit-session-duration" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-session-date">Date</label>
+          <input type="date" id="edit-session-date" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-session-calories">Calories</label>
+          <input type="number" id="edit-session-calories" min="0">
+        </div>
+        <div class="form-group">
+          <label for="edit-session-note">Note</label>
+          <textarea id="edit-session-note"></textarea>
+        </div>
+        <button type="submit" class="primary-btn">Enregistrer</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sports.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/exercise-catalog.js"></script>
+  <script src="js/wger-catalog.js"></script>
+  <script src="js/programs.js"></script>
+  <script src="js/cycle-sync.js"></script>
+  <script src="js/pelvic-floor.js"></script>
+  <script src="js/ai-plans.js"></script>
+  <script src="js/ai-program.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/route-map.js"></script>
+  <script src="js/program-player.js"></script>
+  <script src="js/running.js"></script>
+  <script src="js/equitation.js"></script>
+  <script src="js/workout-ui.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
