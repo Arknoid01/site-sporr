@@ -330,6 +330,30 @@ function validateAiForm(profile, constraints) {
   }
 }
 
+function applySarahCoachDefaults() {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = val;
+  };
+  const setCheck = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = val;
+  };
+
+  set('ai-sexe', 'femme');
+  set('ai-age', '28');
+  set('ai-niveau', 'intermédiaire');
+  set('ai-objectif', 'hypertrophie');
+  set('ai-materiel', 'élastiques + barre');
+  set('ai-max-min', '45');
+  set('ai-ex-per-session', '4');
+  setCheck('ai-cycle-adapt', true);
+  setCheck('ai-pelvic-floor', true);
+  setCheck('ai-include-abs', true);
+  toggleCycleFields();
+  toggleFemalePhysioFields();
+}
+
 function toggleAiPlanModeFields(mode) {
   const isSingle = mode === 'single';
   document.querySelectorAll('.ai-program-only').forEach((el) => {

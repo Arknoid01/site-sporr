@@ -83,6 +83,10 @@
   border-left-color: var(--accent);
 }
 
+.session-card[data-type='Équitation'] {
+  border-left-color: #8B4513;
+}
+
 .session-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

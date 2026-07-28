@@ -187,8 +187,7 @@ function initAiCoachForm() {
   if (saved) populateAiCoachForm(saved);
   else {
     toggleAiPlanModeFields('single');
-    toggleCycleFields();
-    toggleFemalePhysioFields();
+    applySarahCoachDefaults();
   }
   window.__aiCoachFormLoaded = true;
 }
@@ -665,10 +664,6 @@ function renderEquipmentGuide() {
       <ul class="equipment-list">${guide.points.map((p) => `<li>${p}</li>`).join('')}</ul>
     </div>
   `).join('');
-}
-
-function renderRunningHub() {
-  renderRunsList();
 }
 
 function bindWorkoutUI() {

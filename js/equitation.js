@@ -160,10 +160,17 @@ function bindEquitation() {
 
     const program = generateRiderProgram(focusKey, intensity, targetMin, name || undefined);
     program.riderNotes = notes;
-    saveProgram(program);
     startProgramPlayer(program);
   });
   applyEquitationTypeDefaults();
+}
+
+function deleteEquitationSession(id) {
+  saveEquitationSessionsList(loadEquitationSessions().filter((s) => s.id !== id));
+}
+
+function saveEquitationSessionsList(list) {
+  localStorage.setItem(EQUI_SESSIONS_KEY, JSON.stringify(list));
 }
 
 function logEquitationProgramComplete(program, minutes) {
@@ -176,7 +183,16 @@ function logEquitationProgramComplete(program, minutes) {
     intensity: program.intensity,
     notes: program.riderNotes || '',
     durationSec: minutes * 60,
-    exerciseCount: program.items.length
+    exerciseCount: program.items.length,
+    program: {
+      name: program.name,
+      sportType: 'Équitation',
+      focus: program.focus,
+      intensity: program.intensity,
+      riderNotes: program.riderNotes || '',
+      restBetween: program.restBetween,
+      items: program.items
+    }
   });
   renderEquitationSessionsList();
 }
@@ -192,13 +208,39 @@ function renderEquitationSessionsList() {
   }
 
   container.innerHTML = sessions.map((s) => `
-    <article class="exercise-list-item">
+    <article class="exercise-list-item equi-history-item" data-equi-id="${s.id}">
       <div class="exercise-list-info">
         <strong>${escapeHtmlEqui(s.name)}</strong>
         <span class="hint">${formatEquiDate(s.date)} · ${RIDER_FOCUS[s.focus]?.label || s.focus} · ${formatDurationSeconds(s.durationSec)}${s.exerciseCount ? ` · ${s.exerciseCount} ex.` : ''}</span>
       </div>
+      ${s.program ? `<button type="button" class="secondary-btn compact" data-replay-equi="${s.id}">▶</button>` : ''}
+      <button type="button" class="delete-btn compact" data-del-equi="${s.id}" aria-label="Supprimer">✕</button>
     </article>
   `).join('');
+
+  container.querySelectorAll('[data-replay-equi]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const session = loadEquitationSessions().find((s) => s.id === btn.dataset.replayEqui);
+      if (!session?.program) return;
+      startProgramPlayer({
+        ...session.program,
+        id: generateId(),
+        sportType: 'Équitation'
+      });
+    });
+  });
+
+  container.querySelectorAll('[data-del-equi]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm('Supprimer cette séance ?')) {
+        deleteEquitationSession(btn.dataset.delEqui);
+        renderEquitationSessionsList();
+        showToast('Séance supprimée');
+      }
+    });
+  });
 }
 
 function escapeHtmlEqui(str) {

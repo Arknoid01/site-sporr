@@ -9,6 +9,7 @@
   <title>Sport — Suivi sportif de Sarah</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css">
@@ -662,6 +663,7 @@
       </div>
 
       <div class="settings-actions">
+        <button id="export-data-btn" class="secondary-btn" type="button" style="width:100%;margin-bottom:12px;">Exporter mes données (JSON)</button>
         <button id="reset-data-btn" class="danger-btn" type="button">Réinitialiser toutes les données</button>
       </div>
     </section>
@@ -802,8 +804,12 @@
       <div class="run-stat"><div class="run-stat-value" id="run-elevation-display">0 m D+</div><div class="run-stat-label">Dénivelé +</div></div>
       <div class="run-stat"><div class="run-stat-value" id="run-pace-display">—</div><div class="run-stat-label">Allure</div></div>
     </div>
+    <div id="run-target-display" class="run-target-display" hidden></div>
     <div id="run-live-map" class="route-map-container run-live-map" aria-label="Carte du parcours en direct"></div>
-    <button type="button" id="stop-run-btn" class="danger-btn" style="width:100%;">Terminer la course</button>
+    <div class="run-live-actions">
+      <button type="button" id="pause-run-btn" class="secondary-btn">Pause</button>
+      <button type="button" id="stop-run-btn" class="danger-btn">Terminer</button>
+    </div>
   </div>
 
   <div id="run-summary-modal" class="modal-overlay" hidden>

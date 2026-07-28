@@ -228,7 +228,7 @@ function importWgerStarterPrograms() {
 function parseRun(raw) {
   const parts = raw.split('~');
   if (parts.length < 7) return null;
-  return {
+  const run = {
     id: parts[0],
     date: parts[1],
     name: parts[2],
@@ -239,13 +239,31 @@ function parseRun(raw) {
     route: (parts[7] || '').split(';').filter(Boolean).map((p) => {
       const [lat, lng, alt] = p.split(',');
       return { lat: Number(lat), lng: Number(lng), alt: Number(alt) || 0 };
-    })
+    }),
+    runType: parts[8] || 'footing',
+    terrain: parts[9] || 'route',
+    targetKm: Number(parts[10]) || 0,
+    targetMin: Number(parts[11]) || 0
   };
+  return run;
 }
 
 function serializeRun(run) {
   const route = run.route.map((p) => `${p.lat},${p.lng},${p.alt || 0}`).join(';');
-  return [run.id, run.date, run.name, run.description, run.durationSec, run.distanceM, run.elevationM, route].join('~');
+  return [
+    run.id,
+    run.date,
+    run.name,
+    run.description || '',
+    run.durationSec,
+    run.distanceM,
+    run.elevationM,
+    route,
+    run.runType || 'footing',
+    run.terrain || 'route',
+    run.targetKm || 0,
+    run.targetMin || 0
+  ].join('~');
 }
 
 function loadRuns() {
@@ -263,6 +281,10 @@ function saveRun(run) {
   runs.unshift(run);
   saveRuns(runs);
   return run;
+}
+
+function deleteRun(id) {
+  saveRuns(loadRuns().filter((r) => r.id !== id));
 }
 
 function haversineMeters(lat1, lng1, lat2, lng2) {

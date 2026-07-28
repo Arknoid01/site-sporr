@@ -100,6 +100,23 @@ function updateRunDisplay() {
   document.getElementById('run-pace-display').textContent =
     pace > 0 ? `${pace.toFixed(1)} min/km` : '—';
 
+  const targetEl = document.getElementById('run-target-display');
+  if (targetEl) {
+    const parts = [];
+    if (runState.targetKm > 0) {
+      const km = runState.distance / 1000;
+      const pct = Math.min(100, Math.round((km / runState.targetKm) * 100));
+      parts.push(`🎯 ${km.toFixed(2)} / ${runState.targetKm} km (${pct}%)`);
+    }
+    if (runState.targetMin > 0) {
+      const min = runState.elapsed / 60;
+      const pct = Math.min(100, Math.round((min / runState.targetMin) * 100));
+      parts.push(`⏱ ${Math.floor(min)} / ${runState.targetMin} min (${pct}%)`);
+    }
+    targetEl.textContent = parts.join(' · ');
+    targetEl.hidden = parts.length === 0;
+  }
+
   const intervalEl = document.getElementById('run-interval-display');
   if (runState.interval && intervalEl) {
     const iv = runState.interval;
@@ -132,6 +149,14 @@ function tickRunInterval() {
     iv.phase = 'work';
     iv.remaining = iv.work;
   }
+}
+
+function toggleRunPause() {
+  if (!runState) return;
+  runState.paused = !runState.paused;
+  const btn = document.getElementById('pause-run-btn');
+  if (btn) btn.textContent = runState.paused ? 'Reprendre' : 'Pause';
+  if (!runState.paused) hapticSuccess();
 }
 
 function stopRunSession() {
@@ -261,6 +286,7 @@ function bindRunning() {
     });
   });
 
+  document.getElementById('pause-run-btn')?.addEventListener('click', toggleRunPause);
   document.getElementById('stop-run-btn')?.addEventListener('click', stopRunSession);
   document.getElementById('close-run-summary')?.addEventListener('click', () => {
     document.getElementById('run-summary-modal').hidden = true;
@@ -290,6 +316,7 @@ function renderRunsList() {
         <strong>${escapeHtml(run.name)}</strong>
         <span class="hint">${formatDisplayDate(run.date)} · ${RUN_TYPE_LABELS[run.runType] || 'Course'} · ${(run.distanceM / 1000).toFixed(2)} km · ${run.elevationM}m D+</span>
       </div>
+      <button type="button" class="delete-btn compact" data-del-run="${run.id}" aria-label="Supprimer">✕</button>
       <span class="chevron">›</span>
     </article>
   `).join('');
@@ -303,6 +330,17 @@ function renderRunsList() {
     item.addEventListener('click', () => {
       const run = loadRuns().find((r) => r.id === item.dataset.runId);
       if (run) showRunSummary(run);
+    });
+  });
+
+  container.querySelectorAll('[data-del-run]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (confirm('Supprimer cette course ?')) {
+        deleteRun(btn.dataset.delRun);
+        renderRunsList();
+        showToast('Course supprimée');
+      }
     });
   });
 }

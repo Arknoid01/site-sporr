@@ -321,7 +321,7 @@ function bindAddForm(onSubmit) {
   });
 }
 
-function bindSettingsForm(onSave, onReset, onSaveAi) {
+function bindSettingsForm(onSave, onReset, onSaveAi, onExport) {
   document.getElementById('settings-form').addEventListener('submit', (event) => {
     event.preventDefault();
     onSave();
@@ -332,6 +332,7 @@ function bindSettingsForm(onSave, onReset, onSaveAi) {
     onSaveAi?.();
   });
 
+  document.getElementById('export-data-btn')?.addEventListener('click', () => onExport?.());
   document.getElementById('reset-data-btn').addEventListener('click', onReset);
 }
 

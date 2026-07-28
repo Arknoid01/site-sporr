@@ -134,4 +134,29 @@ function resetAllData() {
   localStorage.removeItem(PROGRAMS_KEY);
   localStorage.removeItem(RUNS_KEY);
   localStorage.removeItem('sporrAiPlans');
+  localStorage.removeItem('sporrAiCoachProfile');
+  localStorage.removeItem('sporrEquitationSessions');
+}
+
+function exportAllData() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    sessions: loadSessions(),
+    settings: loadSettings(),
+    programs: typeof loadPrograms === 'function' ? loadPrograms() : [],
+    runs: typeof loadRuns === 'function' ? loadRuns() : [],
+    aiPlans: typeof loadAiPlans === 'function' ? loadAiPlans() : [],
+    aiCoachProfile: localStorage.getItem('sporrAiCoachProfile'),
+    equitationSessions: typeof loadEquitationSessions === 'function' ? loadEquitationSessions() : [],
+    sports: localStorage.getItem(SPORTS_KEY),
+    badges: localStorage.getItem('sporrBadges')
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `sport-sarah-${todayString()}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
 }

@@ -92,12 +92,19 @@ function handleSaveAiSettings() {
   showToast('Clé Groq enregistrée (local uniquement)');
 }
 
+function handleExportData() {
+  exportAllData();
+  showToast('Export téléchargé');
+}
+
 function handleResetData() {
-  if (!confirm('Supprimer toutes les séances et réinitialiser les réglages ?')) {
+  if (!confirm('Supprimer toutes les séances, programmes, courses, plans IA et réglages ?')) {
     return;
   }
 
   resetAllData();
+  window.__aiCoachFormLoaded = false;
+  window.__pelvicFloorTouched = false;
   selectedCalendarDate = todayString();
   resetAddForm();
   refreshApp(selectedCalendarDate);
@@ -123,7 +130,7 @@ function initApp() {
   bindWorkoutUI();
   bindAddForm(handleAddSession);
   bindEditModal(handleEditSession);
-  bindSettingsForm(handleSaveSettings, handleResetData, handleSaveAiSettings);
+  bindSettingsForm(handleSaveSettings, handleResetData, handleSaveAiSettings, handleExportData);
 
   initCalendar((date) => {
     selectedCalendarDate = date;
