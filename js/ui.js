@@ -268,13 +268,14 @@ function renderSettingsForm(settings) {
   }
 
   const aiProvider = document.getElementById('settings-ai-provider');
-  if (aiProvider) aiProvider.value = settings.aiProvider || 'manual';
-  const xaiKey = document.getElementById('settings-xai-key');
-  if (xaiKey) xaiKey.value = settings.xaiKey || '';
-  const openaiKey = document.getElementById('settings-openai-key');
-  if (openaiKey) openaiKey.value = settings.openaiKey || '';
-  const openaiModel = document.getElementById('settings-openai-model');
-  if (openaiModel) openaiModel.value = settings.openaiModel || 'gpt-4o-mini';
+  if (aiProvider) {
+    const provider = settings.aiProvider || 'manual';
+    aiProvider.value = provider === 'xai' || provider === 'openai' ? 'groq' : provider;
+  }
+  const groqKey = document.getElementById('settings-groq-key');
+  if (groqKey) groqKey.value = settings.groqKey || settings.xaiKey || settings.openaiKey || '';
+  const groqModel = document.getElementById('settings-groq-model');
+  if (groqModel) groqModel.value = settings.groqModel || 'openai/gpt-oss-120b';
 }
 
 function resetAddForm() {

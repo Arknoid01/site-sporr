@@ -71,8 +71,8 @@ function extractJsonFromText(text) {
   }
 }
 
-async function callXai(apiKey, systemPrompt, userPrompt, model = 'grok-2-latest') {
-  const res = await fetch('https://api.x.ai/v1/chat/completions', {
+async function callGroq(apiKey, systemPrompt, userPrompt, model = 'openai/gpt-oss-120b') {
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -81,27 +81,7 @@ async function callXai(apiKey, systemPrompt, userPrompt, model = 'grok-2-latest'
     body: JSON.stringify({
       model,
       temperature: 0.4,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `Erreur xAI (${res.status})`);
-  return data.choices?.[0]?.message?.content || '';
-}
-
-async function callOpenAi(apiKey, systemPrompt, userPrompt, model = 'gpt-4o-mini') {
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.4,
+      max_completion_tokens: 16384,
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: systemPrompt },
@@ -110,7 +90,7 @@ async function callOpenAi(apiKey, systemPrompt, userPrompt, model = 'gpt-4o-mini
     })
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message || `Erreur OpenAI (${res.status})`);
+  if (!res.ok) throw new Error(data.error?.message || `Erreur Groq (${res.status})`);
   return data.choices?.[0]?.message?.content || '';
 }
 
@@ -126,18 +106,23 @@ async function generateAiPlanWithProvider(profile, constraints) {
     throw new Error('MANUAL_MODE');
   }
 
-  const apiKey = provider === 'xai' ? settings.xaiKey : settings.openaiKey;
-  if (!apiKey?.trim()) {
-    throw new Error(`Clé API ${provider === 'xai' ? 'xAI (Grok)' : 'OpenAI'} manquante — voir Réglages`);
+  if (provider !== 'groq' && provider !== 'xai' && provider !== 'openai') {
+    throw new Error('Fournisseur IA inconnu — choisis Groq dans Réglages');
+  }
+
+  const apiKey = settings.groqKey?.trim();
+  if (!apiKey) {
+    throw new Error('Clé API Groq manquante — voir Réglages (console.groq.com)');
   }
 
   let content;
   try {
-    if (provider === 'xai') {
-      content = await callXai(apiKey.trim(), systemPrompt, userPrompt, settings.xaiModel || 'grok-2-latest');
-    } else {
-      content = await callOpenAi(apiKey.trim(), systemPrompt, userPrompt, settings.openaiModel || 'gpt-4o-mini');
-    }
+    content = await callGroq(
+      apiKey,
+      systemPrompt,
+      userPrompt,
+      settings.groqModel || 'openai/gpt-oss-120b'
+    );
   } catch (err) {
     if (err.message.includes('Failed to fetch') || err.name === 'TypeError') {
       throw new Error('Réseau ou CORS bloqué — utilise « Copier le prompt » puis « Importer JSON »');

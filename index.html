@@ -357,10 +357,10 @@
           </label>
         </div>
         <button type="button" id="ai-generate-btn" class="primary-btn">Générer avec l’IA</button>
-        <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt (Grok / ChatGPT)</button>
+        <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt (Groq / autre IA)</button>
         <div class="card" style="margin-top:16px;">
           <h3 class="section-title">Importer la réponse JSON</h3>
-          <textarea id="ai-json-import" placeholder='Colle ici le JSON renvoyé par Grok ou GPT…' rows="5"></textarea>
+          <textarea id="ai-json-import" placeholder='Colle ici le JSON renvoyé par Groq (GPT-OSS 120B)…' rows="5"></textarea>
           <button type="button" id="ai-import-json-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Importer le plan</button>
         </div>
         <div id="ai-plans-list" class="ai-plans-list"></div>
@@ -439,33 +439,27 @@
       </form>
 
       <form id="ai-settings-form" class="card">
-        <h2 class="section-title">Coach IA (Grok / GPT)</h2>
-        <p class="hint">Clés stockées uniquement sur ton téléphone. L’IA sert à créer le plan — ensuite plus besoin d’internet.</p>
+        <h2 class="section-title">Coach IA (Groq)</h2>
+        <p class="hint">Clé Groq stockée sur ton téléphone uniquement. Modèle recommandé : <strong>GPT-OSS 120B</strong> (gratuit avec limites sur console.groq.com).</p>
         <div class="form-group">
-          <label for="settings-ai-provider">Fournisseur</label>
+          <label for="settings-ai-provider">Mode</label>
           <select id="settings-ai-provider">
             <option value="manual">Manuel (copier/coller JSON)</option>
-            <option value="xai">xAI — Grok</option>
-            <option value="openai">OpenAI — GPT</option>
+            <option value="groq">Groq — génération auto</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="settings-xai-key">Clé API xAI (Grok)</label>
-          <input type="password" id="settings-xai-key" autocomplete="off" placeholder="xai-…">
+          <label for="settings-groq-key">Clé API Groq</label>
+          <input type="password" id="settings-groq-key" autocomplete="off" placeholder="gsk_…">
         </div>
         <div class="form-group">
-          <label for="settings-openai-key">Clé API OpenAI</label>
-          <input type="password" id="settings-openai-key" autocomplete="off" placeholder="sk-…">
-        </div>
-        <div class="form-group">
-          <label for="settings-openai-model">Modèle OpenAI</label>
-          <select id="settings-openai-model">
-            <option value="gpt-4o-mini">gpt-4o-mini (rapide, économique)</option>
-            <option value="gpt-4o">gpt-4o</option>
-            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+          <label for="settings-groq-model">Modèle</label>
+          <select id="settings-groq-model">
+            <option value="openai/gpt-oss-120b">GPT-OSS 120B (recommandé)</option>
+            <option value="openai/gpt-oss-20b">GPT-OSS 20B (plus rapide)</option>
           </select>
         </div>
-        <button type="submit" class="secondary-btn" style="width:100%;">Enregistrer clés IA</button>
+        <button type="submit" class="secondary-btn" style="width:100%;">Enregistrer clé Groq</button>
       </form>
 
       <div class="card">

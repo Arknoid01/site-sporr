@@ -85,12 +85,11 @@ function handleSaveAiSettings() {
   const settings = {
     ...loadSettings(),
     aiProvider: document.getElementById('settings-ai-provider').value,
-    xaiKey: document.getElementById('settings-xai-key').value.trim(),
-    openaiKey: document.getElementById('settings-openai-key').value.trim(),
-    openaiModel: document.getElementById('settings-openai-model').value
+    groqKey: document.getElementById('settings-groq-key').value.trim(),
+    groqModel: document.getElementById('settings-groq-model').value
   };
   saveSettings(settings);
-  showToast('Clés IA enregistrées (local uniquement)');
+  showToast('Clé Groq enregistrée (local uniquement)');
 }
 
 function handleResetData() {

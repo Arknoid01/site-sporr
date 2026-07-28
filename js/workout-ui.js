@@ -260,7 +260,7 @@ async function handleAiGenerate() {
     hapticSuccess();
   } catch (err) {
     if (err.message === 'MANUAL_MODE') {
-      showToast('Mode manuel : copie le prompt dans Grok/GPT puis importe le JSON');
+      showToast('Mode manuel : copie le prompt dans Groq puis importe le JSON');
     } else {
       showToast(err.message.slice(0, 120));
     }
@@ -277,7 +277,7 @@ function handleAiCopyPrompt() {
   const constraints = readAiConstraintsFromForm();
   const text = getAiPromptForClipboard(profile, constraints);
   navigator.clipboard?.writeText(text).then(() => {
-    showToast('Prompt copié — colle-le dans Grok ou ChatGPT');
+    showToast('Prompt copié — colle-le dans Groq (GPT-OSS 120B)');
   }).catch(() => {
     document.getElementById('ai-json-import').value = text;
     showToast('Prompt affiché dans la zone JSON (copie manuelle)');

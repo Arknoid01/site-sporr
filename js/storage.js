@@ -6,10 +6,8 @@ const DEFAULT_SETTINGS = {
   goal: '',
   theme: 'light',
   aiProvider: 'manual',
-  xaiKey: '',
-  xaiModel: 'grok-2-latest',
-  openaiKey: '',
-  openaiModel: 'gpt-4o-mini'
+  groqKey: '',
+  groqModel: 'openai/gpt-oss-120b'
 };
 
 function parseSession(raw) {
