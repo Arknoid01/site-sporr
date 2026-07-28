@@ -256,24 +256,30 @@ function handlePlayerAction() {
 function finishProgramPlayer() {
   if (!playerState) return;
   const minutes = Math.max(1, Math.round(playerState.elapsed / 60));
-  const programName = playerState.program.name;
+  const program = playerState.program;
+  const programName = program.name;
+  const sportType = program.sportType || 'Renforcement';
 
   addSession({
     date: todayString(),
-    type: 'Renforcement',
+    type: sportType,
     duration: String(minutes),
     calories: '',
-    note: `Programme : ${programName}`,
+    note: `${sportType === 'Équitation' ? 'Prépa cavalier' : 'Programme'} : ${programName}`,
     time: currentTimeString()
   });
+
+  if (sportType === 'Équitation' && typeof logEquitationProgramComplete === 'function') {
+    logEquitationProgramComplete(program, minutes);
+  }
 
   checkAchievements(loadSessions(), loadSettings());
   hideProgramPlayerOverlay();
   refreshApp();
-  showScreen('screen-renfo');
+  showScreen(sportType === 'Équitation' ? 'screen-equitation' : 'screen-renfo');
   triggerCelebration();
   hapticSuccess();
-  showToast(`Programme « ${programName} » terminé !`);
+  showToast(`Séance « ${programName} » terminée !`);
 }
 
 function bindProgramPlayer() {

@@ -52,7 +52,7 @@
       <div class="hub-cards">
         <button type="button" id="open-renfo-hub" class="hub-card hub-card-renfo">💪 Renforcement<br><span class="hint" style="color:rgba(255,255,255,0.8)">Programmes & exercices</span></button>
         <button type="button" id="open-running-hub" class="hub-card hub-card-running">🏃 Course<br><span class="hint" style="color:rgba(255,255,255,0.8)">GPS & intervalles</span></button>
-        <button type="button" id="open-equitation-hub" class="hub-card hub-card-equitation">🐴 Équitation<br><span class="hint" style="color:rgba(255,255,255,0.8)">Séances & suivi</span></button>
+        <button type="button" id="open-equitation-hub" class="hub-card hub-card-equitation">🐴 Équitation<br><span class="hint" style="color:rgba(255,255,255,0.8)">Prépa physique cavalier</span></button>
       </div>
 
       <div class="stat-grid">
@@ -497,18 +497,21 @@
     <section id="screen-equitation" class="screen">
       <header class="subscreen-header">
         <button id="back-from-equitation" class="secondary-btn" type="button">←</button>
-        <h1>Équitation</h1>
+        <h1>Prépa cavalier</h1>
       </header>
+      <p class="hint" style="margin:-8px 0 16px;">Renforcement et mobilité pour le cavalier — pas une séance montée.</p>
       <div class="card">
         <div class="form-group">
-          <label for="equi-type-select">Type de séance</label>
+          <label for="equi-type-select">Objectif de la séance</label>
           <select id="equi-type-select">
-            <option value="dressage">Dressage</option>
-            <option value="balade">Balade / hack</option>
-            <option value="travail-sol">Travail au sol / éthologie</option>
-            <option value="saut">Saut / CSO / cross</option>
-            <option value="recuperation">Récupération / cool down</option>
+            <option value="gainage-posture">Gainage & posture</option>
+            <option value="jambes">Jambes & adducteurs</option>
+            <option value="equilibre">Équilibre & proprioception</option>
+            <option value="souplesse">Souplesse hanches & dos</option>
+            <option value="renfo-complet">Renfo complet cavalier</option>
+            <option value="recuperation">Récupération active</option>
           </select>
+          <p id="equi-focus-desc" class="hint" style="margin-top:8px;">Core, dos droit, stabilité en selle</p>
         </div>
         <div class="form-group">
           <label for="equi-intensity-select">Intensité</label>
@@ -518,25 +521,21 @@
             <option value="intense">Intense</option>
           </select>
         </div>
-        <div class="ai-form-grid">
-          <label class="form-group">Objectif durée (min)
-            <input type="number" id="equi-target-min" min="0" placeholder="Ex. 45">
-          </label>
-          <label class="form-group">Cheval (optionnel)
-            <input type="text" id="equi-horse-name" placeholder="Ex. Éclair">
-          </label>
+        <div class="form-group">
+          <label for="equi-target-min">Durée visée (min)</label>
+          <input type="number" id="equi-target-min" min="10" max="60" placeholder="Ex. 25">
         </div>
         <div class="form-group">
-          <label for="equi-name-input">Nom de la séance</label>
-          <input type="text" id="equi-name-input" placeholder="Ex. Séance dressage du mardi">
+          <label for="equi-name-input">Nom de la séance (optionnel)</label>
+          <input type="text" id="equi-name-input" placeholder="Ex. Gainage posture">
         </div>
         <div class="form-group">
           <label for="equi-notes-input">Notes</label>
-          <textarea id="equi-notes-input" placeholder="Ex. travail des transitions, extérieur, paddock…"></textarea>
+          <textarea id="equi-notes-input" placeholder="Ex. avant monte, focus bassin, après compétition…"></textarea>
         </div>
-        <button type="button" id="start-equi-btn" class="primary-btn">▶ Démarrer la séance</button>
+        <button type="button" id="start-equi-btn" class="primary-btn">▶ Générer et lancer la séance</button>
       </div>
-      <h2 class="section-title">Mes séances équitation</h2>
+      <h2 class="section-title">Historique prépa cavalier</h2>
       <div id="equi-sessions-list"></div>
     </section>
 
@@ -750,16 +749,6 @@
       <button type="button" id="player-action-btn" class="primary-btn">Série terminée ✓</button>
       <button type="button" id="player-stop-btn" class="danger-btn">Arrêter</button>
     </div>
-  </div>
-
-  <div id="equitation-live-overlay" class="running-live-overlay equitation-live-overlay" hidden>
-    <h2 id="equi-name-display">Équitation</h2>
-    <p id="equi-meta-display" class="hint equi-meta-display"></p>
-    <div class="run-live-stats equi-live-stats">
-      <div class="run-stat"><div class="run-stat-value" id="equi-time-display">0:00</div><div class="run-stat-label">Durée</div></div>
-      <div class="run-stat"><div class="run-stat-value" id="equi-target-display">—</div><div class="run-stat-label">Objectif</div></div>
-    </div>
-    <button type="button" id="stop-equi-btn" class="danger-btn" style="width:100%;">Terminer la séance</button>
   </div>
 
   <div id="running-live-overlay" class="running-live-overlay" hidden>

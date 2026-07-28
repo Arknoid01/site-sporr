@@ -1,21 +1,64 @@
 const EQUI_SESSIONS_KEY = 'sporrEquitationSessions';
 
-const EQUI_TYPE_LABELS = {
-  dressage: 'Dressage',
-  balade: 'Balade',
-  'travail-sol': 'Travail au sol',
-  saut: 'Saut / CSO',
-  recuperation: 'Récupération'
+/** Préparation physique du cavalier — pas le travail du cheval */
+const RIDER_FOCUS = {
+  'gainage-posture': {
+    label: 'Gainage & posture',
+    desc: 'Core, dos droit, stabilité en selle',
+    placeholder: 'Ex. Gainage posture',
+    duration: 20,
+    intensity: 'moderee',
+    pool: ['gainage', 'gainage-lateral', 'crunch', 'wger-178']
+  },
+  jambes: {
+    label: 'Jambes & adducteurs',
+    desc: 'Appuis, étriers, cuisses et fessiers',
+    placeholder: 'Ex. Jambes étriers',
+    duration: 25,
+    intensity: 'moderee',
+    pool: ['abduction', 'pont-fessier', 'donkey-kick', 'mollets', 'squat']
+  },
+  equilibre: {
+    label: 'Équilibre & proprioception',
+    desc: 'Stabilité, appuis alternés, contrôle du buste',
+    placeholder: 'Ex. Équilibre cavalier',
+    duration: 20,
+    intensity: 'moderee',
+    pool: ['gainage-lateral', 'gainage', 'wger-178', 'pont-fessier']
+  },
+  souplesse: {
+    label: 'Souplesse hanches & dos',
+    desc: 'Mobilité utile pour monter et suivre le mouvement',
+    placeholder: 'Ex. Souplesse cavalier',
+    duration: 15,
+    intensity: 'legere',
+    pool: ['gainage', 'pont-fessier', 'gainage-lateral'],
+    timeHeavy: true
+  },
+  'renfo-complet': {
+    label: 'Renfo complet cavalier',
+    desc: 'Séance mixte jambes + gainage + posture',
+    placeholder: 'Ex. Renfo cavalier',
+    duration: 30,
+    intensity: 'moderee',
+    pool: ['pont-fessier', 'abduction', 'gainage', 'rowing', 'mollets']
+  },
+  recuperation: {
+    label: 'Récupération / étirements actifs',
+    desc: 'Léger, après monte ou en jour off',
+    placeholder: 'Ex. Récup cavalier',
+    duration: 15,
+    intensity: 'legere',
+    pool: ['gainage', 'pont-fessier', 'mollets'],
+    timeHeavy: true
+  }
 };
 
-const EQUI_INTENSITY_LABELS = {
-  legere: 'Légère',
-  moderee: 'Modérée',
-  intense: 'Intense'
+const INTENSITY_CONFIG = {
+  legere: { sets: 2, reps: 12, restSets: 40, restAfter: 30 },
+  moderee: { sets: 3, reps: 10, restSets: 50, restAfter: 45 },
+  intense: { sets: 3, reps: 8, restSets: 60, restAfter: 55 }
 };
-
-let equiState = null;
-let equiTimerInterval = null;
 
 function loadEquitationSessions() {
   const raw = localStorage.getItem(EQUI_SESSIONS_KEY);
@@ -34,135 +77,108 @@ function saveEquitationSession(session) {
   localStorage.setItem(EQUI_SESSIONS_KEY, JSON.stringify(list));
 }
 
-function startEquitationSession(options) {
-  equiState = {
-    id: generateId(),
-    name: options.name || 'Séance équitation',
-    type: options.type || 'dressage',
-    intensity: options.intensity || 'moderee',
-    horse: options.horse || '',
-    notes: options.notes || '',
-    targetMin: Number(options.targetMin) || 0,
-    startTime: Date.now(),
-    elapsed: 0,
-    paused: false
-  };
-
-  document.getElementById('equitation-live-overlay').hidden = false;
-  document.body.classList.add('timer-active');
-  document.getElementById('equi-name-display').textContent = equiState.name;
-  document.getElementById('equi-meta-display').textContent = [
-    EQUI_TYPE_LABELS[equiState.type],
-    EQUI_INTENSITY_LABELS[equiState.intensity],
-    equiState.horse ? `· ${equiState.horse}` : ''
-  ].filter(Boolean).join(' ');
-
-  equiTimerInterval = setInterval(() => {
-    if (!equiState || equiState.paused) return;
-    equiState.elapsed += 1;
-    updateEquitationDisplay();
-  }, 1000);
-
-  updateEquitationDisplay();
-}
-
-function updateEquitationDisplay() {
-  if (!equiState) return;
-  const min = Math.floor(equiState.elapsed / 60);
-  const sec = equiState.elapsed % 60;
-  document.getElementById('equi-time-display').textContent =
-    `${min}:${String(sec).padStart(2, '0')}`;
-
-  const targetEl = document.getElementById('equi-target-display');
-  if (equiState.targetMin > 0) {
-    const remaining = Math.max(0, equiState.targetMin * 60 - equiState.elapsed);
-    const rMin = Math.floor(remaining / 60);
-    const rSec = remaining % 60;
-    targetEl.textContent = remaining > 0
-      ? `${rMin}:${String(rSec).padStart(2, '0')}`
-      : '✓';
-  } else {
-    targetEl.textContent = '—';
+function pickRiderExercises(focusKey, maxCount) {
+  const focus = RIDER_FOCUS[focusKey] || RIDER_FOCUS['gainage-posture'];
+  const picked = [];
+  for (const id of focus.pool) {
+    if (getExerciseById(id) && !picked.includes(id)) picked.push(id);
+    if (picked.length >= maxCount) break;
   }
+  if (picked.length === 0) {
+    return ['gainage', 'pont-fessier', 'abduction'].filter((id) => getExerciseById(id));
+  }
+  return picked;
 }
 
-function stopEquitationSession() {
-  if (!equiState) return;
-  clearInterval(equiTimerInterval);
-  equiTimerInterval = null;
+function generateRiderProgram(focusKey, intensity, targetMin, customName) {
+  const focus = RIDER_FOCUS[focusKey] || RIDER_FOCUS['gainage-posture'];
+  const cfg = INTENSITY_CONFIG[intensity] || INTENSITY_CONFIG.moderee;
+  const exCount = targetMin <= 15 ? 3 : targetMin <= 25 ? 4 : 5;
+  const exerciseIds = pickRiderExercises(focusKey, exCount);
+  const useTime = focus.timeHeavy;
 
-  const session = {
-    id: equiState.id,
-    date: todayString(),
-    name: equiState.name,
-    type: equiState.type,
-    intensity: equiState.intensity,
-    horse: equiState.horse,
-    notes: equiState.notes,
-    targetMin: equiState.targetMin,
-    durationSec: equiState.elapsed
-  };
-
-  saveEquitationSession(session);
-
-  const minutes = Math.max(1, Math.round(equiState.elapsed / 60));
-  const typeLabel = EQUI_TYPE_LABELS[session.type] || session.type;
-  addSession({
-    date: todayString(),
-    type: 'Équitation',
-    duration: String(minutes),
-    calories: '',
-    note: `${session.name} — ${typeLabel}${session.horse ? ` · ${session.horse}` : ''}${session.notes ? ` · ${session.notes}` : ''}`,
-    time: currentTimeString()
+  const items = exerciseIds.map((exerciseId) => {
+    const ex = getExerciseById(exerciseId);
+    const mode = useTime || ex?.defaultMode === 'time' ? 'time' : 'reps';
+    const value = mode === 'time'
+      ? (intensity === 'legere' ? 30 : intensity === 'intense' ? 45 : 35)
+      : cfg.reps;
+    return {
+      exerciseId,
+      sets: cfg.sets,
+      mode,
+      value,
+      restSets: cfg.restSets,
+      restAfter: cfg.restAfter
+    };
   });
 
-  document.getElementById('equitation-live-overlay').hidden = true;
-  document.body.classList.remove('timer-active');
-  showToast(`Séance enregistrée (${minutes} min)`);
-  hapticSuccess();
-  equiState = null;
-  checkAchievements(loadSessions(), loadSettings());
-  refreshApp();
-  renderEquitationSessionsList();
+  const name = customName || focus.label;
+  return {
+    id: generateId(),
+    name: `Cavalier · ${name}`,
+    sportType: 'Équitation',
+    focus: focusKey,
+    intensity,
+    created: todayString(),
+    restBetween: 45,
+    items
+  };
 }
 
 function applyEquitationTypeDefaults() {
-  const type = document.getElementById('equi-type-select')?.value || 'dressage';
+  const type = document.getElementById('equi-type-select')?.value || 'gainage-posture';
+  const focus = RIDER_FOCUS[type] || RIDER_FOCUS['gainage-posture'];
   const nameInput = document.getElementById('equi-name-input');
   const targetInput = document.getElementById('equi-target-min');
   const intensitySelect = document.getElementById('equi-intensity-select');
+  const descEl = document.getElementById('equi-focus-desc');
 
-  const defaults = {
-    dressage: { name: 'Dressage', min: 45, intensity: 'moderee' },
-    balade: { name: 'Balade', min: 60, intensity: 'legere' },
-    'travail-sol': { name: 'Travail au sol', min: 30, intensity: 'moderee' },
-    saut: { name: 'Séance saut', min: 50, intensity: 'intense' },
-    recuperation: { name: 'Récupération', min: 25, intensity: 'legere' }
-  };
-  const d = defaults[type] || defaults.dressage;
-  if (nameInput && !nameInput.value.trim()) nameInput.placeholder = `Ex. ${d.name}`;
-  if (targetInput && !targetInput.value) targetInput.placeholder = String(d.min);
-  if (intensitySelect) intensitySelect.value = d.intensity;
+  if (descEl) descEl.textContent = focus.desc;
+  if (nameInput && !nameInput.value.trim()) nameInput.placeholder = focus.placeholder;
+  if (targetInput && !targetInput.value) targetInput.placeholder = String(focus.duration);
+  if (intensitySelect && !intensitySelect.dataset.userSet) {
+    intensitySelect.value = focus.intensity;
+  }
 }
 
 function bindEquitation() {
-  document.getElementById('equi-type-select')?.addEventListener('change', applyEquitationTypeDefaults);
-  document.getElementById('start-equi-btn')?.addEventListener('click', () => {
-    const type = document.getElementById('equi-type-select').value;
-    const name = document.getElementById('equi-name-input').value.trim()
-      || EQUI_TYPE_LABELS[type]
-      || 'Séance équitation';
-    startEquitationSession({
-      name,
-      type,
-      intensity: document.getElementById('equi-intensity-select').value,
-      horse: document.getElementById('equi-horse-name').value.trim(),
-      notes: document.getElementById('equi-notes-input').value.trim(),
-      targetMin: Number(document.getElementById('equi-target-min').value) || 0
-    });
+  document.getElementById('equi-type-select')?.addEventListener('change', () => {
+    applyEquitationTypeDefaults();
   });
-  document.getElementById('stop-equi-btn')?.addEventListener('click', stopEquitationSession);
+  document.getElementById('equi-intensity-select')?.addEventListener('change', (e) => {
+    e.target.dataset.userSet = '1';
+  });
+  document.getElementById('start-equi-btn')?.addEventListener('click', () => {
+    const focusKey = document.getElementById('equi-type-select').value;
+    const intensity = document.getElementById('equi-intensity-select').value;
+    const targetMin = Number(document.getElementById('equi-target-min').value)
+      || RIDER_FOCUS[focusKey]?.duration
+      || 20;
+    const name = document.getElementById('equi-name-input').value.trim();
+    const notes = document.getElementById('equi-notes-input').value.trim();
+
+    const program = generateRiderProgram(focusKey, intensity, targetMin, name || undefined);
+    program.riderNotes = notes;
+    saveProgram(program);
+    startProgramPlayer(program);
+  });
   applyEquitationTypeDefaults();
+}
+
+function logEquitationProgramComplete(program, minutes) {
+  const focus = RIDER_FOCUS[program.focus] || { label: program.focus };
+  saveEquitationSession({
+    id: generateId(),
+    date: todayString(),
+    name: program.name,
+    focus: program.focus,
+    intensity: program.intensity,
+    notes: program.riderNotes || '',
+    durationSec: minutes * 60,
+    exerciseCount: program.items.length
+  });
+  renderEquitationSessionsList();
 }
 
 function renderEquitationSessionsList() {
@@ -171,7 +187,7 @@ function renderEquitationSessionsList() {
   const sessions = loadEquitationSessions();
 
   if (sessions.length === 0) {
-    container.innerHTML = '<p class="empty-state">Aucune séance enregistrée.</p>';
+    container.innerHTML = '<p class="empty-state">Aucune séance de prépa cavalier enregistrée.</p>';
     return;
   }
 
@@ -179,7 +195,7 @@ function renderEquitationSessionsList() {
     <article class="exercise-list-item">
       <div class="exercise-list-info">
         <strong>${escapeHtmlEqui(s.name)}</strong>
-        <span class="hint">${formatEquiDate(s.date)} · ${EQUI_TYPE_LABELS[s.type] || s.type} · ${formatDurationSeconds(s.durationSec)}${s.horse ? ` · ${escapeHtmlEqui(s.horse)}` : ''}</span>
+        <span class="hint">${formatEquiDate(s.date)} · ${RIDER_FOCUS[s.focus]?.label || s.focus} · ${formatDurationSeconds(s.durationSec)}${s.exerciseCount ? ` · ${s.exerciseCount} ex.` : ''}</span>
       </div>
     </article>
   `).join('');
