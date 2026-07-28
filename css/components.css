@@ -210,8 +210,55 @@
   display: none;
 }
 
-.flatpickr-calendar {
+.calendar-shell {
+  display: flex;
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.calendar-wrapper {
   width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-wrapper .flatpickr-calendar {
+  width: 100% !important;
+  max-width: 360px;
+  margin: 0 auto !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.calendar-wrapper .flatpickr-calendar.inline {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+}
+
+.calendar-wrapper .flatpickr-months,
+.calendar-wrapper .flatpickr-innerContainer,
+.calendar-wrapper .flatpickr-rContainer,
+.calendar-wrapper .flatpickr-days,
+.calendar-wrapper .dayContainer {
+  width: 100% !important;
+}
+
+.calendar-wrapper .flatpickr-day {
+  max-width: none;
+  flex: 1 1 14.28%;
+}
+
+.calendar-day-title {
+  text-align: center;
+  margin: var(--gap-md) 0;
+}
+
+.flatpickr-calendar {
   box-shadow: none !important;
   border: 1px solid var(--border);
   border-radius: var(--radius);
