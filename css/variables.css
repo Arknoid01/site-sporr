@@ -15,6 +15,10 @@
   --radius-sm: 12px;
   --nav-height: 72px;
   --header-height: 64px;
+  --gap-sm: 12px;
+  --gap-md: 18px;
+  --gap-lg: 24px;
+  --section-gap: 20px;
 }
 
 * {
@@ -62,7 +66,7 @@ a {
 
 .screen {
   display: none;
-  padding: 16px;
+  padding: 18px;
   animation: fadeIn 0.25s ease;
 }
 
@@ -109,13 +113,13 @@ a {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 18px;
-  margin-bottom: 16px;
+  margin-bottom: var(--section-gap);
 }
 
 .card-title {
   font-size: 0.95rem;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .stat-value {
@@ -127,14 +131,15 @@ a {
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: var(--gap-md);
+  margin-bottom: var(--section-gap);
 }
 
 .stat-card {
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 16px;
+  padding: 18px;
 }
 
 .stat-card.highlight {
@@ -165,7 +170,7 @@ a {
 
 .section-title {
   font-size: 1.1rem;
-  margin: 8px 0 12px;
+  margin: var(--section-gap) 0 var(--gap-md);
 }
 
 .empty-state {

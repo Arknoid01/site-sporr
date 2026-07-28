@@ -2,8 +2,24 @@
   background: var(--surface);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
-  padding: 14px;
-  margin-bottom: 12px;
+  padding: 16px;
+  margin-bottom: var(--gap-md);
+}
+
+.session-card:last-child {
+  margin-bottom: 0;
+}
+
+#today-sessions,
+#calendar-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+#today-sessions .session-card,
+#calendar-sessions .session-card {
+  margin-bottom: 0;
 }
 
 .session-card-header,
@@ -62,8 +78,8 @@
 .sport-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: var(--gap-md);
+  margin-bottom: var(--section-gap);
 }
 
 .sport-btn,
@@ -96,15 +112,15 @@
 .duration-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--gap-sm);
+  margin-bottom: var(--section-gap);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: var(--gap-md);
 }
 
 .form-group label {

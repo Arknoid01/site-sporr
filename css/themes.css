@@ -173,9 +173,9 @@ body.theme-transition * {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--gap-md);
   padding: 14px 16px;
-  margin-bottom: 16px;
+  margin-bottom: var(--section-gap);
   background: linear-gradient(135deg, #fff0e8, #f8ecff);
   border: 1px solid var(--border);
   border-radius: var(--radius);
