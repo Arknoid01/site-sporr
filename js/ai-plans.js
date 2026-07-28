@@ -64,6 +64,9 @@ function validateAiPlanData(data, constraints = {}) {
   const errors = [];
   if (!data?.planName) errors.push('Nom du plan manquant');
   if (!Array.isArray(data.weeks) || data.weeks.length === 0) errors.push('Semaines manquantes');
+  if (data.weeks?.length > 0 && data.weeks.length < 12) {
+    errors.push(`Attention : ${data.weeks.length} semaine(s) seulement (12 recommandé)`);
+  }
 
   const maxLeg = Number(constraints.maxLegSetsWeek) || 999;
   const maxMin = Number(constraints.maxMinutes) || 90;
