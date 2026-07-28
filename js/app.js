@@ -103,6 +103,8 @@ function initApp() {
   initTheme();
   initPwa();
   bindNavigation();
+  bindAddTabs();
+  bindTimerControls();
   bindAddForm(handleAddSession);
   bindEditModal(handleEditSession);
   bindSettingsForm(handleSaveSettings, handleResetData);

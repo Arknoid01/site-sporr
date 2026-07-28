@@ -44,6 +44,10 @@
         <button id="install-app-btn" class="secondary-btn" type="button">Installer</button>
       </div>
 
+      <button id="home-start-session" class="primary-btn home-timer-cta" type="button">
+        ▶ Lancer une séance
+      </button>
+
       <div class="stat-grid">
         <div class="stat-card highlight">
           <p class="card-title">Aujourd’hui</p>
@@ -87,20 +91,34 @@
 
     <section id="screen-add" class="screen">
       <header class="page-header">
-        <h1>Ajouter</h1>
+        <h1>Séance</h1>
       </header>
 
+      <div class="add-tabs" role="tablist">
+        <button type="button" class="add-tab active" data-tab="timer" role="tab">Chronomètre</button>
+        <button type="button" class="add-tab" data-tab="manual" role="tab">Manuel</button>
+      </div>
+
+      <p class="card-title">Type de séance</p>
+      <div id="sport-buttons" class="sport-grid"></div>
+
+      <p class="card-title">Durée</p>
+      <div id="duration-buttons" class="duration-grid"></div>
+
+      <div class="form-group">
+        <label for="session-duration-custom">Durée (minutes)</label>
+        <input type="number" id="session-duration-custom" min="1" value="30" required>
+      </div>
+
+      <div id="add-tab-timer" role="tabpanel">
+        <button type="button" id="launch-timer-btn" class="primary-btn launch-timer-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7L8 5Z"/></svg>
+          Démarrer le chronomètre
+        </button>
+      </div>
+
+      <div id="add-tab-manual" hidden role="tabpanel">
       <form id="add-session-form">
-        <p class="card-title">Type de séance</p>
-        <div id="sport-buttons" class="sport-grid"></div>
-
-        <p class="card-title">Durée</p>
-        <div id="duration-buttons" class="duration-grid"></div>
-
-        <div class="form-group">
-          <label for="session-duration-custom">Durée personnalisée (minutes)</label>
-          <input type="number" id="session-duration-custom" min="1" value="30" required>
-        </div>
 
         <div class="form-group">
           <label for="session-date">Date</label>
@@ -119,6 +137,7 @@
 
         <button type="submit" class="primary-btn">Enregistrer la séance</button>
       </form>
+      </div>
     </section>
 
     <section id="screen-stats" class="screen">
@@ -223,8 +242,8 @@
         Accueil
       </button>
       <button class="nav-item" data-screen="screen-add" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2Z"/></svg>
-        Ajouter
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10h-2a8 8 0 1 1-8-8V2Zm1 0v8.59l5.3 5.3 1.4-1.42L14 9.17V2h-1Z"/></svg>
+        Séance
       </button>
       <button class="nav-item" data-screen="screen-stats" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h2v8H3v-8Zm4-4h2v12H7V9Zm4 3h2v9h-2v-9Zm4-6h2v15h-2V6Zm4 4h2v11h-2V10Z"/></svg>
@@ -238,6 +257,30 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <div id="celebration" class="celebration" aria-hidden="true"></div>
+  </div>
+
+  <div id="timer-overlay" class="timer-overlay" hidden>
+    <div class="timer-panel">
+      <span class="timer-sport-label" id="timer-sport-label">Yoga</span>
+      <div class="timer-ring-wrap" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff6b35"/>
+              <stop offset="100%" stop-color="#7b2ff7"/>
+            </linearGradient>
+          </defs>
+          <circle class="timer-ring-bg" cx="60" cy="60" r="54"/>
+          <circle class="timer-ring-progress" id="timer-ring-progress" cx="60" cy="60" r="54"/>
+        </svg>
+        <div class="timer-display" id="timer-display" aria-live="polite">30:00</div>
+      </div>
+      <p class="timer-message" id="timer-message">C’est parti !</p>
+      <div class="timer-actions">
+        <button type="button" id="timer-pause-btn" class="secondary-btn">Pause</button>
+        <button type="button" id="timer-stop-btn" class="danger-btn">Arrêter</button>
+      </div>
+    </div>
   </div>
 
   <div id="edit-modal" class="modal-overlay" hidden>
@@ -285,6 +328,7 @@
   <script src="js/calendar.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/pwa.js"></script>
+  <script src="js/timer.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>

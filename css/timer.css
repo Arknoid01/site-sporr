@@ -1,0 +1,157 @@
+.add-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-sm);
+  margin-bottom: var(--section-gap);
+}
+
+.add-tab {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.add-tab.active {
+  border-color: transparent;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: var(--shadow);
+}
+
+.launch-timer-btn {
+  width: 100%;
+  margin-top: var(--gap-md);
+  padding: 18px;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.launch-timer-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+body.timer-active .bottom-nav {
+  display: none;
+}
+
+body.timer-active .app-shell {
+  padding-bottom: 0;
+}
+
+.timer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(255, 107, 53, 0.25), transparent 45%),
+    radial-gradient(circle at bottom, rgba(123, 47, 247, 0.2), transparent 40%),
+    var(--bg);
+}
+
+.timer-overlay[hidden] {
+  display: none !important;
+}
+
+.timer-panel {
+  width: min(400px, 100%);
+  text-align: center;
+}
+
+.timer-sport-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.timer-ring-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 20px;
+}
+
+.timer-ring-wrap svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.timer-ring-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 8;
+}
+
+.timer-ring-progress {
+  fill: none;
+  stroke: url(#timerGradient);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.9s linear;
+}
+
+.timer-display {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.timer-message {
+  min-height: 52px;
+  margin-bottom: 24px;
+  padding: 0 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--secondary);
+  line-height: 1.4;
+}
+
+.timer-message-pop {
+  animation: messagePop 0.45s ease;
+}
+
+@keyframes messagePop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.timer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+.timer-actions .primary-btn,
+.timer-actions .secondary-btn {
+  width: 100%;
+}
+
+.timer-actions .danger-btn {
+  grid-column: 1 / -1;
+}
+
+.home-timer-cta {
+  margin-bottom: var(--section-gap);
+}

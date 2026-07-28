@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sporr-v4';
+const CACHE_NAME = 'sporr-v5';
 const LOCAL_ASSETS = [
   'index.html',
   'css/style.css',
@@ -7,6 +7,7 @@ const LOCAL_ASSETS = [
   'css/themes.css',
   'css/animations.css',
   'css/premium.css',
+  'css/timer.css',
   'js/config.js',
   'js/storage.js',
   'js/stats.js',
@@ -16,6 +17,7 @@ const LOCAL_ASSETS = [
   'js/calendar.js',
   'js/theme.js',
   'js/pwa.js',
+  'js/timer.js',
   'js/ui.js',
   'js/app.js',
   'icons/icon-192.png',
