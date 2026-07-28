@@ -66,7 +66,7 @@ function initPwa() {
   window.addEventListener('appinstalled', () => {
     deferredInstallPrompt = null;
     hideInstallBanner();
-    showToast('Sporr installé sur ton téléphone !');
+    showToast('Sport installé sur ton téléphone !');
     updateInstallUi();
   });
 

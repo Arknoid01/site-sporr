@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sporr-v5';
+const CACHE_NAME = 'sport-v6';
 const LOCAL_ASSETS = [
   'index.html',
   'css/style.css',

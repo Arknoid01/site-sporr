@@ -1,7 +1,7 @@
 {
   "id": "/site-sporr/",
-  "name": "Sporr — Suivi sportif de Sarah",
-  "short_name": "Sporr",
+  "name": "Sport — Suivi sportif de Sarah",
+  "short_name": "Sport",
   "description": "Suivi personnel des séances de Yoga, Renforcement et Running",
   "start_url": "/site-sporr/index.html",
   "scope": "/site-sporr/",

@@ -1,4 +1,4 @@
-# Sporr — Suivi sportif de Sarah
+# Sport — Suivi sportif de Sarah
 
 Application web mobile personnelle pour suivre les séances de Yoga, Renforcement et Running.
 
