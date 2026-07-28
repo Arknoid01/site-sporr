@@ -27,6 +27,7 @@ function handleAddSession() {
   resetAddForm();
   refreshApp(selectedCalendarDate);
   showScreen('screen-home');
+  triggerCelebration();
   showToast(randomEncouragement());
 }
 
@@ -34,10 +35,11 @@ function handleSaveSettings() {
   const settings = {
     name: document.getElementById('settings-name').value.trim() || 'Sarah',
     goal: document.getElementById('settings-goal').value,
-    theme: loadSettings().theme
+    theme: document.getElementById('settings-theme-dark').checked ? 'dark' : 'light'
   };
 
   saveSettings(settings);
+  applyTheme(settings.theme);
   refreshApp(selectedCalendarDate);
   showToast('Réglages enregistrés');
   showScreen('screen-home');
@@ -63,6 +65,8 @@ function initApp() {
     saveSettings(settings);
   }
 
+  initTheme();
+  initPwa();
   bindNavigation();
   bindAddForm(handleAddSession);
   bindSettingsForm(handleSaveSettings, handleResetData);

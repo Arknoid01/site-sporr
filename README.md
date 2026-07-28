@@ -46,6 +46,19 @@ name:Sarah|goal:150|theme:light
 - Flatpickr
 - localStorage
 
+## Installation sur Android
+
+1. Déployer le site (GitHub Pages ou hébergement HTTPS)
+2. Ouvrir dans **Chrome**
+3. Appuyer sur **Installer** (bannière) ou menu **⋮ → Ajouter à l'écran d'accueil**
+4. L'app s'ouvre en plein écran, même hors ligne (cache PWA)
+
+## Phase 2
+
+- Mode sombre (réglages)
+- PWA Android (manifest + service worker)
+- Animations et micro-interactions
+
 ## Lancer en local
 
 Ouvrir `index.html` dans un navigateur, ou servir le dossier avec un serveur statique.

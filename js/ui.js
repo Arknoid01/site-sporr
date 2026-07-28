@@ -221,6 +221,11 @@ function renderCalendarSessions(sessions, selectedDate) {
 function renderSettingsForm(settings) {
   document.getElementById('settings-name').value = settings.name;
   document.getElementById('settings-goal').value = settings.goal;
+
+  const themeToggle = document.getElementById('settings-theme-dark');
+  if (themeToggle) {
+    themeToggle.checked = settings.theme === 'dark';
+  }
 }
 
 function resetAddForm() {

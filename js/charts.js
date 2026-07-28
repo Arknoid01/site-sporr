@@ -9,6 +9,32 @@ const CHART_COLORS = {
 
 const CHART_FALLBACK = ['#FF6B35', '#7B2FF7', '#00C9A7', '#FFD23F', '#3A86FF'];
 
+function isDarkTheme() {
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+}
+
+function chartThemeOptions() {
+  const dark = isDarkTheme();
+  const text = dark ? '#c9c9d4' : '#6b6b7b';
+  const grid = dark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+
+  return {
+    legend: {
+      labels: { color: text }
+    },
+    scales: {
+      y: {
+        ticks: { color: text },
+        grid: { color: grid }
+      },
+      x: {
+        ticks: { color: text },
+        grid: { display: false }
+      }
+    }
+  };
+}
+
 function destroyChart(chart) {
   if (chart) {
     chart.destroy();
@@ -47,7 +73,8 @@ function updatePieChart(canvas, sessions) {
           labels: {
             boxWidth: 12,
             padding: 16,
-            font: { size: 13 }
+            font: { size: 13 },
+            color: chartThemeOptions().legend.labels.color
           }
         }
       }
@@ -80,9 +107,11 @@ function updateTrendChart(canvas, sessions) {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 30 }
+          ticks: { stepSize: 30, color: chartThemeOptions().scales.y.ticks.color },
+          grid: { color: chartThemeOptions().scales.y.grid.color }
         },
         x: {
+          ticks: { color: chartThemeOptions().scales.x.ticks.color },
           grid: { display: false }
         }
       }

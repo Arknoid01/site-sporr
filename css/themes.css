@@ -1,0 +1,196 @@
+[data-theme='dark'] {
+  --bg: #12121a;
+  --surface: #1c1c28;
+  --text: #f4f4f8;
+  --text-muted: #a8a8b8;
+  --primary: #ff7f4f;
+  --primary-dark: #ff6b35;
+  --secondary: #9b5cff;
+  --accent: #1fe0bb;
+  --warning: #ffd23f;
+  --danger: #ff6b8a;
+  --border: #2e2e3d;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --progress-track: #2a2a38;
+  --note-bg: rgba(255, 127, 79, 0.12);
+  --secondary-btn-bg: #2a2a38;
+  --delete-btn-bg: rgba(255, 77, 109, 0.15);
+  --nav-bg: rgba(28, 28, 40, 0.96);
+  --toast-bg: #f4f4f8;
+  --toast-text: #12121a;
+  --flatpickr-bg: #1c1c28;
+  --flatpickr-text: #f4f4f8;
+}
+
+[data-theme='light'] {
+  --progress-track: #f1e8df;
+  --note-bg: #fff4ec;
+  --secondary-btn-bg: #f4f0ec;
+  --delete-btn-bg: #fff0f3;
+  --nav-bg: rgba(255, 255, 255, 0.96);
+  --toast-bg: #1f1f2e;
+  --toast-text: #ffffff;
+  --flatpickr-bg: #ffffff;
+  --flatpickr-text: #1f1f2e;
+}
+
+body.theme-transition,
+body.theme-transition * {
+  transition:
+    background-color 0.25s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.25s ease !important;
+}
+
+[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at top right, rgba(255, 107, 53, 0.08), transparent 28%),
+    radial-gradient(circle at top left, rgba(123, 47, 247, 0.1), transparent 24%),
+    var(--bg);
+}
+
+[data-theme='dark'] .flatpickr-calendar {
+  background: var(--flatpickr-bg);
+  color: var(--flatpickr-text);
+}
+
+[data-theme='dark'] .flatpickr-months .flatpickr-month,
+[data-theme='dark'] .flatpickr-weekdays,
+[data-theme='dark'] .flatpickr-current-month .flatpickr-monthDropdown-months,
+[data-theme='dark'] .flatpickr-current-month input.cur-year {
+  background: var(--flatpickr-bg);
+  color: var(--flatpickr-text);
+}
+
+[data-theme='dark'] .flatpickr-day {
+  color: var(--flatpickr-text);
+}
+
+[data-theme='dark'] .flatpickr-day.prevMonthDay,
+[data-theme='dark'] .flatpickr-day.nextMonthDay {
+  color: var(--text-muted);
+}
+
+[data-theme='dark'] .flatpickr-day:hover {
+  background: rgba(255, 127, 79, 0.2);
+}
+
+[data-theme='dark'] .form-group input,
+[data-theme='dark'] .form-group textarea {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme='dark'] .secondary-btn {
+  background: var(--secondary-btn-bg);
+  color: var(--text);
+}
+
+[data-theme='dark'] .delete-btn {
+  background: var(--delete-btn-bg);
+}
+
+[data-theme='dark'] .bottom-nav {
+  background: var(--nav-bg);
+}
+
+[data-theme='dark'] .toast {
+  background: var(--toast-bg);
+  color: var(--toast-text);
+}
+
+[data-theme='dark'] .session-note {
+  background: var(--note-bg);
+}
+
+[data-theme='dark'] .progress-track {
+  background: var(--progress-track);
+}
+
+[data-theme='dark'] .install-banner {
+  background: linear-gradient(135deg, #2a2038, #1c1c28);
+  border-color: var(--border);
+}
+
+.theme-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.theme-switch-label {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.toggle {
+  position: relative;
+  width: 52px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.toggle input:checked + .toggle-slider {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(22px);
+}
+
+.install-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff0e8, #f8ecff);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.install-banner[hidden] {
+  display: none !important;
+}
+
+.install-banner p {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.install-banner button {
+  white-space: nowrap;
+}
