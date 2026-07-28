@@ -250,7 +250,7 @@ function renderAiPlansList() {
             </button>
           `).join('')}
         </div>
-        <button type="button" class="secondary-btn compact" data-import-week="${plan.id}" data-week="${week}" style="width:100%;margin-top:8px;">
+        <button type="button" class="secondary-btn compact btn-block-top" data-import-week="${plan.id}" data-week="${week}">
           Enregistrer semaine ${week} dans Programmes
         </button>
       </article>

@@ -77,9 +77,14 @@ body.theme-transition * {
 }
 
 [data-theme='dark'] .form-group input,
-[data-theme='dark'] .form-group textarea {
+[data-theme='dark'] .form-group textarea,
+[data-theme='dark'] .form-group select,
+[data-theme='dark'] .form-control,
+[data-theme='dark'] .ai-form-grid input,
+[data-theme='dark'] .ai-form-grid select {
   color: var(--text);
   border-color: var(--border);
+  background: var(--surface);
 }
 
 [data-theme='dark'] .secondary-btn {

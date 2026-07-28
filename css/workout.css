@@ -27,10 +27,6 @@
   background: linear-gradient(135deg, #00C9A7, #06d6a0);
 }
 
-.hub-card-equitation {
-  background: linear-gradient(135deg, #8B4513, #c97b3d);
-}
-
 .ai-mode-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -57,15 +53,6 @@
 .ai-program-only[hidden],
 .ai-single-only[hidden] {
   display: none !important;
-}
-
-.equi-meta-display {
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-.equitation-live-overlay {
-  background: linear-gradient(180deg, #2d1810 0%, #1a1008 100%);
 }
 
 .subscreen-header {
@@ -562,32 +549,6 @@
   border-radius: var(--radius-sm);
 }
 
-.ai-coach-card .ai-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.ai-coach-card label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.ai-coach-card select,
-.ai-coach-card input,
-.ai-coach-card textarea {
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 600;
-}
-
 .ai-plans-list {
   margin-top: 20px;
 }
@@ -607,11 +568,12 @@
 .ai-week-select {
   width: 100%;
   margin: 10px 0;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
+  font-weight: 600;
 }
 
 .ai-plan-sessions {
@@ -625,27 +587,10 @@
   text-align: left;
 }
 
-#ai-json-import {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.85rem;
-}
-
 #ai-prompt-preview {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-alt, var(--surface));
-  color: var(--text-muted, var(--text));
-  font-family: inherit;
+  background: var(--surface-alt);
+  color: var(--text-muted);
   font-size: 0.8rem;
-  resize: vertical;
 }
 
 .ai-preview-sheet {
@@ -720,7 +665,7 @@
 }
 
 .ai-advanced-options summary {
-  padding: 8px 0;
+  padding: 0;
 }
 
 .ai-coach-actions {

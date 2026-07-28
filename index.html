@@ -51,9 +51,9 @@
       </button>
 
       <div class="hub-cards">
-        <button type="button" id="open-renfo-hub" class="hub-card hub-card-renfo">💪 Renforcement<br><span class="hint" style="color:rgba(255,255,255,0.8)">Programmes & exercices</span></button>
-        <button type="button" id="open-running-hub" class="hub-card hub-card-running">🏃 Course<br><span class="hint" style="color:rgba(255,255,255,0.8)">GPS & intervalles</span></button>
-        <button type="button" id="open-equitation-hub" class="hub-card hub-card-equitation">🐴 Équitation<br><span class="hint" style="color:rgba(255,255,255,0.8)">Prépa physique cavalier</span></button>
+        <button type="button" id="open-renfo-hub" class="hub-card hub-card-renfo">💪 Renforcement<br><span class="hub-card-sub">Programmes & exercices</span></button>
+        <button type="button" id="open-running-hub" class="hub-card hub-card-running">🏃 Course<br><span class="hub-card-sub">GPS & intervalles</span></button>
+        <button type="button" id="open-equitation-hub" class="hub-card hub-card-equitation">🐴 Équitation<br><span class="hub-card-sub">Prépa physique cavalier</span></button>
       </div>
 
       <div class="stat-grid">
@@ -80,7 +80,7 @@
         <p class="card-title">Bilan de la semaine</p>
         <p class="recap-value" id="recap-minutes">0 min</p>
         <span class="recap-delta" id="recap-delta">—</span>
-        <button type="button" id="open-weekly-summary" class="secondary-btn" style="margin-top: 14px; width: 100%;">
+        <button type="button" id="open-weekly-summary" class="secondary-btn btn-block-top">
           Voir le résumé complet
         </button>
       </div>
@@ -237,13 +237,13 @@
         <button type="button" class="renfo-tab" data-renfo-tab="equipment">Matériel</button>
       </div>
       <div id="renfo-panel-programs" class="renfo-panel">
-        <p class="hint">Les programmes wger (séries, reps, temps de repos) se créent via le générateur ou l’import ci-dessous.</p>
-        <button type="button" id="import-wger-programs-btn" class="secondary-btn" style="width:100%;margin-bottom:16px;">Importer programmes exemples wger</button>
+        <p class="hint panel-intro">Les programmes wger (séries, reps, temps de repos) se créent via le générateur ou l’import ci-dessous.</p>
+        <button type="button" id="import-wger-programs-btn" class="secondary-btn btn-block-bottom">Importer programmes exemples wger</button>
         <div id="programs-list"></div>
       </div>
       <div id="renfo-panel-create" class="renfo-panel" hidden>
         <p class="card-title">Nom du programme</p>
-        <input type="text" id="builder-name-input" class="form-group" placeholder="Ex. Jambes & fessiers" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;">
+        <input type="text" id="builder-name-input" class="form-control stack-bottom" placeholder="Ex. Jambes & fessiers">
         <p class="hint">Ajoute des exercices depuis l’onglet Exercices, puis configure séries, reps/temps et repos.</p>
         <div id="builder-items-list"></div>
         <p id="builder-duration-preview">Durée estimée : —</p>
@@ -274,29 +274,31 @@
             <label for="gen-time-minutes">Durée cible (minutes)</label>
             <input type="number" id="gen-time-minutes" min="10" max="90" value="30">
           </div>
-          <button type="button" id="gen-by-time-btn" class="secondary-btn" style="width:100%;">Générer par temps</button>
+          <button type="button" id="gen-by-time-btn" class="secondary-btn btn-block">Générer par temps</button>
         </div>
       </div>
       <div id="renfo-panel-exercises" class="renfo-panel" hidden>
-        <select id="catalog-source" style="width:100%;padding:12px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border);">
-          <option value="local">Exercices Sarah (21 · élastiques & barre)</option>
-          <option value="wger">Catalogue wger (828 · dont photos)</option>
-        </select>
-        <input type="search" id="exercise-search" placeholder="Rechercher un exercice…" style="width:100%;padding:12px;border-radius:12px;margin-bottom:12px;border:1px solid var(--border);">
-        <select id="muscle-filter" style="width:100%;padding:12px;border-radius:12px;margin-bottom:16px;border:1px solid var(--border);">
-          <option value="all">Tous les muscles</option>
-          <option value="fessiers">Fessiers</option>
-          <option value="jambes">Jambes</option>
-          <option value="dos">Dos</option>
-          <option value="pectoraux">Pectoraux</option>
-          <option value="bras">Bras</option>
-          <option value="epaules">Épaules</option>
-          <option value="abdos">Abdominaux</option>
-        </select>
+        <div class="filter-stack">
+          <select id="catalog-source" class="form-control">
+            <option value="local">Exercices Sarah (21 · élastiques & barre)</option>
+            <option value="wger">Catalogue wger (828 · dont photos)</option>
+          </select>
+          <input type="search" id="exercise-search" class="form-control" placeholder="Rechercher un exercice…">
+          <select id="muscle-filter" class="form-control">
+            <option value="all">Tous les muscles</option>
+            <option value="fessiers">Fessiers</option>
+            <option value="jambes">Jambes</option>
+            <option value="dos">Dos</option>
+            <option value="pectoraux">Pectoraux</option>
+            <option value="bras">Bras</option>
+            <option value="epaules">Épaules</option>
+            <option value="abdos">Abdominaux</option>
+          </select>
+        </div>
         <div id="exercise-browser"></div>
       </div>
       <div id="renfo-panel-ai-coach" class="renfo-panel" hidden>
-        <p class="hint">Choisis une <strong>séance unique</strong> ou un programme, personnalise, puis valide l’aperçu.</p>
+        <p class="hint panel-intro">Choisis une <strong>séance unique</strong> ou un programme, personnalise, puis valide l’aperçu.</p>
         <form id="ai-coach-form" onsubmit="return false;">
         <div class="ai-mode-tabs" role="tablist">
           <button type="button" class="ai-mode-tab active" data-ai-mode="single" role="tab">Séance unique</button>
@@ -359,7 +361,7 @@
           </label>
           <p class="hint" id="ai-cycle-phase-hint"></p>
           <div class="ai-cycle-fields" hidden>
-            <div class="ai-form-grid" style="margin-top:12px;">
+            <div class="ai-form-grid stack-top">
               <label id="ai-cycle-date-wrap">Dernières règles (J1)
                 <input type="date" id="ai-last-period">
               </label>
@@ -419,7 +421,7 @@
               </select>
             </label>
           </div>
-          <p class="hint" style="margin:12px 0 8px;">Muscles prioritaires <span class="hint">(plus de volume)</span></p>
+          <p class="section-label">Muscles prioritaires <span class="hint">(plus de volume)</span></p>
           <div class="gen-muscles-grid ai-priority-grid">
             <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="fessiers"> Fessiers</label>
             <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="jambes"> Jambes</label>
@@ -429,7 +431,7 @@
             <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="epaules"> Épaules</label>
             <label class="gen-muscle-label"><input type="checkbox" class="ai-priority-check" value="abdos"> Abdos</label>
           </div>
-          <label class="gen-muscle-label" style="margin-top:8px;">
+          <label class="gen-muscle-label stack-top">
             <input type="checkbox" id="ai-include-abs" checked> Inclure des exercices abdos
           </label>
         </div>
@@ -443,17 +445,17 @@
               <input type="number" id="ai-max-leg-sets" min="4" max="40" placeholder="Ex. 16">
             </label>
           </div>
-          <p class="hint" style="margin:12px 0 8px;">Zones à ménager</p>
+          <p class="section-label">Zones à ménager</p>
           <div class="gen-muscles-grid ai-zones-grid">
             <label class="gen-muscle-label"><input type="checkbox" id="ai-knee"> Genoux</label>
             <label class="gen-muscle-label"><input type="checkbox" id="ai-back"> Dos / lombaires</label>
             <label class="gen-muscle-label"><input type="checkbox" id="ai-shoulder"> Épaules</label>
             <label class="gen-muscle-label"><input type="checkbox" id="ai-wrist"> Poignets</label>
           </div>
-          <label class="form-group" style="margin-top:12px;">Exercices à éviter <span class="hint">(noms séparés par des virgules)</span>
+          <label class="form-group stack-top">Exercices à éviter <span class="hint">(noms séparés par des virgules)</span>
             <input type="text" id="ai-exclude" placeholder="Ex. burpees, fentes, développé militaire…">
           </label>
-          <label class="form-group" style="margin-top:12px;">Notes libres
+          <label class="form-group stack-top">Notes libres
             <textarea id="ai-notes" placeholder="Ex. préfère les exercices unilatéraux, pas de burpees…"></textarea>
           </label>
         </div>
@@ -462,17 +464,17 @@
           <button type="button" id="ai-generate-btn" class="primary-btn">Générer le programme</button>
           <button type="button" id="ai-clear-profile-btn" class="secondary-btn compact">Réinitialiser le profil</button>
         </div>
-        <details class="ai-advanced-options" style="margin-top:12px;">
-          <summary class="hint" style="cursor:pointer;">Options avancées (Groq manuel)</summary>
-          <button type="button" id="ai-copy-prompt-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Copier le prompt pour Groq</button>
-          <div class="card" style="margin-top:12px;">
+        <details class="ai-advanced-options">
+          <summary class="hint">Options avancées (Groq manuel)</summary>
+          <button type="button" id="ai-copy-prompt-btn" class="secondary-btn btn-block-gap">Copier le prompt pour Groq</button>
+          <div class="card">
             <h3 class="section-title">Prompt à envoyer à Groq</h3>
-            <textarea id="ai-prompt-preview" readonly placeholder="Clique « Copier le prompt »…" rows="3"></textarea>
+            <textarea id="ai-prompt-preview" class="form-control" readonly placeholder="Clique « Copier le prompt »…" rows="3"></textarea>
           </div>
-          <div class="card" style="margin-top:12px;">
+          <div class="card">
             <h3 class="section-title">Importer la réponse JSON</h3>
-            <textarea id="ai-json-import" placeholder='{"planName":"…","weeks":[…]}' rows="4"></textarea>
-            <button type="button" id="ai-import-json-btn" class="secondary-btn" style="width:100%;margin-top:10px;">Prévisualiser le JSON</button>
+            <textarea id="ai-json-import" class="form-control" placeholder='{"planName":"…","weeks":[…]}' rows="4"></textarea>
+            <button type="button" id="ai-import-json-btn" class="secondary-btn btn-block-gap">Prévisualiser le JSON</button>
           </div>
         </details>
         <div id="ai-plans-list" class="ai-plans-list"></div>
@@ -487,7 +489,7 @@
         <button id="back-from-running" class="secondary-btn" type="button">←</button>
         <h1>Course</h1>
       </header>
-      <div class="card">
+      <div class="card card-accent-running">
         <div class="form-group">
           <label for="run-type-select">Type de course</label>
           <select id="run-type-select">
@@ -542,8 +544,8 @@
         <button id="back-from-equitation" class="secondary-btn" type="button">←</button>
         <h1>Prépa cavalier</h1>
       </header>
-      <p class="hint" style="margin:-8px 0 16px;">Renforcement et mobilité pour le cavalier — pas une séance montée.</p>
-      <div class="card">
+      <p class="hint subscreen-lead">Renforcement et mobilité pour le cavalier — pas une séance montée.</p>
+      <div class="card card-accent-equi">
         <div class="form-group">
           <label for="equi-type-select">Objectif de la séance</label>
           <select id="equi-type-select">
@@ -554,7 +556,7 @@
             <option value="renfo-complet">Renfo complet cavalier</option>
             <option value="recuperation">Récupération active</option>
           </select>
-          <p id="equi-focus-desc" class="hint" style="margin-top:8px;">Core, dos droit, stabilité en selle</p>
+          <p id="equi-focus-desc" class="hint stack-top">Core, dos droit, stabilité en selle</p>
         </div>
         <div class="form-group">
           <label for="equi-intensity-select">Intensité</label>
@@ -583,9 +585,9 @@
     </section>
 
     <section id="screen-settings" class="screen">
-      <header class="page-header">
-        <button id="back-from-settings" class="secondary-btn" type="button">Retour</button>
-        <h2>Réglages</h2>
+      <header class="subscreen-header">
+        <button id="back-from-settings" class="secondary-btn" type="button">←</button>
+        <h1>Réglages</h1>
       </header>
 
       <div id="install-help" class="card" hidden>
@@ -643,13 +645,13 @@
             <option value="openai/gpt-oss-20b">GPT-OSS 20B (plus rapide)</option>
           </select>
         </div>
-        <button type="submit" class="secondary-btn" style="width:100%;">Enregistrer clé Groq</button>
+        <button type="submit" class="secondary-btn btn-block">Enregistrer clé Groq</button>
       </form>
 
       <div class="card">
         <h2 class="section-title">Mes sports</h2>
         <div id="sports-settings-list"></div>
-        <form id="add-sport-form" style="margin-top: 16px;">
+        <form id="add-sport-form" class="stack-top">
           <div class="form-group">
             <label for="new-sport-name">Ajouter un sport</label>
             <input type="text" id="new-sport-name" placeholder="Ex. Natation" required>
@@ -658,12 +660,12 @@
             <label for="new-sport-icon">Icône</label>
             <select id="new-sport-icon" required></select>
           </div>
-          <button type="submit" class="secondary-btn" style="width: 100%;">Ajouter le sport</button>
+          <button type="submit" class="secondary-btn btn-block">Ajouter le sport</button>
         </form>
       </div>
 
       <div class="settings-actions">
-        <button id="export-data-btn" class="secondary-btn" type="button" style="width:100%;margin-bottom:12px;">Exporter mes données (JSON)</button>
+        <button id="export-data-btn" class="secondary-btn btn-block-bottom" type="button">Exporter mes données (JSON)</button>
         <button id="reset-data-btn" class="danger-btn" type="button">Réinitialiser toutes les données</button>
       </div>
     </section>

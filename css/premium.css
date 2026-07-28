@@ -84,7 +84,7 @@
 }
 
 .session-card[data-type='Équitation'] {
-  border-left-color: #8B4513;
+  border-left-color: var(--equi);
 }
 
 .session-actions {
